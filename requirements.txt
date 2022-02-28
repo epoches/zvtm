@@ -13,3 +13,5 @@ simplejson==3.16.0
 jqdatapy==0.1.6
 dash-bootstrap-components
 dash_daq
+pymysql
+

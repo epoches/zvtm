@@ -1,0 +1,15 @@
+requests == 2.20.1
+SQLAlchemy == 1.4.20
+pandas == 1.1.4
+arrow == 0.11.0
+tzlocal == 1.5.1
+xlrd == 1.2.0
+demjson == 2.2.4
+marshmallow-sqlalchemy == 0.23.1
+marshmallow == 3.2.2
+plotly==4.12.0
+dash==1.17.0
+simplejson==3.16.0
+jqdatapy==0.1.6
+dash-bootstrap-components
+dash_daq

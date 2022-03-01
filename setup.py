@@ -31,13 +31,13 @@ except:
     requirements = [str(ir.requirement) for ir in install_reqs]
 
 setup(
-    name='zvt',
-    version='0.9.8',
-    description='unified,modular quant framework for human beings ',
+    name='zvtm',
+    version='0.0.1',
+    description='unified,modular quant framework for mysql ',
     long_description=long_description,
-    url='https://github.com/zvtvz/zvt',
-    author='foolcage',
-    author_email='5533061@qq.com',
+    url='https://github.com/epoches/zvtm',
+    author='epoches',
+    author_email='641279141@qq.com',
     classifiers=[  # Optional
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
@@ -66,9 +66,9 @@ setup(
     long_description_content_type="text/markdown",
     entry_points={
         'console_scripts': [
-            'zvt = zvt.main:main',
-            'zvt_plugin = zvt.plugin:main',
-            'zvt_export = zvt.plugin:export',
+            'zvtm = zvtm.main:main',
+            'zvtm_plugin = zvtm.plugin:main',
+            'zvtm_export = zvtm.plugin:export',
         ],
     },
 )

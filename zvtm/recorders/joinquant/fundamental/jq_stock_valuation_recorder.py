@@ -6,7 +6,7 @@ from pandas._libs.tslibs.timedeltas import Timedelta
 
 from zvtm.contract.api import df_to_db
 from zvtm.contract.recorder import TimeSeriesDataRecorder
-from zvtm.domain import Stock, StockValuation, Etf
+from zvtm.domain import Stock, StockValuation, Etf,StockDetail
 from zvtm.recorders.joinquant.common import to_jq_entity_id
 from zvtm.utils.time_utils import now_pd_timestamp, to_time_str, to_pd_timestamp
 
@@ -25,7 +25,10 @@ class JqChinaStockValuationRecorder(TimeSeriesDataRecorder):
         end = min(now_pd_timestamp(), start + Timedelta(days=500))
 
         count: Timedelta = end - start
-
+        #增加对上下市日期判断
+        dfstockdetail = StockDetail.query_data(provider='joinquant',code=entity.code, return_type='df')
+        if start > dfstockdetail['end_date'][0]:
+            return;
         # df = get_fundamentals_continuously(q, end_date=now_time_str(), count=count.days + 1, panel=False)
         df = get_fundamentals(table='valuation', code=to_jq_entity_id(entity), date=to_time_str(end),
                               count=min(count.days, 500))

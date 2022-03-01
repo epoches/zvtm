@@ -53,7 +53,7 @@ setup(
         'Programming Language :: Python :: 3.9'
     ],
     keywords='quant stock finance fintech big-data zvt technical-analysis trading-platform pandas fundamental-analysis',
-    packages=find_packages(include=['zvt.*', 'zvt']),
+    packages=find_packages(include=['zvtm.*', 'zvtm']),
     python_requires='>=3.5, <4',
     include_package_data=True,
     install_requires=requirements,

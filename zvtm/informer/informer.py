@@ -9,7 +9,7 @@ from email.mime.text import MIMEText
 
 import requests
 
-from zvt import zvt_config
+from zvtm import zvt_config
 
 
 class Informer(object):

@@ -12,7 +12,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.orm import Query
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy_utils import database_exists,create_database
-from zvt import zvt_env
+from zvtm import zvt_env
 from zvtm.contract import IntervalLevel, TradableEntity
 from zvtm.contract import Mixin
 from zvtm.contract import zvt_context

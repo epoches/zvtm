@@ -2,7 +2,7 @@
 import pandas as pd
 from jqdatapy import get_token, get_money_flow
 
-from zvt import zvt_config
+from zvtm import zvt_config
 from zvtm.api.kdata import generate_kdata_id
 from zvtm.contract import IntervalLevel
 from zvtm.contract.api import df_to_db

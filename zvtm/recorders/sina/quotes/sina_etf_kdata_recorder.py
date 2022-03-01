@@ -4,7 +4,7 @@ import demjson
 import pandas as pd
 import requests
 
-from zvt import init_log
+from zvtm import init_log
 from zvtm.api.kdata import generate_kdata_id, get_kdata
 from zvtm.contract import IntervalLevel
 from zvtm.contract.recorder import FixedCycleDataRecorder

@@ -3,7 +3,7 @@
 import pandas as pd
 from jqdatapy.api import get_token, get_bars
 
-from zvt import zvt_config
+from zvtm import zvt_config
 from zvtm.api.kdata import generate_kdata_id, get_kdata_schema, get_kdata
 from zvtm.contract import IntervalLevel, AdjustType
 from zvtm.contract.api import df_to_db

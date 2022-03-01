@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import functools
 
-from zvt import init_config
+from zvtm import init_config
 
 ${project}_config = {}
 

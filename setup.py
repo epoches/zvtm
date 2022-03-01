@@ -32,7 +32,7 @@ except:
 
 setup(
     name='zvtm',
-    version='0.0.1',
+    version='0.0.2',
     description='unified,modular quant framework for mysql ',
     long_description=long_description,
     url='https://github.com/epoches/zvtm',
@@ -58,10 +58,9 @@ setup(
     include_package_data=True,
     install_requires=requirements,
     project_urls={  # Optional
-        'Bug Reports': 'https://github.com/zvtvz/zvt/issues',
-        'Funding': 'https://www.foolcage.com/zvt',
+        'Bug Reports': 'https://github.com/epoches/zvtm/issues',
         'Say Thanks!': 'https://saythanks.io/to/foolcage',
-        'Source': 'https://github.com/zvtvz/zvt',
+        'Source': 'https://github.com/epoches/zvtm',
     },
     long_description_content_type="text/markdown",
     entry_points={

@@ -5,6 +5,8 @@ import platform
 from typing import List, Union, Type
 
 import pandas as pd
+import pymysql
+pymysql.install_as_MySQLdb()
 from sqlalchemy import create_engine
 from sqlalchemy import func, exists, and_
 from sqlalchemy.engine import Engine

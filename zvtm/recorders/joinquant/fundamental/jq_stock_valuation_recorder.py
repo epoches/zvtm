@@ -20,15 +20,21 @@ class JqChinaStockValuationRecorder(TimeSeriesDataRecorder):
 
     data_schema = StockValuation
 
+    def init_entities(self):
+        super().init_entities()
+        # 过滤掉退市的
+        self.entities = [entity for entity in self.entities if
+                         (entity.end_date is None) or (entity.end_date > now_pd_timestamp())]
+
     def record(self, entity, start, end, size, timestamps):
         start = max(start, to_pd_timestamp('2005-01-01'))
         end = min(now_pd_timestamp(), start + Timedelta(days=500))
 
         count: Timedelta = end - start
         #增加对上下市日期判断
-        dfstockdetail = StockDetail.query_data(provider='joinquant',code=entity.code, return_type='df')
-        if start > dfstockdetail['end_date'][0]:
-            return;
+        # dfstockdetail = StockDetail.query_data(provider='joinquant',code=entity.code, return_type='df')
+        # if start > dfstockdetail['end_date'][0]:
+        #     return;
         # df = get_fundamentals_continuously(q, end_date=now_time_str(), count=count.days + 1, panel=False)
         df = get_fundamentals(table='valuation', code=to_jq_entity_id(entity), date=to_time_str(end),
                               count=min(count.days, 500))

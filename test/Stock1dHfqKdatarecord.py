@@ -8,7 +8,7 @@ import logging
 import time
 
 # 自行更改定定时运行时间
-@sched.scheduled_job('cron',day_of_week='1-5', hour=1, minute=30)
+@sched.scheduled_job('cron',day_of_week='mon-fri', hour=15, minute=10)
 def run():
     while True:
         email_action = EmailInformer()

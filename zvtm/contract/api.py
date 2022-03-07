@@ -68,7 +68,7 @@ def get_db_engine(provider: str,
     #engine_url = 'mysql+mysqldb://root:root@localhost:3306/'
     engine_url = zvt_config['engine_url']
     if not db_engine:
-        db_engine = create_engine(engine_url+engine_key+'?charset=utf8') #jqdata?charset=utf8
+        db_engine = create_engine(engine_url+engine_key+'?charset=utf8',pool_size=100,pool_recycle=3600,pool_pre_ping=True,echo=False) #jqdata?charset=utf8
         if not database_exists(db_engine.url):
             create_database(engine_url+engine_key+'?charset=utf8')
             db_engine = create_engine(engine_url + engine_key + '?charset=utf8')
@@ -485,7 +485,13 @@ def df_to_db(df: pd.DataFrame,
                 sql = f'delete from `{data_schema.__tablename__}` where id in {tuple(ids)}'
 
             session.execute(sql)
-            session.commit()
+            try:
+                session.commit()
+            except:
+                session.rollback()
+                raise
+            finally:
+                session.close()
 
         else:
             current = get_data(data_schema=data_schema, columns=[data_schema.id], provider=provider,
@@ -548,5 +554,11 @@ def get_entity_ids(entity_type='stock', entity_schema: TradableEntity = None, ex
     if pd_is_not_null(df):
         return df['entity_id'].to_list()
     return None
+# 对于 session超时 服务器没有响应 可以清除session
+def session_clear(exception=None):
+    Session.remove()
+    if exception and Session.is_active:
+        Session.rollback()
+
 # the __all__ is generated
-__all__ = ['get_db_name', 'get_db_engine', 'get_schemas', 'get_db_session', 'get_db_session_factory', 'domain_name_to_table_name', 'table_name_to_domain_name', 'get_entity_schema', 'get_schema_by_name', 'get_schema_columns', 'common_filter', 'del_data', 'get_one', 'get_data', 'data_exist', 'get_data_count', 'get_group', 'decode_entity_id', 'get_entity_type', 'get_entity_exchange', 'get_entity_code', 'df_to_db', 'get_entities', 'get_entity_ids']
+__all__ = ['get_db_name', 'get_db_engine', 'get_schemas', 'get_db_session', 'get_db_session_factory', 'domain_name_to_table_name', 'table_name_to_domain_name', 'get_entity_schema', 'get_schema_by_name', 'get_schema_columns', 'common_filter', 'del_data', 'get_one', 'get_data', 'data_exist', 'get_data_count', 'get_group', 'decode_entity_id', 'get_entity_type', 'get_entity_exchange', 'get_entity_code', 'df_to_db', 'get_entities', 'get_entity_ids','session_clear']

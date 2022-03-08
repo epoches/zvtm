@@ -4,7 +4,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 sched = BackgroundScheduler()
 from zvtm.informer.informer import EmailInformer
 from zvtm import init_log, zvt_config
-from zvtm.contract.api import  session_clear
+
 import logging
 import time
 

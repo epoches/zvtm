@@ -2,5 +2,5 @@
 from zvtm.domain import Stock15mHfqKdata
 
 
-Stock15mHfqKdata.record_data(provider='joinquant',code='002382', sleeping_time=0,
-    start_timestamp = '2021-03-09', end_timestamp = '2022-03-09')#,code='000156',force_update=True,
+Stock15mHfqKdata.record_data(provider='joinquant',code='000156', sleeping_time=0,
+    start_timestamp = '2015-02-11', end_timestamp = '2015-2-17')#,code='000156',force_update=True

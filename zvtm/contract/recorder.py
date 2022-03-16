@@ -124,7 +124,6 @@ class EntityEventRecorder(Recorder):
     def init_entities(self):
         """
         init the entities which we would record data for
-
         """
         if self.entity_provider == self.provider and self.entity_schema == self.data_schema:
             self.entity_session = self.session
@@ -222,14 +221,12 @@ class TimeSeriesDataRecorder(EntityEventRecorder):
     def get_data_map(self):
         """
         {'original_field':('domain_field',transform_func)}
-
         """
         return {}
 
     def record(self, entity, start, end, size, timestamps):
         """
         implement the recording logic in this method, should return json or domain list
-
         :param entity:
         :type entity:
         :param start:
@@ -246,7 +243,6 @@ class TimeSeriesDataRecorder(EntityEventRecorder):
     def get_evaluated_time_field(self):
         """
         the timestamp field for evaluating time range of recorder,used in get_latest_saved_record
-
         """
         return 'timestamp'
 
@@ -256,7 +252,6 @@ class TimeSeriesDataRecorder(EntityEventRecorder):
     def generate_domain_id(self, entity, original_data, time_fmt=TIME_FORMAT_DAY):
         """
         generate domain id from the entity and original data,the default id meaning:entity + event happen time
-
         :param entity:
         :type entity:
         :param original_data:
@@ -272,7 +267,6 @@ class TimeSeriesDataRecorder(EntityEventRecorder):
     def generate_domain(self, entity, original_data):
         """
         generate the data_schema instance using entity and original_data,the original_data is from record result
-
         :param entity:
         :param original_data:
         """
@@ -325,7 +319,6 @@ class TimeSeriesDataRecorder(EntityEventRecorder):
     def persist(self, entity, domain_list):
         """
         persist the domain list to db
-
         :param entity:
         :param domain_list:
         """

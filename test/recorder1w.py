@@ -5,9 +5,9 @@ from zvtm.domain import Etf,EtfStock
 # Stock1wkKdata.record_data(provider='joinquant', sleeping_time=0, day_data=True)
 # Stock1wkHfqKdata.record_data(provider='joinquant', sleeping_time=0)
 # 基金和基金持仓数据
-Fund.record_data(provider='joinquant', sleeping_time=0)
-FundStock.record_data(provider='joinquant', sleeping_time=0)
-StockMoneyFlow.record_data(provider='joinquant', sleeping_time=0)
+#Fund.record_data(provider='joinquant', sleeping_time=0)
+#FundStock.record_data(provider='joinquant', sleeping_time=0)
+#StockMoneyFlow.record_data(provider='joinquant', sleeping_time=0)
 IndexMoneyFlow.record_data(provider='joinquant', sleeping_time=0)
 
 Etf.record_data(provider='joinquant', sleeping_time=0)

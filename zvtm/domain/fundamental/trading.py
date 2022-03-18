@@ -41,7 +41,7 @@ class HolderTrading(TradingBase, Mixin):
     code = Column(String(length=32))
 
     # 股东名称
-    holder_name = Column(String(length=32))
+    holder_name = Column(String(length=128))
     # 变动数量
     volume = Column(Float)
     # 变动比例

@@ -18,7 +18,7 @@ class HkHolder(HolderBase, Mixin):
     # 市场通编码	三种类型：310001-沪股通，310002-深股通，310005-港股通
     holder_code = Column(String(length=32))
     # 市场通名称	三种类型：沪股通，深股通，港股通
-    holder_name = Column(String(length=32))
+    holder_name = Column(String(length=128))
 
     # 持股数量
     share_number = Column(Float)
@@ -38,7 +38,7 @@ class TopTenTradableHolder(HolderBase, Mixin):
     # 股东代码
     holder_code = Column(String(length=32))
     # 股东名称
-    holder_name = Column(String(length=32))
+    holder_name = Column(String(length=128))
     # 持股数
     shareholding_numbers = Column(Float)
     # 持股比例
@@ -61,7 +61,7 @@ class TopTenHolder(HolderBase, Mixin):
     # 股东代码
     holder_code = Column(String(length=32))
     # 股东名称
-    holder_name = Column(String(length=32))
+    holder_name = Column(String(length=128))
     # 持股数
     shareholding_numbers = Column(Float)
     # 持股比例
@@ -86,7 +86,7 @@ class InstitutionalInvestorHolder(HolderBase, Mixin):
     # 股东代码
     holder_code = Column(String(length=32))
     # 股东名称
-    holder_name = Column(String(length=32))
+    holder_name = Column(String(length=128))
     # 持股数
     shareholding_numbers = Column(Float)
     # 持股比例

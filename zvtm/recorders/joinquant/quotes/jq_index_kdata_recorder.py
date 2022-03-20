@@ -100,7 +100,7 @@ class JqChinaIndexKdataRecorder(FixedCycleDataRecorder):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--level', help='trading level', default='1d', choices=[item.value for item in IntervalLevel])
+    parser.add_argument('--level', help='trading level', default='1mon', choices=[item.value for item in IntervalLevel])# 1d 1wk 1mon
     parser.add_argument('--codes', help='codes', default=['000001'], nargs='+')
 
     args = parser.parse_args()

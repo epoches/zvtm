@@ -345,9 +345,11 @@ class TimeSeriesDataRecorder(EntityEventRecorder):
         try:
             if self.session:
                 self.session.close()
+                self.session.dispose()
 
             if self.entity_session:
                 self.entity_session.close()
+                self.entity_session.dospose()
         except Exception as e:
             self.logger.error(e)
 

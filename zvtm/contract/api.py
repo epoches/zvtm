@@ -284,7 +284,7 @@ def get_one(data_schema, id: str, provider: str = None, session: Session = None)
         return ids
     except:
         session.close()
-        session.dispose()
+        db_engine.dispose()
         session = get_db_session(provider=provider, data_schema=data_schema)
     finally:
         pass
@@ -502,7 +502,8 @@ def df_to_db(df: pd.DataFrame,
                 raise
             finally:
                 session.close()
-                session.dispose()
+                db_engine.dispose()
+
 
         else:
             current = get_data(data_schema=data_schema, columns=[data_schema.id], provider=provider,

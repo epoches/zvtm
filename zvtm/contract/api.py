@@ -284,7 +284,7 @@ def get_one(data_schema, id: str, provider: str = None, session: Session = None)
         return ids
     except:
         session.close()
-        db_engine.dispose()
+        #db_engine.dispose()
         session = get_db_session(provider=provider, data_schema=data_schema)
     finally:
         pass

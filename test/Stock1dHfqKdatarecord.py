@@ -1,5 +1,5 @@
 #保存日线后赋权数据到数据库,每日执行，增加保存大盘指数000001到数据库
-from zvtm.domain import  Stock1dHfqKdata,Index1dKdata
+from zvtm.domain import  Stock1dHfqKdata,Index1dKdata,StockTradeDay
 from apscheduler.schedulers.background import BackgroundScheduler
 sched = BackgroundScheduler()
 from zvtm.informer.informer import EmailInformer
@@ -16,6 +16,7 @@ def run():
         try:
             Stock1dHfqKdata.record_data(provider='joinquant', sleeping_time=0, day_data=True)
             Index1dKdata.record_data(provider='joinquant', code='000001')
+            StockTradeDay.record_data(provider='joinquant')
             email_action.send_message(zvt_config['email_username'], 'joinquant record Stock1dHfqKdata Index1dkdata finished', '')
             break
         except Exception as e:

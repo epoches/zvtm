@@ -3,10 +3,10 @@
 import pandas as pd
 
 from zvtm.contract.factor import Scorer, Transformer
-from zvtm.utils.pd_utils import normal_index_df
+from zvtm.utils.pd_utils import normal_index_df, group_by_entity_id, normalize_group_compute_result
 
 
-def ma(s: pd.Series, window: int = 5):
+def ma(s: pd.Series, window: int = 5) -> pd.Series:
     """
 
     :param s:
@@ -16,7 +16,7 @@ def ma(s: pd.Series, window: int = 5):
     return s.rolling(window=window, min_periods=window).mean()
 
 
-def ema(s, window=12):
+def ema(s: pd.Series, window: int = 12) -> pd.Series:
     return s.ewm(span=window, adjust=False, min_periods=window).mean()
 
 
@@ -27,19 +27,27 @@ def live_or_dead(x):
         return -1
 
 
-def macd(s, slow=26, fast=12, n=9, return_type='df', normal=False, count_live_dead=False):
+def macd(
+    s: pd.Series,
+    slow: int = 26,
+    fast: int = 12,
+    n: int = 9,
+    return_type: str = "df",
+    normal: bool = False,
+    count_live_dead: bool = False,
+):
     # 短期均线
     ema_fast = ema(s, window=fast)
     # 长期均线
     ema_slow = ema(s, window=slow)
 
     # 短期均线 - 长期均线 = 趋势的力度
-    diff = ema_fast - ema_slow
+    diff: pd.Series = ema_fast - ema_slow
     # 力度均线
-    dea = diff.ewm(span=n, adjust=False).mean()
+    dea: pd.Series = diff.ewm(span=n, adjust=False).mean()
 
     # 力度 的变化
-    m = (diff - dea) * 2
+    m: pd.Series = (diff - dea) * 2
 
     # normal it
     if normal:
@@ -52,15 +60,16 @@ def macd(s, slow=26, fast=12, n=9, return_type='df', normal=False, count_live_de
         bull = (diff > 0) & (dea > 0)
         live_count = live * (live.groupby((live != live.shift()).cumsum()).cumcount() + 1)
 
-    if return_type == 'se':
+    if return_type == "se":
         if count_live_dead:
             return diff, dea, m, live, bull, live_count
         return diff, dea, m
     else:
         if count_live_dead:
             return pd.DataFrame(
-                {'diff': diff, 'dea': dea, 'macd': m, 'live': live, 'bull': bull, 'live_count': live_count})
-        return pd.DataFrame({'diff': diff, 'dea': dea, 'macd': m})
+                {"diff": diff, "dea": dea, "macd": m, "live": live, "bull": bull, "live_count": live_count}
+            )
+        return pd.DataFrame({"diff": diff, "dea": dea, "macd": m})
 
 
 def point_in_range(point: float, range: tuple):
@@ -87,6 +96,22 @@ def combine(range_a, range_b):
     if intersect(range_a, range_b):
         return min(range_a[0], range_b[0]), max(range_a[1], range_b[1])
     return None
+
+
+def distance(range_a, range_b, use_max=False):
+    if use_max:
+        # 上升
+        if range_b[0] >= range_a[1]:
+            return (range_b[1] - range_a[0]) / range_a[0]
+
+        # 下降
+        if range_b[1] <= range_a[0]:
+            return (range_b[0] - range_a[1]) / range_a[1]
+    else:
+        middle_start = (range_a[0] + range_a[1]) / 2
+        middle_end = (range_b[0] + range_b[1]) / 2
+
+        return (middle_end - middle_start) / middle_start
 
 
 def intersect(range_a, range_b):
@@ -123,20 +148,44 @@ class RankScorer(Scorer):
 
 
 class MaTransformer(Transformer):
-    def __init__(self, windows=[5, 10], cal_change_pct=False) -> None:
+    def __init__(self, windows=None, cal_change_pct=False) -> None:
         super().__init__()
+        if windows is None:
+            windows = [5, 10]
         self.windows = windows
         self.cal_change_pct = cal_change_pct
 
-    def transform_one(self, entity_id, df: pd.DataFrame) -> pd.DataFrame:
+    def transform(self, input_df: pd.DataFrame) -> pd.DataFrame:
         if self.cal_change_pct:
-            df['change_pct'] = df['close'].pct_change()
+            group_pct = group_by_entity_id(input_df["close"]).pct_change()
+            input_df["change_pct"] = normalize_group_compute_result(group_pct)
 
         for window in self.windows:
-            col = 'ma{}'.format(window)
+            col = "ma{}".format(window)
             self.indicators.append(col)
 
-            df[col] = df['close'].rolling(window=window, min_periods=window).mean()
+            group_ma = group_by_entity_id(input_df["close"]).rolling(window=window, min_periods=window).mean()
+            input_df[col] = normalize_group_compute_result(group_ma)
+
+        return input_df
+
+    def transform_one(self, entity_id, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        transform_one would not take effects if transform was implemented.
+        Just show how to implement it here, most of time you should overwrite transform directly for performance.
+
+        :param entity_id:
+        :param df:
+        :return:
+        """
+        if self.cal_change_pct:
+            df["change_pct"] = df["close"].pct_change()
+
+        for window in self.windows:
+            col = "ma{}".format(window)
+            self.indicators.append(col)
+
+            df[col] = df["close"].rolling(window=window, min_periods=window).mean()
 
         return df
 
@@ -147,64 +196,73 @@ class IntersectTransformer(Transformer):
         self.kdata_overlap = kdata_overlap
 
     def transform(self, input_df) -> pd.DataFrame:
+        """
+
+        :param input_df:
+        :return:
+        """
         if self.kdata_overlap > 0:
             # 没有重叠，区间就是(0,0)
-            input_df['overlap'] = [(0, 0)] * len(input_df.index)
+            input_df["overlap"] = [(0, 0)] * len(input_df.index)
 
             def cal_overlap(s):
-                high = input_df.loc[s.index, 'high']
-                low = input_df.loc[s.index, 'low']
+                high = input_df.loc[s.index, "high"]
+                low = input_df.loc[s.index, "low"]
                 intersection = intersect_ranges(list(zip(low.to_list(), high.to_list())))
                 if intersection:
                     # 设置column overlap为intersection,即重叠区间
-                    input_df.at[s.index[-1], 'overlap'] = intersection
+                    input_df.at[s.index[-1], "overlap"] = intersection
                 return 0
 
-            input_df[['high', 'low']].groupby(level=0).rolling(window=self.kdata_overlap,
-                                                               min_periods=self.kdata_overlap).apply(
-                cal_overlap, raw=False)
+            input_df[["high", "low"]].groupby(level=0).rolling(
+                window=self.kdata_overlap, min_periods=self.kdata_overlap
+            ).apply(cal_overlap, raw=False)
 
         return input_df
 
 
 class MaAndVolumeTransformer(Transformer):
-    def __init__(self, windows=[5, 10], vol_windows=[30], kdata_overlap=0) -> None:
+    def __init__(self, windows=None, vol_windows=None, kdata_overlap=0) -> None:
         super().__init__()
+        if vol_windows is None:
+            vol_windows = [30]
+        if windows is None:
+            windows = [5, 10]
         self.windows = windows
         self.vol_windows = vol_windows
         self.kdata_overlap = kdata_overlap
 
     def transform(self, input_df) -> pd.DataFrame:
         for window in self.windows:
-            col = 'ma{}'.format(window)
+            col = "ma{}".format(window)
             self.indicators.append(col)
 
-            ma_df = input_df['close'].groupby(level=0).rolling(window=window, min_periods=window).mean()
+            ma_df = input_df["close"].groupby(level=0).rolling(window=window, min_periods=window).mean()
             ma_df = ma_df.reset_index(level=0, drop=True)
             input_df[col] = ma_df
 
         for vol_window in self.vol_windows:
-            col = 'vol_ma{}'.format(vol_window)
+            col = "vol_ma{}".format(vol_window)
             self.indicators.append(col)
 
-            vol_ma_df = input_df['volume'].groupby(level=0).rolling(window=vol_window, min_periods=vol_window).mean()
+            vol_ma_df = input_df["volume"].groupby(level=0).rolling(window=vol_window, min_periods=vol_window).mean()
             vol_ma_df = vol_ma_df.reset_index(level=0, drop=True)
             input_df[col] = vol_ma_df
 
         if self.kdata_overlap > 0:
-            input_df['overlap'] = [(0, 0)] * len(input_df.index)
+            input_df["overlap"] = [(0, 0)] * len(input_df.index)
 
             def cal_overlap(s):
-                high = input_df.loc[s.index, 'high']
-                low = input_df.loc[s.index, 'low']
+                high = input_df.loc[s.index, "high"]
+                low = input_df.loc[s.index, "low"]
                 intersection = intersect_ranges(list(zip(low.to_list(), high.to_list())))
                 if intersection:
-                    input_df.at[s.index[-1], 'overlap'] = intersection
+                    input_df.at[s.index[-1], "overlap"] = intersection
                 return 0
 
-            input_df[['high', 'low']].groupby(level=0).rolling(window=self.kdata_overlap,
-                                                               min_periods=self.kdata_overlap).apply(
-                cal_overlap, raw=False)
+            input_df[["high", "low"]].groupby(level=0).rolling(
+                window=self.kdata_overlap, min_periods=self.kdata_overlap
+            ).apply(cal_overlap, raw=False)
 
         return input_df
 
@@ -218,21 +276,36 @@ class MacdTransformer(Transformer):
         self.normal = normal
         self.count_live_dead = count_live_dead
 
-        self.indicators.append('diff')
-        self.indicators.append('dea')
-        self.indicators.append('macd')
+        self.indicators.append("diff")
+        self.indicators.append("dea")
+        self.indicators.append("macd")
 
     def transform(self, input_df) -> pd.DataFrame:
-        macd_df = input_df.groupby(level=0)['close'].apply(
-            lambda x: macd(x, slow=self.slow, fast=self.fast, n=self.n, return_type='df', normal=self.normal,
-                           count_live_dead=self.count_live_dead))
+        macd_df = input_df.groupby(level=0)["close"].apply(
+            lambda x: macd(
+                x,
+                slow=self.slow,
+                fast=self.fast,
+                n=self.n,
+                return_type="df",
+                normal=self.normal,
+                count_live_dead=self.count_live_dead,
+            )
+        )
         input_df = pd.concat([input_df, macd_df], axis=1, sort=False)
         return input_df
 
     def transform_one(self, entity_id, df: pd.DataFrame) -> pd.DataFrame:
-        print(f'transform_one {entity_id} {df}')
-        return macd(df['close'], slow=self.slow, fast=self.fast, n=self.n, return_type='df', normal=self.normal,
-                    count_live_dead=self.count_live_dead)
+        print(f"transform_one {entity_id} {df}")
+        return macd(
+            df["close"],
+            slow=self.slow,
+            fast=self.fast,
+            n=self.n,
+            return_type="df",
+            normal=self.normal,
+            count_live_dead=self.count_live_dead,
+        )
 
 
 class QuantileScorer(Scorer):
@@ -243,19 +316,18 @@ class QuantileScorer(Scorer):
         self.score_levels.sort(reverse=True)
 
         quantile_df = input_df.groupby(level=1).quantile(self.score_levels)
-        quantile_df.index.names = [self.time_field, 'score']
+        quantile_df.index.names = [self.time_field, "score_result"]
 
-        self.logger.info('factor:{},quantile:\n{}'.format(self.factor_name, quantile_df))
+        self.logger.info("factor:{},quantile:\n{}".format(self.factor_name, quantile_df))
 
         result_df = input_df.copy()
-        result_df.reset_index(inplace=True, level='entity_id')
-        result_df['quantile'] = None
+        result_df.reset_index(inplace=True, level="entity_id")
+        result_df["quantile"] = None
         for timestamp in quantile_df.index.levels[0]:
-            length = len(result_df.loc[result_df.index == timestamp, 'quantile'])
-            result_df.loc[result_df.index == timestamp, 'quantile'] = [quantile_df.loc[
-                                                                           timestamp].to_dict()] * length
+            length = len(result_df.loc[result_df.index == timestamp, "quantile"])
+            result_df.loc[result_df.index == timestamp, "quantile"] = [quantile_df.loc[timestamp].to_dict()] * length
 
-        self.logger.info('factor:{},df with quantile:\n{}'.format(self.factor_name, result_df))
+        self.logger.info("factor:{},df with quantile:\n{}".format(self.factor_name, result_df))
 
         # result_df = result_df.set_index(['entity_id'], append=True)
         # result_df = result_df.sort_index(level=[0, 1])
@@ -275,20 +347,34 @@ class QuantileScorer(Scorer):
                     return score
 
         for factor in input_df.columns.to_list():
-            result_df[factor] = result_df.apply(lambda x: calculate_score(x, factor, x['quantile']),
-                                                axis=1)
+            result_df[factor] = result_df.apply(lambda x: calculate_score(x, factor, x["quantile"]), axis=1)
 
         result_df = result_df.reset_index()
         result_df = normal_index_df(result_df)
         result_df = result_df.loc[:, self.factors]
 
-        result_df = result_df.loc[~result_df.index.duplicated(keep='first')]
+        result_df = result_df.loc[~result_df.index.duplicated(keep="first")]
 
-        self.logger.info('factor:{},df:\n{}'.format(self.factor_name, result_df))
+        self.logger.info("factor:{},df:\n{}".format(self.factor_name, result_df))
 
         return result_df
 
 
 # the __all__ is generated
-__all__ = ['ma', 'ema', 'live_or_dead', 'macd', 'point_in_range', 'intersect_ranges', 'intersect', 'RankScorer',
-           'MaTransformer', 'IntersectTransformer', 'MaAndVolumeTransformer', 'MacdTransformer', 'QuantileScorer']
+__all__ = [
+    "ma",
+    "ema",
+    "live_or_dead",
+    "macd",
+    "point_in_range",
+    "intersect_ranges",
+    "combine",
+    "distance",
+    "intersect",
+    "RankScorer",
+    "MaTransformer",
+    "IntersectTransformer",
+    "MaAndVolumeTransformer",
+    "MacdTransformer",
+    "QuantileScorer",
+]

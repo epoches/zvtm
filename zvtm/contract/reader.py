@@ -9,6 +9,7 @@ import pandas as pd
 from zvtm.contract import IntervalLevel, Mixin, TradableEntity
 from zvtm.contract.api import get_entities
 from zvtm.contract.drawer import Drawable
+from zvt.contract.schema import Mixin, TradableEntity
 from zvtm.utils.pd_utils import pd_is_not_null
 from zvtm.utils.time_utils import to_pd_timestamp, now_pd_timestamp
 
@@ -17,28 +18,22 @@ class DataListener(object):
     def on_data_loaded(self, data: pd.DataFrame) -> object:
         """
 
-        Parameters
-        ----------
-        data : the data loaded at first time
+        :param data:
         """
         raise NotImplementedError
 
     def on_data_changed(self, data: pd.DataFrame) -> object:
         """
 
-        Parameters
-        ----------
-        data : the data added
+        :param data:
         """
         raise NotImplementedError
 
     def on_entity_data_changed(self, entity: str, added_data: pd.DataFrame) -> object:
         """
 
-        Parameters
-        ----------
-        entity : the entity
-        added_data : the data added for the entity
+        :param entity: the entity
+        :param added_data: the data added for the entity
         """
         pass
 
@@ -46,25 +41,26 @@ class DataListener(object):
 class DataReader(Drawable):
     logger = logging.getLogger(__name__)
 
-    def __init__(self,
-                 data_schema: Type[Mixin],
-                 entity_schema: Type[TradableEntity],
-                 provider: str = None,
-                 entity_provider: str = None,
-                 entity_ids: List[str] = None,
-                 exchanges: List[str] = None,
-                 codes: List[str] = None,
-                 start_timestamp: Union[str, pd.Timestamp] = None,
-                 end_timestamp: Union[str, pd.Timestamp] = now_pd_timestamp(),
-                 columns: List = None,
-                 filters: List = None,
-                 order: object = None,
-                 limit: int = None,
-                 level: IntervalLevel = None,
-                 category_field: str = 'entity_id',
-                 time_field: str = 'timestamp',
-                 computing_window: int = None) -> None:
-        super().__init__()
+    def __init__(
+        self,
+        data_schema: Type[Mixin],
+        entity_schema: Type[TradableEntity],
+        provider: str = None,
+        entity_provider: str = None,
+        entity_ids: List[str] = None,
+        exchanges: List[str] = None,
+        codes: List[str] = None,
+        start_timestamp: Union[str, pd.Timestamp] = None,
+        end_timestamp: Union[str, pd.Timestamp] = now_pd_timestamp(),
+        columns: List = None,
+        filters: List = None,
+        order: object = None,
+        limit: int = None,
+        level: IntervalLevel = None,
+        category_field: str = "entity_id",
+        time_field: str = "timestamp",
+        computing_window: int = None,
+    ) -> None:
         self.logger = logging.getLogger(self.__class__.__name__)
 
         self.data_schema = data_schema
@@ -83,21 +79,22 @@ class DataReader(Drawable):
 
         if codes:
             if type(codes) == str:
-                codes = codes.replace(' ', '')
-                if codes.startswith('[') and codes.endswith(']'):
+                codes = codes.replace(" ", "")
+                if codes.startswith("[") and codes.endswith("]"):
                     codes = json.loads(codes)
                 else:
-                    codes = codes.split(',')
+                    codes = codes.split(",")
 
         self.codes = codes
         self.entity_ids = entity_ids
 
         # 转换成标准entity_id
         if entity_schema and not self.entity_ids:
-            df = get_entities(entity_schema=entity_schema, provider=self.entity_provider,
-                              exchanges=self.exchanges, codes=self.codes)
+            df = get_entities(
+                entity_schema=entity_schema, provider=self.entity_provider, exchanges=self.exchanges, codes=self.codes
+            )
             if pd_is_not_null(df):
-                self.entity_ids = df['entity_id'].to_list()
+                self.entity_ids = df["entity_id"].to_list()
 
         self.filters = filters
         self.order = order
@@ -112,18 +109,18 @@ class DataReader(Drawable):
         self.time_field = time_field
         self.computing_window = computing_window
 
-        self.category_col = eval('self.data_schema.{}'.format(self.category_field))
-        self.time_col = eval('self.data_schema.{}'.format(self.time_field))
+        self.category_col = eval("self.data_schema.{}".format(self.category_field))
+        self.time_col = eval("self.data_schema.{}".format(self.time_field))
 
         self.columns = columns
 
         # we store the data in a multiple index(category_column,timestamp) Dataframe
         if self.columns:
-            # support str
+            #: support str
             if type(columns[0]) == str:
                 self.columns = []
                 for col in columns:
-                    self.columns.append(eval('data_schema.{}'.format(col)))
+                    self.columns.append(eval("data_schema.{}".format(col)))
 
             # always add category_column and time_field for normalizing
             self.columns = list(set(self.columns) | {self.category_col, self.time_col})
@@ -139,11 +136,13 @@ class DataReader(Drawable):
 
         dfs = []
         for entity_id in self.entity_ids:
-            df = data_schema.query_data(provider=provider,
-                                        index=[self.category_field, self.time_field],
-                                        order=data_schema.timestamp.desc(),
-                                        entity_id=entity_id,
-                                        limit=window)
+            df = data_schema.query_data(
+                provider=provider,
+                index=[self.category_field, self.time_field],
+                order=data_schema.timestamp.desc(),
+                entity_id=entity_id,
+                limit=window,
+            )
             if pd_is_not_null(df):
                 dfs.append(df)
         if dfs:
@@ -152,31 +151,44 @@ class DataReader(Drawable):
         return window_df
 
     def load_data(self):
-        self.logger.info('load_data start')
+        self.logger.info("load_data start")
         start_time = time.time()
-        params = dict(entity_ids=self.entity_ids, provider=self.provider,
-                      columns=self.columns, start_timestamp=self.start_timestamp,
-                      end_timestamp=self.end_timestamp, filters=self.filters,
-                      order=self.order, limit=self.limit, level=self.level,
-                      index=[self.category_field, self.time_field],
-                      time_field=self.time_field)
-        self.logger.info(f'query_data params:{params}')
+        params = dict(
+            entity_ids=self.entity_ids,
+            provider=self.provider,
+            columns=self.columns,
+            start_timestamp=self.start_timestamp,
+            end_timestamp=self.end_timestamp,
+            filters=self.filters,
+            order=self.order,
+            limit=self.limit,
+            level=self.level,
+            index=[self.category_field, self.time_field],
+            time_field=self.time_field,
+        )
+        self.logger.info(f"query_data params:{params}")
 
-        self.data_df = self.data_schema.query_data(entity_ids=self.entity_ids, provider=self.provider,
-                                                   columns=self.columns, start_timestamp=self.start_timestamp,
-                                                   end_timestamp=self.end_timestamp, filters=self.filters,
-                                                   order=self.order, limit=self.limit, level=self.level,
-                                                   index=[self.category_field, self.time_field],
-                                                   time_field=self.time_field,codes=self.codes)
+        self.data_df = self.data_schema.query_data(
+            entity_ids=self.entity_ids,
+            provider=self.provider,
+            columns=self.columns,
+            start_timestamp=self.start_timestamp,
+            end_timestamp=self.end_timestamp,
+            filters=self.filters,
+            order=self.order,
+            limit=self.limit,
+            level=self.level,
+            index=[self.category_field, self.time_field],
+            time_field=self.time_field,codes=self.codes
+        )
 
         cost_time = time.time() - start_time
-        self.logger.info('load_data finished, cost_time:{}'.format(cost_time))
+        self.logger.info("load_data finished, cost_time:{}".format(cost_time))
 
         for listener in self.data_listeners:
             listener.on_data_loaded(self.data_df)
 
-    def move_on(self, to_timestamp: Union[str, pd.Timestamp] = None,
-                timeout: int = 20) -> object:
+    def move_on(self, to_timestamp: Union[str, pd.Timestamp] = None, timeout: int = 20) -> object:
         """
         using continual fetching data in realtime
         1)get the data happened before to_timestamp,if not set,get all the data which means to now
@@ -196,7 +208,7 @@ class DataReader(Drawable):
 
         start_time = time.time()
 
-        # FIXME:we suppose history data should be there at first
+        #: FIXME:we suppose history data should be there at first
         has_got = []
         dfs = []
         changed = False
@@ -207,9 +219,9 @@ class DataReader(Drawable):
 
                 recorded_timestamp = df.index.levels[1].max()
 
-                # move_on读取数据，表明之前的数据已经处理完毕，只需要保留computing_window的数据
+                #: move_on读取数据，表明之前的数据已经处理完毕，只需要保留computing_window的数据
                 if self.computing_window:
-                    df = df.iloc[-self.computing_window:]
+                    df = df.iloc[-self.computing_window :]
 
                 added_filter = [self.category_col == entity_id, self.time_col > recorded_timestamp]
                 if self.filters:
@@ -217,17 +229,21 @@ class DataReader(Drawable):
                 else:
                     filters = added_filter
 
-                added_df = self.data_schema.query_data(provider=self.provider,
-                                                       columns=self.columns,
-                                                       end_timestamp=to_timestamp, filters=filters, level=self.level,
-                                                       index=[self.category_field, self.time_field])
+                added_df = self.data_schema.query_data(
+                    provider=self.provider,
+                    columns=self.columns,
+                    end_timestamp=to_timestamp,
+                    filters=filters,
+                    level=self.level,
+                    index=[self.category_field, self.time_field],
+                )
 
                 if pd_is_not_null(added_df):
                     self.logger.info(f'got new data:{df.to_json(orient="records", force_ascii=False)}')
 
                     for listener in self.data_listeners:
                         listener.on_entity_data_changed(entity=entity_id, added_data=added_df)
-                    # if got data,just move to another entity_id
+                    #: if got data,just move to another entity_id
                     changed = True
                     has_got.append(entity_id)
                     df = df.append(added_df, sort=False)
@@ -235,14 +251,14 @@ class DataReader(Drawable):
                 else:
                     cost_time = time.time() - start_time
                     if cost_time > timeout:
-                        # if timeout,just add the old data
+                        #: if timeout,just add the old data
                         has_got.append(entity_id)
                         dfs.append(df)
                         self.logger.warning(
-                            'category:{} level:{} getting data timeout,to_timestamp:{},now:{}'.format(entity_id,
-                                                                                                      self.level,
-                                                                                                      to_timestamp,
-                                                                                                      now_pd_timestamp()))
+                            "category:{} level:{} getting data timeout,to_timestamp:{},now:{}".format(
+                                entity_id, self.level, to_timestamp, now_pd_timestamp()
+                            )
+                        )
                         continue
 
             if len(has_got) == len(self.data_df.index.levels[0]):
@@ -260,7 +276,7 @@ class DataReader(Drawable):
         if listener not in self.data_listeners:
             self.data_listeners.append(listener)
 
-        # notify it once after registered
+        #: notify it once after registered
         if pd_is_not_null(self.data_df):
             listener.on_data_loaded(self.data_df)
 
@@ -274,13 +290,18 @@ class DataReader(Drawable):
     def drawer_main_df(self) -> Optional[pd.DataFrame]:
         return self.data_df
 
-if __name__ == '__main__':
-    from zvtm.domain import Stock1dKdata, Stock
 
-    data_reader = DataReader(codes=['002572', '000338'], data_schema=Stock1dKdata, entity_schema=Stock, entity_provider='eastmoney',
-                             start_timestamp='2017-01-01',
-                             end_timestamp='2019-06-10')
+if __name__ == "__main__":
+    from zvt.domain import Stock1dKdata, Stock
+
+    data_reader = DataReader(
+        codes=["002572", "000338"],
+        data_schema=Stock1dKdata,
+        entity_schema=Stock,
+        start_timestamp="2017-01-01",
+        end_timestamp="2019-06-10",
+    )
 
     data_reader.draw(show=True)
 # the __all__ is generated
-__all__ = ['DataListener', 'DataReader']
+__all__ = ["DataListener", "DataReader"]

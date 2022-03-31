@@ -9,13 +9,19 @@ FinanceBase = declarative_base()
 
 
 class BalanceSheet(FinanceBase, Mixin):
-
     @classmethod
     def important_cols(cls):
-        return ['total_assets', 'total_liabilities', 'equity', 'cash_and_cash_equivalents', 'accounts_receivable',
-                'inventories', 'goodwill']
+        return [
+            "total_assets",
+            "total_liabilities",
+            "equity",
+            "cash_and_cash_equivalents",
+            "accounts_receivable",
+            "inventories",
+            "goodwill",
+        ]
 
-    __tablename__ = 'balance_sheet'
+    __tablename__ = "balance_sheet"
 
     provider = Column(String(length=32))
     code = Column(String(length=32))
@@ -23,43 +29,43 @@ class BalanceSheet(FinanceBase, Mixin):
     report_period = Column(String(length=32))
     report_date = Column(DateTime)
 
-    # 流动资产
+    #: 流动资产
     #
-    # 货币资金
+    #: 货币资金
     cash_and_cash_equivalents = Column(Float)
-    # 应收票据
+    #: 应收票据
     note_receivable = Column(Float)
-    # 应收账款
+    #: 应收账款
     accounts_receivable = Column(Float)
-    # 预付款项
+    #: 预付款项
     advances_to_suppliers = Column(Float)
-    # 其他应收款
+    #: 其他应收款
     other_receivables = Column(Float)
-    # 存货
+    #: 存货
     inventories = Column(Float)
-    # 一年内到期的非流动资产
+    #: 一年内到期的非流动资产
     current_portion_of_non_current_assets = Column(Float)
-    # 其他流动资产
+    #: 其他流动资产
     other_current_assets = Column(Float)
-    # 流动资产合计
+    #: 流动资产合计
     total_current_assets = Column(Float)
-    # 非流动资产
+    #: 非流动资产
     #
-    # 可供出售金融资产
+    #: 可供出售金融资产
     fi_assets_saleable = Column(Float)
-    # 长期应收款
+    #: 长期应收款
     long_term_receivables = Column(Float)
-    # 长期股权投资
+    #: 长期股权投资
     long_term_equity_investment = Column(Float)
-    # 投资性房地产
+    #: 投资性房地产
     real_estate_investment = Column(Float)
-    # 固定资产
+    #: 固定资产
     fixed_assets = Column(Float)
-    # 在建工程
+    #: 在建工程
     construction_in_process = Column(Float)
-    # 无形资产
+    #: 无形资产
     intangible_assets = Column(Float)
-    # 商誉
+    #: 商誉
     goodwill = Column(Float)
     # 长期待摊费用
     long_term_prepaid_expenses = Column(Float)

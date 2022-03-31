@@ -18,7 +18,7 @@ def run():
             email_action.send_message(zvt_config['email_username'], 'joinquant record Stock1dMoneyFlow finished', '')
             break
         except Exception as e:
-            msg = f'joinquant Stock1dHfqKdata Index1dkdata stock:{e}'
+            msg = f'joinquant Stock1dMoneyFlow stock:{e}'
             logger.exception(msg)
             email_action.send_message(zvt_config['email_username'], 'joinquant record Stock1dMoneyFlow error', msg)
             time.sleep(60 * 5)

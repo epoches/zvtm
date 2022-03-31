@@ -2,32 +2,45 @@
 from sqlalchemy import Column, String, Text
 from sqlalchemy.orm import declarative_base
 
-from zvtm.contract import Mixin
 from zvtm.contract.register import register_schema
+from zvtm.contract.schema import Mixin
 
 ZvtInfoBase = declarative_base()
 
 
-# 用于保存recorder的状态
-class RecorderState(ZvtInfoBase, Mixin):
-    __tablename__ = 'recoder_state'
-    # recorder名字
-    recoder_name = Column(String(length=128))
+class StateMixin(Mixin):
+    #: the unique name of the service, e.g. recorder,factor,tag
+    state_name = Column(String(length=128))
 
-    # json string
+    #: json string
     state = Column(Text())
 
 
-# 用于保存recorder的状态
-class TaggerState(ZvtInfoBase, Mixin):
-    __tablename__ = 'tagger_state'
-    # tagger名字
-    tagger_name = Column(String(length=128))
+class RecorderState(ZvtInfoBase, StateMixin):
+    """
+    Schema for storing recorder state
+    """
 
-    # json string
-    state = Column(Text())
+    __tablename__ = "recoder_state"
 
 
-register_schema(providers=['zvt'], db_name='zvt_info', schema_base=ZvtInfoBase)
+class TaggerState(ZvtInfoBase, StateMixin):
+    """
+    Schema for storing tagger state
+    """
+
+    __tablename__ = "tagger_state"
+
+
+class FactorState(ZvtInfoBase, StateMixin):
+    """
+    Schema for storing factor state
+    """
+
+    __tablename__ = "factor_state"
+
+
+register_schema(providers=["zvt"], db_name="zvt_info", schema_base=ZvtInfoBase)
+
 # the __all__ is generated
-__all__ = ['RecorderState', 'TaggerState']
+__all__ = ["StateMixin", "RecorderState", "TaggerState", "FactorState"]

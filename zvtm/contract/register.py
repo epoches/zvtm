@@ -4,8 +4,8 @@ from typing import List
 
 import sqlalchemy
 from sqlalchemy.ext.declarative import DeclarativeMeta
-
-from zvtm.contract import TradableEntity, zvt_context, Mixin
+from zvtm.contract import zvt_context
+from zvt.contract.schema import TradableEntity, Mixin
 from zvtm.contract.api import get_db_engine, get_db_session_factory
 from zvtm.utils.utils import add_to_map_list
 
@@ -31,17 +31,19 @@ def register_entity(entity_type: str = None):
 
             if entity_type_ not in zvt_context.tradable_entity_types:
                 zvt_context.tradable_entity_types.append(entity_type_)
-                zvt_context.entity_schemas.append(cls)
+                zvt_context.tradable_entity_schemas.append(cls)
             zvt_context.tradable_schema_map[entity_type_] = cls
         return cls
 
     return register
 
 
-def register_schema(providers: List[str],
-                    db_name: str,
-                    schema_base: DeclarativeMeta,
-                    entity_type: str = None):
+def register_schema(
+    providers: List[str],
+    db_name: str,
+    schema_base: DeclarativeMeta,
+    entity_type: str = None,
+):
     """
     function for register schema,please declare them before register
 
@@ -102,23 +104,31 @@ def register_schema(providers: List[str],
                 for row in rs:
                     index_list.append(row[2])
 
-            logger.debug('engine:{},table:{},index:{}'.format(engine, table_name, index_list))
+            logger.debug("engine:{},table:{},index:{}".format(engine, table_name, index_list))
 
-            for col in ['timestamp', 'entity_id', 'code', 'report_period', 'created_timestamp', 'updated_timestamp']:
+            for col in [
+                "timestamp",
+                "entity_id",
+                "code",
+                "report_period",
+                "created_timestamp",
+                "updated_timestamp",
+            ]:
                 if col in table.c:
-                    column = eval('table.c.{}'.format(col))
-                    index_name = '{}_{}_index'.format(table_name, col)
+                    column = eval("table.c.{}".format(col))
+                    index_name = "{}_{}_index".format(table_name, col)
                     if index_name not in index_list:
                         index = sqlalchemy.schema.Index(index_name, column)
                         index.create(engine)
-            for cols in [('timestamp', 'entity_id'), ('timestamp', 'code')]:
+            for cols in [("timestamp", "entity_id"), ("timestamp", "code")]:
                 if (cols[0] in table.c) and (col[1] in table.c):
-                    column0 = eval('table.c.{}'.format(col[0]))
-                    column1 = eval('table.c.{}'.format(col[1]))
-                    index_name = '{}_{}_{}_index'.format(table_name, col[0], col[1])
+                    column0 = eval("table.c.{}".format(col[0]))
+                    column1 = eval("table.c.{}".format(col[1]))
+                    index_name = "{}_{}_{}_index".format(table_name, col[0], col[1])
                     if index_name not in index_list:
-                        index = sqlalchemy.schema.Index(index_name, column0,
-                                                        column1)
+                        index = sqlalchemy.schema.Index(index_name, column0, column1)
                         index.create(engine)
+
+
 # the __all__ is generated
-__all__ = ['register_entity', 'register_schema']
+__all__ = ["register_entity", "register_schema"]

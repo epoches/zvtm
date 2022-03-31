@@ -167,7 +167,7 @@ class DataReader(Drawable):
                                                    end_timestamp=self.end_timestamp, filters=self.filters,
                                                    order=self.order, limit=self.limit, level=self.level,
                                                    index=[self.category_field, self.time_field],
-                                                   time_field=self.time_field)
+                                                   time_field=self.time_field,codes=self.codes)
 
         cost_time = time.time() - start_time
         self.logger.info('load_data finished, cost_time:{}'.format(cost_time))

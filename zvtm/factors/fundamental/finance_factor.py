@@ -8,7 +8,7 @@ import pandas as pd
 from zvtm.contract import IntervalLevel, Mixin, TradableEntity
 from zvtm.contract.factor import Factor, Transformer, Accumulator, FilterFactor
 from zvtm.domain import FinanceFactor, BalanceSheet, Stock
-
+from zvtm.contract.api import decode_entity_id, get_entity_schema, get_entity_ids
 
 class FinanceBaseFactor(Factor):
     def __init__(self, data_schema: Type[Mixin] = FinanceFactor, entity_schema: Type[TradableEntity] = Stock,
@@ -24,6 +24,7 @@ class FinanceBaseFactor(Factor):
                  only_load_factor: bool = False) -> None:
         if not columns:
             columns = data_schema.important_cols()
+
         super().__init__(data_schema, entity_schema, provider, entity_provider, entity_ids, exchanges, codes,
                          start_timestamp, end_timestamp, columns, filters, order, limit, level, category_field,
                          time_field, computing_window, keep_all_timestamp, fill_method, effective_number, transformer,
@@ -78,6 +79,8 @@ class GoodCompanyFactor(FinanceBaseFactor, FilterFactor):
                  col_period_threshold={'roe': 0.02}) -> None:
         self.window = window
         self.count = count
+
+
 
         # 对于根据年度计算才有意义的指标，比如roe,我们会对不同季度的值区别处理,传入的参数为季度值
         self.col_period_threshold = col_period_threshold
@@ -139,11 +142,11 @@ class GoodCompanyFactor(FinanceBaseFactor, FilterFactor):
 if __name__ == '__main__':
     # f1 = GoodCompanyFactor(keep_all_timestamp=False)
     # print(f1.result_df)
-
+    stock_list=['000563','600073']
     # 高股息 低应收
     factor2 = GoodCompanyFactor(data_schema=BalanceSheet, columns=[BalanceSheet.accounts_receivable], filters=[
         BalanceSheet.accounts_receivable <= 0.2 * BalanceSheet.total_current_assets], keep_all_timestamp=False,
-                                col_period_threshold=None)
+                                codes=stock_list,col_period_threshold=None)
     print(factor2.result_df)
 # the __all__ is generated
 __all__ = ['FinanceBaseFactor', 'GoodCompanyFactor']

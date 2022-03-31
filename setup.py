@@ -32,7 +32,7 @@ except:
 
 setup(
     name='zvtm',
-    version='0.0.9',
+    version='0.0.10',
     description='unified,modular quant framework for mysql ',
     long_description=long_description,
     url='https://github.com/epoches/zvtm',

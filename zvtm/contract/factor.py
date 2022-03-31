@@ -259,7 +259,6 @@ class Factor(DataReader, DataListener):
             self.factor_name = type(self).__name__.lower()
         else:
             self.factor_name = factor_name
-
         self.clear_state = clear_state
 
         self.keep_all_timestamp = keep_all_timestamp

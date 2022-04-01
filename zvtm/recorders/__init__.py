@@ -51,7 +51,7 @@ CHINA_STOCK_MAIN_INDEX = [
 
 
 def init_main_index(provider="exchange"):
-    from zvt.utils.time_utils import to_pd_timestamp
+    from zvtm.utils.time_utils import to_pd_timestamp
     import pandas as pd
     from zvtm.contract.api import df_to_db
     from zvtm.domain.meta import Index

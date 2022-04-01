@@ -9,7 +9,7 @@ import pandas as pd
 from zvtm.contract import IntervalLevel, Mixin, TradableEntity
 from zvtm.contract.api import get_entities
 from zvtm.contract.drawer import Drawable
-from zvt.contract.schema import Mixin, TradableEntity
+from zvtm.contract.schema import Mixin, TradableEntity
 from zvtm.utils.pd_utils import pd_is_not_null
 from zvtm.utils.time_utils import to_pd_timestamp, now_pd_timestamp
 
@@ -292,7 +292,7 @@ class DataReader(Drawable):
 
 
 if __name__ == "__main__":
-    from zvt.domain import Stock1dKdata, Stock
+    from zvtm.domain import Stock1dKdata, Stock
 
     data_reader = DataReader(
         codes=["002572", "000338"],

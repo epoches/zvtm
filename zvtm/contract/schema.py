@@ -189,7 +189,7 @@ class Mixin(object):
             providers = cls.get_providers()
         else:
             providers = [provider]
-        from zvt.contract.api import get_db_engine
+        from zvtm.contract.api import get_db_engine
 
         engines = []
         for p in providers:

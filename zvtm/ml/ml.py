@@ -1,163 +1,244 @@
 # -*- coding: utf-8 -*-
-import enum
-from typing import Union, Type
+import logging
+from typing import Union, Type, List
 
 import pandas as pd
+from sklearn.linear_model import LinearRegression, SGDRegressor
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
-from zvtm.api import get_kdata_schema
+from zvt.ml.lables import RelativePerformance, BehaviorCategory
+from zvtm.api.kdata import default_adjust_type, get_kdata
 from zvtm.contract import IntervalLevel, AdjustType
 from zvtm.contract import TradableEntity
+from zvt.contract.drawer import Drawer
 from zvtm.domain import Stock
-from zvtm.tag.dataset.stock_tags import StockTags
-from zvtm.utils import next_date, to_pd_timestamp
+from zvtm.factors import MaTransformer
+from zvtm.utils import to_pd_timestamp
+from zvtm.utils.pd_utils import group_by_entity_id, normalize_group_compute_result, pd_is_not_null
+
+logger = logging.getLogger(__name__)
 
 
-class RelativePerformance(enum.Enum):
-    # 表现比90%好
-    best = 0.9
-    ordinary = 0.5
-    poor = 0
+def cal_change(s: pd.Series, predict_range):
+    return s.pct_change(periods=-predict_range)
 
 
-def cal_change(s):
-    return (s[-1] - s[0]) / s[0]
+def cal_behavior_cls(s: pd.Series, predict_range):
+    return s.pct_change(periods=-predict_range).apply(
+        lambda x: BehaviorCategory.up.value if x > 0 else BehaviorCategory.down.value
+    )
 
 
-def cal_performance(s):
+def cal_predict(s: pd.Series, predict_range):
+    return s.shift(periods=-predict_range)
+
+
+def cal_relative_performance(s: pd.Series):
     if s >= RelativePerformance.best.value:
-        return RelativePerformance.best.value
+        return RelativePerformance.best
     if s >= RelativePerformance.ordinary.value:
-        return RelativePerformance.ordinary.value
+        return RelativePerformance.ordinary
     if s >= RelativePerformance.poor.value:
-        return RelativePerformance.poor.value
-
-
-def get_performance(x_timestamp,
-                    entity_type='stock',
-                    entity_ids=None,
-                    predict_range=20,
-                    level: Union[IntervalLevel, str] = IntervalLevel.LEVEL_1DAY,
-                    adjust_type: Union[AdjustType, str] = None):
-    kdata_schema = get_kdata_schema(entity_type=entity_type, level=level, adjust_type=adjust_type)
-    y_df = kdata_schema.query_data(start_timestamp=x_timestamp,
-                                   end_timestamp=next_date(x_timestamp, predict_range), entity_ids=entity_ids,
-                                   columns=['entity_id', 'timestamp', 'close'],
-                                   index=['entity_id', 'timestamp'])
-    y_df = y_df.dropna()
-    y_change = y_df.groupby(level=0)['close'].apply(
-        lambda x: cal_change(x)).rename('y_change')
-    y_score = y_change.rank(pct=True).apply(
-        lambda x: cal_performance(x)).rename('y_score')
-
-    df = y_score.to_frame()
-    df['timestamp'] = x_timestamp
-    df.set_index('timestamp', append=True)
-
-    return df
-
-
-def get_samples(data_schema,
-                columns,
-                x_timestamp,
-                entity_type='stock',
-                entity_ids=None,
-                predict_range=20,
-                level: Union[IntervalLevel, str] = IntervalLevel.LEVEL_1DAY,
-                adjust_type: Union[AdjustType, str] = None):
-    # features
-    x_df = data_schema.query_data(start_timestamp=x_timestamp, end_timestamp=x_timestamp, entity_ids=entity_ids,
-                                  columns=columns, index=['entity_id'])
-    x_df = x_df.dropna()
-
-    # Y
-    y = get_performance(x_timestamp=x_timestamp, entity_type=entity_type, entity_ids=entity_ids,
-                        predict_range=predict_range, level=level, adjust_type=adjust_type)
-    index = x_df.index & y.index
-    print(index)
-    return x_df.loc[index].to_numpy(), y.loc[index].to_numpy().tolist()
+        return RelativePerformance.poor
 
 
 class MLMachine(object):
     entity_schema: Type[TradableEntity] = None
 
-    sample_start_timestamp = '2005-01-01'
+    def __init__(
+        self,
+        entity_ids: List[str] = None,
+        start_timestamp: Union[str, pd.Timestamp] = "2015-01-01",
+        end_timestamp: Union[str, pd.Timestamp] = "2021-12-01",
+        predict_start_timestamp: Union[str, pd.Timestamp] = "2021-06-01",
+        predict_steps: int = 20,
+        level: Union[IntervalLevel, str] = IntervalLevel.LEVEL_1DAY,
+        adjust_type: Union[AdjustType, str] = None,
+        data_provider: str = None,
+        label_method: str = "raw",
+    ) -> None:
+        """
 
-    test_start_timestamp = '2010-01-01'
-
-    def __init__(self, entity_ids=None, predict_range=20, level: Union[IntervalLevel, str] = IntervalLevel.LEVEL_1DAY,
-                 adjust_type: Union[AdjustType, str] = None) -> None:
+        :param entity_ids:
+        :param start_timestamp:
+        :param end_timestamp:
+        :param predict_start_timestamp:
+        :param predict_steps:
+        :param level:
+        :param adjust_type:
+        :param data_provider:
+        :param label_method: raw, change, or behavior_cls
+        """
         super().__init__()
         self.entity_ids = entity_ids
-        self.predict_range = predict_range
+        self.start_timestamp = to_pd_timestamp(start_timestamp)
+        self.end_timestamp = to_pd_timestamp(end_timestamp)
+        self.predict_start_timestamp = to_pd_timestamp(predict_start_timestamp)
+        assert self.start_timestamp < self.predict_start_timestamp < self.end_timestamp
+        self.predict_steps = predict_steps
+
         self.level = level
-        if not adjust_type and self.entity_schema == Stock:
-            self.adjust_type = AdjustType.hfq
+        if not adjust_type:
+            adjust_type = default_adjust_type(entity_type=self.entity_schema.__name__)
+        self.adjust_type = adjust_type
+
+        self.data_provider = data_provider
+        self.label_method = label_method
+
+        self.kdata_df = self.build_kdata()
+        if not pd_is_not_null(self.kdata_df):
+            logger.error("not kdta")
+            assert False
+
+        self.feature_df = self.build_feature(self.entity_ids, self.start_timestamp, self.end_timestamp)
+        # drop na in feature
+        self.feature_df = self.feature_df.dropna()
+        self.feature_names = list(set(self.feature_df.columns) - {"entity_id", "timestamp"})
+        self.feature_df = self.feature_df.loc[:, self.feature_names]
+
+        self.label_ser = self.build_label()
+        # keep same index with feature df
+        self.label_ser = self.label_ser.loc[self.feature_df.index]
+        self.label_name = self.label_ser.name
+
+        self.training_X, self.training_y, self.testing_X, self.testing_y = self.split_data()
+
+        logger.info(self.training_X)
+        logger.info(self.training_y)
+
+        self.model = None
+        self.pred_y = None
+
+    def split_data(self):
+        training_x = self.feature_df[self.feature_df.index.get_level_values("timestamp") < self.predict_start_timestamp]
+        training_y = self.label_ser[self.label_ser.index.get_level_values("timestamp") < self.predict_start_timestamp]
+
+        testing_x = self.feature_df[self.feature_df.index.get_level_values("timestamp") >= self.predict_start_timestamp]
+        testing_y = self.label_ser[self.label_ser.index.get_level_values("timestamp") >= self.predict_start_timestamp]
+        return training_x, training_y, testing_x, testing_y
+
+    def build_kdata(self):
+        columns = ["entity_id", "timestamp", "close"]
+        return get_kdata(
+            entity_ids=self.entity_ids,
+            start_timestamp=self.start_timestamp,
+            end_timestamp=self.end_timestamp,
+            columns=columns,
+            level=self.level,
+            adjust_type=self.adjust_type,
+            provider=self.data_provider,
+            index=["entity_id", "timestamp"],
+            drop_index_col=True,
+        )
+
+    def build_label(self):
+        label_name = f"y_{self.predict_steps}"
+        if self.label_method == "raw":
+            y = (
+                group_by_entity_id(self.kdata_df["close"])
+                .apply(lambda x: cal_predict(x, self.predict_steps))
+                .rename(label_name)
+            )
+        elif self.label_method == "change":
+            y = (
+                group_by_entity_id(self.kdata_df["close"])
+                .apply(lambda x: cal_change(x, self.predict_steps))
+                .rename(label_name)
+            )
+        elif self.label_method == "behavior_cls":
+            y = (
+                group_by_entity_id(self.kdata_df["close"])
+                .apply(lambda x: cal_behavior_cls(x, self.predict_steps))
+                .rename(label_name)
+            )
         else:
-            self.adjust_type = adjust_type
+            assert False
+        y = normalize_group_compute_result(y)
 
-        self.sample_start_timestamp = to_pd_timestamp(self.sample_start_timestamp)
-        self.test_start_timestamp = to_pd_timestamp(self.test_start_timestamp)
+        return y
 
-        self.x_timestamps, self.y_timestamps = self.get_x_y_timestamps()
+    def train(self, model=LinearRegression(), **params):
+        self.model = model.fit(self.training_X, self.training_y, **params)
+        return self.model
 
-        self.x_df = self.get_features(self.entity_ids, self.x_timestamps)
-        self.y_df = self.get_labels(self.entity_ids, x_timestamps=self.x_timestamps, y_timestamps=self.y_timestamps)
+    def draw_result(self, entity_id):
+        if self.label_method == "raw":
+            df = self.kdata_df.loc[[entity_id], ["close"]].copy()
 
-    def ml(self):
-        print(self.x_df)
-        print(self.y_df)
+            pred_df = self.pred_y.to_frame(name="pred_close")
+            pred_df = pred_df.loc[[entity_id], :].shift(self.predict_steps)
 
-    def get_x_y_timestamps(self):
-        x_timestamps = []
-        y_timestamps = []
-        x_timestamp = self.sample_start_timestamp
-        y_timestamp = next_date(x_timestamp, self.predict_range)
-        while y_timestamp <= self.test_start_timestamp:
-            x_timestamps.append(x_timestamp)
-            y_timestamps.append(y_timestamp)
+            drawer = Drawer(
+                main_df=df,
+                factor_df_list=[pred_df],
+            )
+            drawer.draw_line(show=True)
+        else:
+            pred_df = self.pred_y.to_frame(name="pred_result").loc[[entity_id], :]
+            df = self.testing_y.to_frame(name="real_result").loc[[entity_id], :].join(pred_df, how="outer")
 
-            x_timestamp = y_timestamp
-            y_timestamp = next_date(x_timestamp, self.predict_range)
+            drawer = Drawer(main_df=df)
+            drawer.draw_table()
 
-        return y_timestamps, y_timestamps
+    def predict(self):
+        predictions = self.model.predict(self.testing_X)
+        self.pred_y = pd.Series(data=predictions, index=self.testing_y.index)
+        # explained_variance_score(self.testing_y, self.pred_y)
+        # mean_squared_error(self.testing_y, self.pred_y)
 
-    def get_features(self, entity_ids, timestamps):
+    def build_feature(
+        self, entity_ids: List[str], start_timestamp: pd.Timestamp, end_timestamp: pd.Timestamp
+    ) -> pd.DataFrame:
+        """
+        result df format
+                                  col1    col2    col3    ...
+        entity_id    timestamp
+                                  1.2     0.5     0.3     ...
+                                  1.0     0.7     0.2     ...
+
+        :param entity_ids: entity id list
+        :param start_timestamp:
+        :param end_timestamp:
+        :rtype: pd.DataFrame
+        """
         raise NotImplementedError
 
-    def get_labels(self, entity_ids, x_timestamps, y_timestamps):
-        dfs = []
-        for idx, timestamp in enumerate(x_timestamps):
-            kdata_schema = get_kdata_schema(entity_type=self.entity_schema.__name__.lower(), level=self.level,
-                                            adjust_type=self.adjust_type)
-            y_df = kdata_schema.query_data(start_timestamp=timestamp,
-                                           end_timestamp=y_timestamps[idx],
-                                           entity_ids=entity_ids,
-                                           columns=['entity_id', 'timestamp', 'close'],
-                                           index=['entity_id', 'timestamp'])
-            y_df = y_df.dropna()
-            y_change = y_df.groupby(level=0)['close'].apply(
-                lambda x: cal_change(x)).rename('y_change')
-            y_score = y_change.rank(pct=True).apply(
-                lambda x: cal_performance(x)).rename('y_score')
 
-            df = y_score.to_frame()
-            df['timestamp'] = timestamp
-            df.set_index('timestamp', append=True)
-            dfs.append(df)
-
-        return pd.concat(dfs)
-
-    def make_samples(self):
-        pass
-
-
-class MyMLMachine(MLMachine):
+class StockMLMachine(MLMachine):
     entity_schema = Stock
 
-    def get_features(self, entity_ids, timestamps):
-        return StockTags.query_data(columns=['entity_id', 'timestamp', 'cycle_tag'],
-                                    filters=[StockTags.timestamp.in_(timestamps)])
+
+class MaStockMLMachine(StockMLMachine):
+    def build_feature(
+        self, entity_ids: List[str], start_timestamp: pd.Timestamp, end_timestamp: pd.Timestamp
+    ) -> pd.DataFrame:
+        """
+
+        :param entity_ids:
+        :param start_timestamp:
+        :param end_timestamp:
+        :return:
+        """
+        t = MaTransformer(windows=[5, 10, 120, 250])
+        df = t.transform(self.kdata_df)
+        return df
 
 
-if __name__ == '__main__':
-    MyMLMachine().ml()
+if __name__ == "__main__":
+    machine = MaStockMLMachine(entity_ids=["stock_sz_000001"])
+    reg = make_pipeline(StandardScaler(), SGDRegressor(max_iter=1000, tol=1e-3))
+    machine.train(model=reg)
+    machine.predict()
+    machine.draw_result(entity_id="stock_sz_000001")
+
+# the __all__ is generated
+__all__ = [
+    "cal_change",
+    "cal_behavior_cls",
+    "cal_predict",
+    "cal_relative_performance",
+    "MLMachine",
+    "StockMLMachine",
+    "MaStockMLMachine",
+]

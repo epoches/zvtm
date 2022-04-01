@@ -187,8 +187,8 @@ else:
     init_env(zvt_home=ZVT_HOME)
 
 # register to meta
-import zvt.contract as zvt_contract
-import zvt.recorders as zvt_recorders
-import zvt.factors as zvt_factors
+import zvtm.contract as zvt_contract
+import zvtm.recorders as zvt_recorders
+import zvtm.factors as zvt_factors
 
 __all__ = ["zvt_env", "zvt_config", "init_log", "init_env", "init_config", "__version__"]

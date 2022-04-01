@@ -26,8 +26,8 @@ from zvtm.factors.shape import (
     handle_duan,
     FactorStateEncoder,
 )
-from zvt.factors.technical_factor import TechnicalFactor
-from zvt.utils import pd_is_not_null, to_string
+from zvtm.factors.technical_factor import TechnicalFactor
+from zvtm.utils import pd_is_not_null, to_string
 
 logger = logging.getLogger(__name__)
 

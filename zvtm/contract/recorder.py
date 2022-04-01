@@ -11,7 +11,7 @@ from zvtm.contract import IntervalLevel
 from zvtm.contract.api import get_db_session, get_schema_columns
 from zvtm.contract.api import get_entities, get_data
 from zvtm.contract.base_service import OneStateService
-from zvt.contract.schema import Mixin, TradableEntity
+from zvtm.contract.schema import Mixin, TradableEntity
 from zvtm.contract.zvt_info import RecorderState
 from zvtm.utils import pd_is_not_null
 from zvtm.utils.time_utils import (

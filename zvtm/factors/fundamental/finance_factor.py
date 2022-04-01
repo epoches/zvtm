@@ -6,9 +6,9 @@ from typing import List, Union, Type
 import pandas as pd
 
 from zvtm.contract import IntervalLevel, Mixin, TradableEntity
-from zvtm.contract.factor import Factor, Transformer, Accumulator, FilterFactor
+from zvtm.contract.factor import Factor, Transformer, Accumulator
 from zvtm.domain import FinanceFactor, BalanceSheet, Stock
-from zvtm.contract.api import decode_entity_id, get_entity_schema, get_entity_ids
+
 
 class FinanceBaseFactor(Factor):
     def __init__(

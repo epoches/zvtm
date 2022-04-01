@@ -6,6 +6,7 @@ from typing import Type
 from zvtm import zvt_config
 from zvtm.contract import Mixin
 from zvtm.informer import EmailInformer
+from jqdatasdk import *
 
 logger = logging.getLogger("__name__")
 
@@ -23,12 +24,13 @@ def run_data_recorder(
 
     while retry_times > 0:
         email_action = EmailInformer()
-
+        auth(zvt_config["jq_username"], zvt_config["jq_password"])
+        spare = get_query_count()
         try:
             domain.record_data(
                 entity_ids=entity_ids, provider=data_provider, sleeping_time=sleeping_time, **recorder_kv
             )
-            msg = f"record {domain.__name__} success"
+            msg = f"record {domain.__name__} success , 剩余数据条数:{spare['spare'] }"
             logger.info(msg)
             email_action.send_message(zvt_config["email_username"], msg, msg)
             break
@@ -39,8 +41,8 @@ def run_data_recorder(
             if retry_times == 0:
                 email_action.send_message(
                     zvt_config["email_username"],
-                    f"record {domain.__name__} error",
-                    f"record {domain.__name__} error: {e}",
+                    f"record {domain.__name__} error, {zvt_config['jq_username']}剩余数据条数:{spare['spare'] }",
+                    f"record {domain.__name__} error: {e}, {zvt_config['jq_username']}剩余数据条数:{spare['spare'] }",
                 )
 
 

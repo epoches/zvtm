@@ -161,7 +161,7 @@ if __name__ == "__main__":
     #
     # compare(se)
 
-    from zvt.domain import CashFlowStatement
+    from zvtm.domain import CashFlowStatement
 
     #
     # composite(

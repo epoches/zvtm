@@ -7,11 +7,11 @@ from sklearn.linear_model import LinearRegression, SGDRegressor
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-from zvt.ml.lables import RelativePerformance, BehaviorCategory
+from zvtm.ml.lables import RelativePerformance, BehaviorCategory
 from zvtm.api.kdata import default_adjust_type, get_kdata
 from zvtm.contract import IntervalLevel, AdjustType
 from zvtm.contract import TradableEntity
-from zvt.contract.drawer import Drawer
+from zvtm.contract.drawer import Drawer
 from zvtm.domain import Stock
 from zvtm.factors import MaTransformer
 from zvtm.utils import to_pd_timestamp

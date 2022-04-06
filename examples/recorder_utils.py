@@ -21,10 +21,15 @@ def run_data_recorder(
     **recorder_kv,
 ):
     logger.info(f" record data: {domain.__name__}, entity_provider: {entity_provider}, data_provider: {data_provider}")
-
+    try:
+        auth(zvt_config["jq_username"], zvt_config["jq_password"])
+    except Exception as e:
+        logger.exception("report error:{}".format(e))
+        quit()
     while retry_times > 0:
         email_action = EmailInformer()
-        auth(zvt_config["jq_username"], zvt_config["jq_password"])
+
+
         spare = get_query_count()
         try:
             domain.record_data(

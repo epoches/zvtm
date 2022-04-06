@@ -244,6 +244,16 @@ def get_one(data_schema, id: str, provider: str = None, session: Session = None)
     if not session:
         session = get_db_session(provider=provider, data_schema=data_schema)
 
+    try:
+        ids = session.query(data_schema).get(id)
+        return ids
+    except:
+        session.rollback()
+        session.close()
+        session = get_db_session(provider=provider, data_schema=data_schema)
+    finally:
+        pass
+
     return session.query(data_schema).get(id)
 
 

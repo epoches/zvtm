@@ -547,7 +547,7 @@ class FixedCycleDataRecorder(TimeSeriesDataRecorder):
         level=IntervalLevel.LEVEL_1DAY,
         kdata_use_begin_time=False,
         one_day_trading_minutes=24 * 60,
-    ) -> None:
+    ):
         super().__init__(
             force_update,
             sleeping_time,

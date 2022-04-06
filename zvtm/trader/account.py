@@ -10,7 +10,7 @@ from zvtm.contract import IntervalLevel, TradableEntity, AdjustType
 from zvtm.contract.api import get_db_session, decode_entity_id
 from zvtm.domain.trader_info import AccountStats, Position, Order, TraderInfo
 from zvtm.trader import TradingSignalType, TradingListener, TradingSignal
-from zvtm..trader.errors import (
+from zvtm.trader.errors import (
     NotEnoughMoneyError,
     InvalidOrderError,
     NotEnoughPositionError,

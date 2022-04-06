@@ -111,7 +111,6 @@ class JqChinaStockKdataRecorder(FixedCycleDataRecorder):
             fq_ref_date = '2000-01-01'
         else:
             fq_ref_date = to_time_str(now_pd_timestamp())
-
         if not self.end_timestamp:
             df = get_bars(
                 to_jq_entity_id(entity),
@@ -178,7 +177,7 @@ class JqChinaStockKdataRecorder(FixedCycleDataRecorder):
 
 
 if __name__ == "__main__":
-    Stock1wkHfqKdata.record_data(codes=["300999"])
+    Stock1wkHfqKdata.record_data(codes=["300999"])#codes=["300999"]
 
 # the __all__ is generated
 __all__ = ["JqChinaStockKdataRecorder"]

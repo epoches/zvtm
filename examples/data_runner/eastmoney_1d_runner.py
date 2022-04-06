@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# emfinace更新容易出错
 import logging
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -22,7 +23,7 @@ logger = logging.getLogger(__name__)
 sched = BackgroundScheduler()
 
 
-@sched.scheduled_job('cron',day_of_week='mon-fri', hour=15, minute=10)
+@sched.scheduled_job('cron',day_of_week='mon-fri', hour=14, minute=10)
 def record_stock_data(data_provider="eastmoney", entity_provider="eastmoney"):
     # A股Finance
     run_data_recorder(
@@ -30,7 +31,7 @@ def record_stock_data(data_provider="eastmoney", entity_provider="eastmoney"):
         data_provider=data_provider,
         entity_provider=entity_provider,
         day_data=False,
-        sleeping_time=5,
+        sleeping_time=10,
     )
 
 

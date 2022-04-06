@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 sched = BackgroundScheduler()
 
 
-@sched.scheduled_job('cron',day_of_week='mon-fri', hour=15, minute=15)
+@sched.scheduled_job('cron',day_of_week='mon-fri', hour=1, minute=10)
 def record_stock_data(data_provider="joinquant", entity_provider="joinquant"):
     # A股后复权行情
     run_data_recorder(

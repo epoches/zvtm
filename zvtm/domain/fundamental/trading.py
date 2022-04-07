@@ -25,7 +25,7 @@ class ManagerTrading(TradingBase, Mixin):
     #: 结存股票
     holding = Column(Float)
     #: 交易方式
-    trading_way = Column(String(length=32))
+    trading_way = Column(String(length=64))
     #: 董监高管
     manager = Column(String(length=32))
     #: 高管职位

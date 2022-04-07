@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
-from jqdatapy import get_token, get_money_flow
-
+#from jqdatapy import get_token, get_money_flow
+from jqdatasdk import *
 from zvtm import zvt_config
 from zvtm.api.kdata import generate_kdata_id
 from zvtm.contract import IntervalLevel
@@ -62,7 +62,8 @@ class JoinquantStockMoneyFlowRecorder(FixedCycleDataRecorder):
             one_day_trading_minutes,
         )
         self.compute_index_money_flow = compute_index_money_flow
-        get_token(zvt_config["jq_username"], zvt_config["jq_password"], force=True)
+        #get_token(zvt_config["jq_username"], zvt_config["jq_password"], force=True)
+        auth(zvt_config["jq_username"], zvt_config["jq_password"])
 
     def generate_domain_id(self, entity, original_data):
         return generate_kdata_id(entity_id=entity.id, timestamp=original_data["timestamp"], level=self.level)
@@ -74,9 +75,9 @@ class JoinquantStockMoneyFlowRecorder(FixedCycleDataRecorder):
 
     def record(self, entity, start, end, size, timestamps):
         if not self.end_timestamp:
-            df = get_money_flow(code=to_jq_entity_id(entity), date=to_time_str(start))
+            df = get_money_flow(security_list=to_jq_entity_id(entity), count=size)
         else:
-            df = get_money_flow(code=to_jq_entity_id(entity), date=start, end_date=to_time_str(self.end_timestamp))
+            df = get_money_flow(security_list=to_jq_entity_id(entity), start_date=to_time_str(start), end_date=to_time_str(self.end_timestamp))
 
         df = df.dropna()
 

@@ -31,7 +31,7 @@ class HolderTradingRecorder(EastmoneyMoreDataRecorder):
 if __name__ == "__main__":
     # init_log('holder_trading.log')
 
-    recorder = HolderTradingRecorder(codes=["002572"])
+    recorder = HolderTradingRecorder() #codes=["002572"]
     recorder.run()
 # the __all__ is generated
 __all__ = ["HolderTradingRecorder"]

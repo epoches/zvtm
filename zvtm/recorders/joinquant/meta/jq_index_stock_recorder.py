@@ -170,6 +170,6 @@ def get_index_stock(entity_item, timestamp, name):
 
 if __name__ == '__main__':
     #JqIndexRecorder().run()
-    JqIndexStockRecorder(code=['000001']).run()
+    JqIndexStockRecorder(code=['000001']).run()#code=['000001']
 # the __all__ is generated
 __all__ = ['JqIndexRecorder','JqIndexStockRecorder']

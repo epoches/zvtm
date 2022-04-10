@@ -68,8 +68,9 @@ def call_eastmoney_api(url=None, method="post", param=None, path_fields=None):
         resp = requests.post(url, json=param)
 
     resp.encoding = "utf8"
-
+    #import gzip
     try:
+        #gzip.decompress(resp.json().get("Result")).decode("utf-8")
         origin_result = resp.json().get("Result")
     except Exception as e:
         logger.exception("code:{},content:{}".format(resp.status_code, resp.text))

@@ -34,6 +34,6 @@ class FundamentalSelector(TargetSelector):
 
 
 if __name__ == "__main__":
-    selector: TargetSelector = FundamentalSelector(start_timestamp="2015-01-01", end_timestamp="2019-06-30")
+    selector: TargetSelector = FundamentalSelector(start_timestamp="2015-01-01", end_timestamp="2022-04-10")
     selector.run()
-    print(selector.get_targets("2019-06-30"))
+    print(selector.get_targets("2022-04-10"))

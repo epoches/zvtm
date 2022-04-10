@@ -94,14 +94,13 @@ Cookie: __utma=156575163.1843700306.1488352720.1499234323.1502172029.4; __utmc=1
 Connection: keep-alive
 """
 )
-
+#Accept-Encoding: gzip, deflate
 DEFAULT_BALANCE_SHEET_HEADER = chrome_copy_header_to_dict(
     """
 Host: money.finance.sina.com.cn
 User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:54.0) Gecko/20100101 Firefox/54.0
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
 Accept-Language: en-US,en;q=0.5
-Accept-Encoding: gzip, deflate
 Referer: http://vip.stock.finance.sina.com.cn/corp/go.php/vFD_CashFlow/stockid/000338/ctrl/part/displaytype/4.phtml
 Cookie: U_TRS1=000000be.c95848c3.59817e10.a54886e2; U_TRS2=000000be.c96a48c3.59817e10.a91795e2; UOR=,vip.stock.finance.sina.com.cn,; ULV=1501658645426:2:2:2:182.148.114.190_1501658642.469995:1501658642409; SINAGLOBAL=182.148.114.190_1501658642.469991; Apache=182.148.114.190_1501658642.469995; _s_upa=1; SUB=_2A250hQ5nDeRhGedL4lQQ8ivPzziIHXVX83ivrDV_PUNbm9BeLXigkW8-niaOks2yNkw8lYo-TvoqGk6nRA..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9W5J7vXaOMNYJQ0d27EZPWIF5NHD95QpSK.ceKzfe0BXWs4Dqcj.i--fi-zRiKnEi--fiKLhi-iWi--Xi-isi-88i--Ri-2piKyh; SCF=At4whqZZyjTBTvcLfR0tyqIpfHUX2VOK-qvBVHkbyahiCVcr4-8NjJQGHwCaTtkQJ0SPmrzvZARwtEkL1I_46z8.; ALF=1533194679; sso_info=v02m6alo5qztbaYloWum6akpp2WpaSPk4S1jpOYsYyjlLONg5DA; FINANCE2=f7634b1d12920e2763ffc0dc463ef6bb
 Connection: keep-alive

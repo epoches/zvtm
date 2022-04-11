@@ -94,20 +94,21 @@ Cookie: __utma=156575163.1843700306.1488352720.1499234323.1502172029.4; __utmc=1
 Connection: keep-alive
 """
 )
-#Accept-Encoding: gzip, deflate
+
 DEFAULT_BALANCE_SHEET_HEADER = chrome_copy_header_to_dict(
     """
 Host: money.finance.sina.com.cn
 User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:54.0) Gecko/20100101 Firefox/54.0
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
 Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
 Referer: http://vip.stock.finance.sina.com.cn/corp/go.php/vFD_CashFlow/stockid/000338/ctrl/part/displaytype/4.phtml
 Cookie: U_TRS1=000000be.c95848c3.59817e10.a54886e2; U_TRS2=000000be.c96a48c3.59817e10.a91795e2; UOR=,vip.stock.finance.sina.com.cn,; ULV=1501658645426:2:2:2:182.148.114.190_1501658642.469995:1501658642409; SINAGLOBAL=182.148.114.190_1501658642.469991; Apache=182.148.114.190_1501658642.469995; _s_upa=1; SUB=_2A250hQ5nDeRhGedL4lQQ8ivPzziIHXVX83ivrDV_PUNbm9BeLXigkW8-niaOks2yNkw8lYo-TvoqGk6nRA..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9W5J7vXaOMNYJQ0d27EZPWIF5NHD95QpSK.ceKzfe0BXWs4Dqcj.i--fi-zRiKnEi--fiKLhi-iWi--Xi-isi-88i--Ri-2piKyh; SCF=At4whqZZyjTBTvcLfR0tyqIpfHUX2VOK-qvBVHkbyahiCVcr4-8NjJQGHwCaTtkQJ0SPmrzvZARwtEkL1I_46z8.; ALF=1533194679; sso_info=v02m6alo5qztbaYloWum6akpp2WpaSPk4S1jpOYsYyjlLONg5DA; FINANCE2=f7634b1d12920e2763ffc0dc463ef6bb
 Connection: keep-alive
 Upgrade-Insecure-Requests: 1
 """
 )
-
+# Accept-Encoding: gzip, deflate
 DEFAULT_SH_SUMMARY_HEADER = chrome_copy_header_to_dict(
     """
 Host: query.sse.com.cn
@@ -115,19 +116,17 @@ Connection: keep-alive
 User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36
 Accept: */*
 Referer: http://www.sse.com.cn/market/stockdata/overview/day/
-Accept-Encoding: gzip, deflate
 Accept-Language: zh-CN,zh;q=0.8,en;q=0.6
 Cookie: yfx_c_g_u_id_10000042=_ck17122009304714819234313401740; VISITED_COMPANY_CODE=%5B%22000016%22%5D; VISITED_INDEX_CODE=%5B%22000016%22%5D; yfx_f_l_v_t_10000042=f_t_1513733447386__r_t_1515716891222__v_t_1515721033042__r_c_3; VISITED_MENU=%5B%228464%22%2C%229666%22%2C%229668%22%2C%229669%22%2C%228454%22%2C%228460%22%2C%229665%22%2C%228459%22%2C%229692%22%2C%228451%22%2C%228466%22%5D
 """
 )
-
+#Accept-Encoding: gzip, deflate
 DEFAULT_SH_ETF_LIST_HEADER = chrome_copy_header_to_dict(
     """
 Host: query.sse.com.cn
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36
 Accept: */*
 Referer: http://www.sse.com.cn/assortment/fund/etf/list/
-Accept-Encoding: gzip, deflate
 Accept-Language: zh-CN,zh;q=0.9
 Cookie: yfx_c_g_u_id_10000042=_ck19062609443812815766114343798; VISITED_COMPANY_CODE=%5B%22510300%22%5D; VISITED_FUND_CODE=%5B%22510300%22%5D; VISITED_MENU=%5B%228307%22%2C%228823%22%2C%228547%22%2C%228556%22%2C%228549%22%2C%2210848%22%2C%228550%22%5D; yfx_f_l_v_t_10000042=f_t_1561513478278__r_t_1561692626758__v_t_1561695738302__r_c_1
 Connection: keep-alive

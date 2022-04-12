@@ -6,7 +6,7 @@ from typing import Type
 from zvtm import zvt_config
 from zvtm.contract import Mixin
 from zvtm.informer import EmailInformer
-from jqdatasdk import *
+#from jqdatasdk import *
 
 logger = logging.getLogger("__name__")
 
@@ -21,21 +21,21 @@ def run_data_recorder(
     **recorder_kv,
 ):
     logger.info(f" record data: {domain.__name__}, entity_provider: {entity_provider}, data_provider: {data_provider}")
-    try:
-        auth(zvt_config["jq_username"], zvt_config["jq_password"])
-    except Exception as e:
-        logger.exception("report error:{}".format(e))
-        quit()
+    # try:
+    #     auth(zvt_config["jq_username"], zvt_config["jq_password"])
+    # except Exception as e:
+    #     logger.exception("report error:{}".format(e))
+    #     quit()
     while retry_times > 0:
         email_action = EmailInformer()
 
 
-        spare = get_query_count()
+        #spare = get_query_count() , 剩余数据条数:{spare['spare'] }  {zvt_config['jq_username']}剩余数据条数:{spare['spare'] }
         try:
             domain.record_data(
                 entity_ids=entity_ids, provider=data_provider, sleeping_time=sleeping_time, **recorder_kv
             )
-            msg = f"record {domain.__name__} success , 剩余数据条数:{spare['spare'] }"
+            msg = f"record {domain.__name__} success "
             logger.info(msg)
             email_action.send_message(zvt_config["email_username"], msg, msg)
             break
@@ -46,8 +46,8 @@ def run_data_recorder(
             if retry_times == 0:
                 email_action.send_message(
                     zvt_config["email_username"],
-                    f"record {domain.__name__} error, {zvt_config['jq_username']}剩余数据条数:{spare['spare'] }",
-                    f"record {domain.__name__} error: {e}, {zvt_config['jq_username']}剩余数据条数:{spare['spare'] }",
+                    f"record {domain.__name__} error",
+                    f"record {domain.__name__} error: {e}",
                 )
 
 

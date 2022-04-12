@@ -382,7 +382,10 @@ def get_data(
                 df = index_df(df, index=index, drop=drop_index_col, time_field=time_field)
         return df
     elif return_type == "domain":
-        return query.all()
+        try:
+            return query.all()
+        except:
+            session.rollback()
     elif return_type == "dict":
         return [item.__dict__ for item in query.all()]
 

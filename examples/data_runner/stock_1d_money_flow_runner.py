@@ -32,9 +32,9 @@ def record_stock_data(data_provider="joinquant", entity_provider="joinquant"):
         entity_provider=entity_provider,
         day_data=False,
         sleeping_time=0,
-        end_timestamp=datetime.datetime.now().strftime("%Y-%m-%d"),
-    )
 
+    )
+#end_timestamp=datetime.datetime.now().strftime("%Y-%m-%d"),
 
 if __name__ == "__main__":
     init_log("joinquant_Stock1dMoneyFlow_runner.log")

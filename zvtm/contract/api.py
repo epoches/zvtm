@@ -386,6 +386,7 @@ def get_data(
             return query.all()
         except:
             session.rollback()
+            session.close()
     elif return_type == "dict":
         return [item.__dict__ for item in query.all()]
 

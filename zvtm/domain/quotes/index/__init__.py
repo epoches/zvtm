@@ -22,3 +22,11 @@ __all__ += _index_1wk_kdata_all
 from .index_1mon_kdata import *
 from .index_1mon_kdata import __all__ as _index_1mon_kdata_all
 __all__ += _index_1mon_kdata_all
+
+from .index_5m_kdata import *
+from .index_5m_kdata import __all__ as _index_5m_kdata_all
+__all__ += _index_5m_kdata_all
+
+from .index_1h_kdata import *
+from .index_1h_kdata import __all__ as _index_1h_kdata_all
+__all__ += _index_1h_kdata_all

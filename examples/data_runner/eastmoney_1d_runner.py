@@ -33,7 +33,7 @@ def record_stock_data(data_provider="eastmoney", entity_provider="eastmoney"):
         day_data=False,
         sleeping_time=10,
     )
-
+# code = '000683',
 
 
 if __name__ == "__main__":

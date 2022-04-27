@@ -107,6 +107,8 @@ class JqChinaStockKdataRecorder(FixedCycleDataRecorder):
                 self.session.commit()
 
     def record(self, entity, start, end, size, timestamps):
+        if size < 0:
+            size = abs(size)
         if self.adjust_type == AdjustType.hfq:
             fq_ref_date = '2000-01-01'
         else:

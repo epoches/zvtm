@@ -188,6 +188,18 @@ def evaluate_size_from_timestamp(
 
     one_day_trading_seconds = one_day_trading_minutes * 60
 
+    if level == IntervalLevel.LEVEL_1HOUR:
+        return time_delta.days * 4
+
+    if level == IntervalLevel.LEVEL_5MIN:
+        return time_delta.days * 4 * 12
+
+    if level == IntervalLevel.LEVEL_1MIN:
+        if time_delta.days == 0:
+            return 4 * 12 * 5
+        else:
+            time_delta.days * 4 * 12 * 5
+
     if level == IntervalLevel.LEVEL_1DAY:
         return time_delta.days + 1
 

@@ -31,7 +31,7 @@ def record_stock_data(data_provider="joinquant", entity_provider="joinquant"):
         data_provider=data_provider,
         entity_provider=entity_provider,
         day_data=False,
-        sleeping_time=5,
+        sleeping_time=0,
 
     )
 #end_timestamp=datetime.datetime.now().strftime("%Y-%m-%d"),

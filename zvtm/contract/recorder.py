@@ -610,12 +610,20 @@ class FixedCycleDataRecorder(TimeSeriesDataRecorder):
 
         if not latest_saved_timestamp:
             return None, None, self.default_size, None
+        if self.end_timestamp:
+            size = evaluate_size_from_timestamp(
+                start_timestamp=latest_saved_timestamp,
+                end_timestamp = self.end_timestamp,
+                level=self.level,
+                one_day_trading_minutes=self.one_day_trading_minutes,
+            )
+        else:
+            size = evaluate_size_from_timestamp(
+                start_timestamp=latest_saved_timestamp,
+                level=self.level,
+                one_day_trading_minutes=self.one_day_trading_minutes,
+            )
 
-        size = evaluate_size_from_timestamp(
-            start_timestamp=latest_saved_timestamp,
-            level=self.level,
-            one_day_trading_minutes=self.one_day_trading_minutes,
-        )
 
         if self.start_timestamp:
             start = max(self.start_timestamp, latest_saved_timestamp)

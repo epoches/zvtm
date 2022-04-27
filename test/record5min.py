@@ -1,6 +1,12 @@
 #保存数据到数据库,5分钟需要保存的
-from zvtm.domain import Stock5mHfqKdata
+from zvtm.domain import Stock5mHfqKdata,StockTradeDay
+# Stock5mHfqKdata.record_data(provider='joinquant',code='601398', sleeping_time=5,
+#                             )
+# start_timestamp = '2019-01-01', end_timestamp = '2020-02-27'
 
-
-Stock5mHfqKdata.record_data(provider='joinquant',code='002382', sleeping_time=0,
-   )#,code='000156',force_update=True,
+df0 = StockTradeDay.query_data(provider='joinquant',start_timestamp='2019-11-22',end_timestamp='2022-04-22')
+for i in range(0,len(df0),100):
+    print(df0.iloc[i]['timestamp'])
+    if i < len(df0)-100:
+      Stock5mHfqKdata.record_data(provider='joinquant',code='603617', sleeping_time=2,
+                            start_timestamp = df0.iloc[i]['timestamp'].strftime("%Y-%m-%d"), end_timestamp = df0.iloc[i+100]['timestamp'].strftime("%Y-%m-%d")) #,code='000156',force_update=True,

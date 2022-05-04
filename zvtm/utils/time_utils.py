@@ -191,6 +191,9 @@ def evaluate_size_from_timestamp(
     if level == IntervalLevel.LEVEL_1HOUR:
         return time_delta.days * 4
 
+    if level == IntervalLevel.LEVEL_30MIN:
+        return time_delta.days * 4 * 2
+
     if level == IntervalLevel.LEVEL_5MIN:
         return time_delta.days * 4 * 12
 

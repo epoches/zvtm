@@ -15,6 +15,10 @@ from zvtm.domain import (
     BlockKdataCommon,
     Indexus,
     IndexusKdataCommon,
+    Future,
+    FutureKdataCommon,
+    Currency,
+    CurrencyKdataCommon,
 )
 from zvtm.domain.meta.stockhk_meta import Stockhk
 from zvtm.domain.meta.stockus_meta import Stockus
@@ -124,7 +128,7 @@ class EMStockhkKdataRecorder(BaseEMStockKdataRecorder):
 
 
 class EMIndexKdataRecorder(BaseEMStockKdataRecorder):
-    entity_provider = "exchange"
+    entity_provider = "em"
     entity_schema = Index
 
     data_schema = IndexKdataCommon
@@ -144,8 +148,24 @@ class EMBlockKdataRecorder(BaseEMStockKdataRecorder):
     data_schema = BlockKdataCommon
 
 
+class EMFutureKdataRecorder(BaseEMStockKdataRecorder):
+    entity_provider = "em"
+    entity_schema = Future
+
+    data_schema = FutureKdataCommon
+
+
+class EMCurrencyKdataRecorder(BaseEMStockKdataRecorder):
+    entity_provider = "em"
+    entity_schema = Currency
+
+    data_schema = CurrencyKdataCommon
+
+
 if __name__ == "__main__":
-    recorder = EMIndexusKdataRecorder(level=IntervalLevel.LEVEL_1DAY, codes=["DJIA", "SPX", "NDX"])
+    df = Currency.query_data(filters=[Currency.code.like("USD%")])
+    entity_ids = df["entity_id"].tolist()
+    recorder = EMCurrencyKdataRecorder(level=IntervalLevel.LEVEL_1DAY, entity_ids=entity_ids, sleeping_time=0)
     recorder.run()
 # the __all__ is generated
 __all__ = [
@@ -156,4 +176,6 @@ __all__ = [
     "EMIndexKdataRecorder",
     "EMIndexusKdataRecorder",
     "EMBlockKdataRecorder",
+    "EMFutureKdataRecorder",
+    "EMCurrencyKdataRecorder",
 ]

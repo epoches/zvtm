@@ -219,6 +219,12 @@ def set_one_and_only_one(**kwargs):
     return True
 
 
+if __name__ == "__main__":
+    url = url_unquote(
+        "https://datacenter.eastmoney.com/securities/api/data/get?type=RPT_DAILYBILLBOARD_DETAILS&sty=ALL&source=DataCenter&client=WAP&p=1&ps=20&sr=-1,1&st=TRADE_DATE,SECURITY_CODE&filter=(TRADE_DATE%3E=%272022-04-01%27)(TRADE_DATE%3C=%272022-04-29%27)(MARKET=%22SH%22)&?v=05160638952989893"
+    )
+    print(url)
+
 # the __all__ is generated
 __all__ = [
     "none_values",

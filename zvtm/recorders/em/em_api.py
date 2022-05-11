@@ -12,7 +12,7 @@ from zvtm.contract import ActorType, AdjustType, IntervalLevel, Exchange, Tradab
 from zvtm.contract.api import decode_entity_id
 from zvtm.domain import BlockCategory
 from zvtm.recorders.consts import DEFAULT_HEADER
-from zvtm.utils import to_pd_timestamp, to_float, json_callback_param, now_timestamp
+from zvtm.utils import to_pd_timestamp, to_float, json_callback_param, now_timestamp, to_time_str
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +67,33 @@ def get_ii_holder_report_dates(code):
         filters=generate_filters(code=code),
         sort_by="REPORT_DATE",
         sort="desc",
+    )
+
+
+def get_dragon_and_tiger_list(start_date, end_date=None):
+    start_date = to_time_str(start_date)
+    if not end_date:
+        end_date = now_timestamp()
+    end_date = to_time_str(end_date)
+    return get_em_data(
+        request_type="RPT_DAILYBILLBOARD_DETAILS",
+        fields="ALL",
+        source="DataCenter",
+        filters=f"(TRADE_DATE>='{start_date}')(TRADE_DATE<='{end_date}')",
+        sort_by="TRADE_DATE,SECURITY_CODE",
+        sort="asc,asc",
+    )
+
+
+# 龙虎榜
+def get_dragon_and_tiger(code, start_date=None):
+    return get_em_data(
+        request_type="RPT_OPERATEDEPT_TRADE",
+        fields="TRADE_ID,TRADE_DATE,EXPLANATION,SECUCODE,SECURITY_CODE,SECURITY_NAME_ABBR,ACCUM_AMOUNT,CHANGE_RATE,NET_BUY,BUY_BUY_TOTAL,BUY_SELL_TOTAL,BUY_RATIO_TOTAL,SELL_BUY_TOTAL,SELL_SELL_TOTAL,SELL_RATIO_TOTAL,TRADE_DIRECTION,RANK,OPERATEDEPT_NAME,BUY_AMT_REAL,SELL_AMT_REAL,BUY_RATIO,SELL_RATIO,BUY_TOTAL,SELL_TOTAL,BUY_TOTAL_NET,SELL_TOTAL_NET,NET",
+        filters=generate_filters(code=code, trade_date=start_date, field_op={"trade_date": ">="}),
+        params='(groupField=TRADE_ID)(groupedFields=TRADE_DIRECTION,RANK,OPERATEDEPT_NAME,BUY_AMT_REAL,SELL_AMT_REAL,BUY_RATIO,SELL_RATIO,NET")(groupListName="LIST")',
+        sort_by="TRADE_DATE,RANK",
+        sort="asc,asc",
     )
 
 
@@ -128,23 +155,32 @@ def get_holders(code, end_date):
     )
 
 
-def get_url(type, sty, filters=None, order_by="", order="asc", pn=1, ps=2000):
+def _order_param(order: str):
+    if order:
+        orders = order.split(",")
+        return ",".join(["1" if item == "asc" else "-1" for item in orders])
+    return order
+
+
+def get_url(type, sty, source="SECURITIES", filters=None, order_by="", order="asc", pn=1, ps=2000, params=None):
     # 根据 url 映射如下
     # type=RPT_F10_MAIN_ORGHOLDDETAILS
     # sty=SECURITY_CODE,SECUCODE,REPORT_DATE,ORG_TYPE,TOTAL_ORG_NUM,TOTAL_FREE_SHARES,TOTAL_MARKET_CAP,TOTAL_SHARES_RATIO,CHANGE_RATIO,IS_COMPLETE
     # filter=(SECUCODE="000338.SZ")(REPORT_DATE=\'2021-03-31\')(ORG_TYPE="01")
     # sr=1
     # st=
-    if order == "asc":
-        sr = 1
-    else:
-        sr = -1
+    sr = _order_param(order=order)
     v = random.randint(1000000000000000, 9000000000000000)
 
     if filters:
-        return f"https://datacenter.eastmoney.com/securities/api/data/get?type={type}&sty={sty}&filter={filters}&client=APP&source=SECURITIES&p={pn}&ps={ps}&sr={sr}&st={order_by}&v=0{v}"
+        url = f"https://datacenter.eastmoney.com/securities/api/data/get?type={type}&sty={sty}&filter={filters}&client=APP&source={source}&p={pn}&ps={ps}&sr={sr}&st={order_by}&v=0{v}"
     else:
-        return f"https://datacenter.eastmoney.com/api/data/get?type={type}&sty={sty}&st={order_by}&sr={sr}&p={pn}&ps={ps}&_={now_timestamp()}"
+        url = f"https://datacenter.eastmoney.com/api/data/get?type={type}&sty={sty}&st={order_by}&sr={sr}&p={pn}&ps={ps}&_={now_timestamp()}"
+
+    if params:
+        url = url + f"&params={params}"
+
+    return url
 
 
 def get_exchange(code):
@@ -172,22 +208,50 @@ def actor_type_to_org_type(actor_type: ActorType):
     assert False
 
 
-def generate_filters(code=None, report_date=None, end_date=None, org_type=None):
+def generate_filters(code=None, trade_date=None, report_date=None, end_date=None, org_type=None, field_op: dict = None):
+    args = [item for item in locals().items() if item[1] and (item[0] not in ("code", "org_type", "field_op"))]
+
     result = ""
     if code:
         result += f'(SECUCODE="{code}.{get_exchange(code)}")'
-    if report_date:
-        result += f"(REPORT_DATE='{report_date}')"
     if org_type:
         result += f'(ORG_TYPE="{org_type}")'
-    if end_date:
-        result += f"(END_DATE='{end_date}')"
+
+    for arg in args:
+        field = arg[0]
+        value = arg[1]
+        if field_op:
+            op = field_op.get(field, "=")
+        else:
+            op = "="
+        result += f"({field.upper()}{op}'{value}')"
 
     return result
 
 
-def get_em_data(request_type, fields, filters=None, sort_by="", sort="asc", pn=1, ps=2000, fetch_all=True):
-    url = get_url(type=request_type, sty=fields, filters=filters, order_by=sort_by, order=sort, pn=pn, ps=ps)
+def get_em_data(
+    request_type,
+    fields,
+    source="SECURITIES",
+    filters=None,
+    sort_by="",
+    sort="asc",
+    pn=1,
+    ps=2000,
+    fetch_all=True,
+    params=None,
+):
+    url = get_url(
+        type=request_type,
+        sty=fields,
+        source=source,
+        filters=filters,
+        order_by=sort_by,
+        order=sort,
+        pn=pn,
+        ps=ps,
+        params=params,
+    )
     resp = requests.get(url)
     if resp.status_code == 200:
         json_result = resp.json()
@@ -198,6 +262,7 @@ def get_em_data(request_type, fields, filters=None, sort_by="", sort="asc", pn=1
                     next_data = get_em_data(
                         request_type=request_type,
                         fields=fields,
+                        source=source,
                         filters=filters,
                         sort_by=sort_by,
                         sort=sort,
@@ -255,6 +320,9 @@ def get_kdata(entity_id, level=IntervalLevel.LEVEL_1DAY, adjust_type=AdjustType.
     sec_id = to_em_sec_id(entity_id)
     fq_flag = to_em_fq_flag(adjust_type)
     level_flag = to_em_level_flag(level)
+    # f131 结算价
+    # f133 持仓
+    # 目前未获取
     url = f"https://push2his.eastmoney.com/api/qt/stock/kline/get?secid={sec_id}&klt={level_flag}&fqt={fq_flag}&lmt={limit}&end=20500000&iscca=1&fields1=f1,f2,f3,f4,f5,f6,f7,f8&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63,f64&ut=f057cbcbce2a86e2866ab8877db1d059&forcect=1"
 
     resp = requests.get(url, headers=DEFAULT_HEADER)
@@ -272,6 +340,7 @@ def get_kdata(entity_id, level=IntervalLevel.LEVEL_1DAY, adjust_type=AdjustType.
             # "2000-01-28,1005.26,1012.56,1173.12,982.13,3023326,3075552000.00"
             # "2021-08-27,19.39,20.30,20.30,19.25,1688497,3370240912.00,5.48,6.01,1.15,3.98,0,0,0"
             # time,open,close,high,low,volume,turnover
+            # "2022-04-13,10708,10664,10790,10638,402712,43124771328,1.43,0.57,60,0.00,4667112399583576064,4690067230254170112,1169270784"
             fields = result.split(",")
             the_timestamp = to_pd_timestamp(fields[0])
 
@@ -334,6 +403,39 @@ def get_basic_info(entity_id):
     return resp.json()["Result"][result_field]
 
 
+def get_future_list():
+    # 主连
+    url = f"https://futsseapi.eastmoney.com/list/filter/2?fid=sp_all&mktid=0&typeid=0&pageSize=1000&pageIndex=0&callbackName=jQuery34106875017735118845_1649736551642&sort=asc&orderBy=idx&_={now_timestamp()}"
+    resp = requests.get(url, headers=DEFAULT_HEADER)
+    resp.raise_for_status()
+    result = json_callback_param(resp.text)
+    # [['DCE', 'im'], ['SHFE', 'rbm'], ['SHFE', 'hcm'], ['SHFE', 'ssm'], ['CZCE', 'SFM'], ['CZCE', 'SMM'], ['SHFE', 'wrm'], ['SHFE', 'cum'], ['SHFE', 'alm'], ['SHFE', 'znm'], ['SHFE', 'pbm'], ['SHFE', 'nim'], ['SHFE', 'snm'], ['INE', 'bcm'], ['SHFE', 'aum'], ['SHFE', 'agm'], ['DCE', 'am'], ['DCE', 'bm'], ['DCE', 'ym'], ['DCE', 'mm'], ['CZCE', 'RSM'], ['CZCE', 'OIM'], ['CZCE', 'RMM'], ['DCE', 'pm'], ['DCE', 'cm'], ['DCE', 'csm'], ['DCE', 'jdm'], ['CZCE', 'CFM'], ['CZCE', 'CYM'], ['CZCE', 'SRM'], ['CZCE', 'APM'], ['CZCE', 'CJM'], ['CZCE', 'PKM'], ['CZCE', 'PMM'], ['CZCE', 'WHM'], ['DCE', 'rrm'], ['CZCE', 'JRM'], ['CZCE', 'RIM'], ['CZCE', 'LRM'], ['DCE', 'lhm'], ['INE', 'scm'], ['SHFE', 'fum'], ['DCE', 'pgm'], ['INE', 'lum'], ['SHFE', 'bum'], ['CZCE', 'MAM'], ['DCE', 'egm'], ['DCE', 'lm'], ['CZCE', 'TAM'], ['DCE', 'vm'], ['DCE', 'ppm'], ['DCE', 'ebm'], ['CZCE', 'SAM'], ['CZCE', 'FGM'], ['CZCE', 'URM'], ['SHFE', 'rum'], ['INE', 'nrm'], ['SHFE', 'spm'], ['DCE', 'fbm'], ['DCE', 'bbm'], ['CZCE', 'PFM'], ['DCE', 'jmm'], ['DCE', 'jm'], ['CZCE', 'ZCM'], ['8', '060120'], ['8', '040120'], ['8', '070120'], ['8', '110120'], ['8', '050120'], ['8', '130120']]
+    futures = []
+    for item in result["list"]:
+        entity = {}
+        entity["exchange"], entity["code"] = item["uid"].split("|")
+
+        # {'8', 'CZCE', 'DCE', 'INE', 'SHFE'}
+        if entity["exchange"] == "8":
+            entity["exchange"] = "cffex"
+            entity["code"] = to_zvt_code(entity["code"])
+        else:
+            entity["exchange"] = Exchange(entity["exchange"].lower()).value
+            if entity["code"][-1].lower() == "m":
+                entity["code"] = entity["code"][:-1]
+            else:
+                assert False
+            entity["code"] = entity["code"].upper()
+
+        entity["entity_type"] = "future"
+        entity["name"] = item["name"]
+        entity["id"] = f"future_{entity['exchange']}_{entity['code']}"
+        entity["entity_id"] = entity["id"]
+        futures.append(entity)
+    df = pd.DataFrame.from_records(data=futures)
+    return df
+
+
 def get_tradable_list(
     entity_type: Union[TradableType, str] = "stock",
     exchange: Union[Exchange, str] = None,
@@ -342,6 +444,9 @@ def get_tradable_list(
     block_category=BlockCategory.concept,
 ):
     entity_type = TradableType(entity_type)
+    if entity_type == TradableType.future:
+        return get_future_list()
+
     exchanges = get_entity_exchanges(entity_type=entity_type)
 
     if exchange is not None:
@@ -354,8 +459,16 @@ def get_tradable_list(
         ex_flag = to_em_entity_flag(exchange=exchange)
         entity_flag = f"fs=m:{ex_flag}"
 
-        if entity_type == TradableType.indexus:
-            entity_flag = "fs=i:100.NDX,i:100.DJIA,i:100.SPX"
+        if entity_type == TradableType.index:
+            if exchange == Exchange.sh:
+                entity_flag = "fs=i:1.000001,i:1.000002,i:1.000003,i:1.000009,i:1.000010,i:1.000011,i:1.000012,i:1.000016,i:1.000300,i:1.000903,i:1.000905,i:1.000906,i:1.000688"
+            if exchange == Exchange.sz:
+                entity_flag = "fs=i:0.399001,i:0.399002,i:0.399003,i:0.399004,i:0.399005,i:0.399006,i:0.399100,i:0.399106,i:0.399305,i:0.399550"
+        elif entity_type == TradableType.currency:
+            entity_flag = "fs=m:119,m:120"
+        elif entity_type == TradableType.indexus:
+            # 纳斯达克，道琼斯，标普500，美元指数
+            entity_flag = "fs=i:100.NDX,i:100.DJIA,i:100.SPX,i:100.UDI"
         # m为交易所代码，t为交易类型
         elif entity_type in [TradableType.block, TradableType.stock, TradableType.stockus, TradableType.stockhk]:
             if exchange == Exchange.sh:
@@ -390,7 +503,11 @@ def get_tradable_list(
                 else:
                     assert False
 
-        url = f"https://push2.eastmoney.com/api/qt/clist/get?np=1&fltt=2&invt=2&fields=f1,f2,f3,f4,f12,f13,f14&pn=1&pz={limit}&fid=f3&po=1&{entity_flag}&ut=f057cbcbce2a86e2866ab8877db1d059&forcect=1&cb=cbCallbackMore&&callback=jQuery34109676853980006124_{now_timestamp() - 1}&_={now_timestamp()}"
+        fields = "f1,f2,f3,f4,f12,f13,f14"
+        if entity_type == TradableType.stock:
+            # 市值,流通市值,pe,pb
+            fields = fields + ",f20,f21,f9,f23"
+        url = f"https://push2.eastmoney.com/api/qt/clist/get?np=1&fltt=2&invt=2&fields={fields}&pn=1&pz={limit}&fid=f3&po=1&{entity_flag}&ut=f057cbcbce2a86e2866ab8877db1d059&forcect=1&cb=cbCallbackMore&&callback=jQuery34109676853980006124_{now_timestamp() - 1}&_={now_timestamp()}"
         resp = requests.get(url, headers=DEFAULT_HEADER)
 
         resp.raise_for_status()
@@ -398,8 +515,14 @@ def get_tradable_list(
         result = json_callback_param(resp.text)
         data = result["data"]["diff"]
         df = pd.DataFrame.from_records(data=data)
-        df = df[["f12", "f13", "f14"]]
-        df.columns = ["code", "exchange", "name"]
+        if entity_type == TradableType.stock:
+            df = df[["f12", "f13", "f14", "f20", "f21", "f9", "f23"]]
+            df.columns = ["code", "exchange", "name", "cap", "cap1", "pe", "pb"]
+            df[["cap", "cap1", "pe", "pb"]] = df[["cap", "cap1", "pe", "pb"]].apply(pd.to_numeric, errors="coerce")
+        else:
+            df = df[["f12", "f13", "f14"]]
+            df.columns = ["code", "exchange", "name"]
+
         df["exchange"] = exchange.value
         df["entity_type"] = entity_type.value
         df["id"] = df[["entity_type", "exchange", "code"]].apply(lambda x: "_".join(x.astype(str)), axis=1)
@@ -467,26 +590,38 @@ def to_em_fc(entity_id):
 
 
 exchange_map_em_flag = {
-    # 深证交易所
+    #: 深证交易所
     Exchange.sz: 0,
-    # 上证交易所
+    #: 上证交易所
     Exchange.sh: 1,
-    # 纳斯达克
+    #: 纳斯达克
     Exchange.nasdaq: 105,
-    # 纽交所
+    #: 纽交所
     Exchange.nyse: 106,
-    # 港交所
+    #: 中国金融期货交易所
+    Exchange.cffex: 8,
+    #: 上海期货交易所
+    Exchange.shfe: 113,
+    #: 大连商品交易所
+    Exchange.dce: 114,
+    #: 郑州商品交易所
+    Exchange.czce: 115,
+    #: 上海国际能源交易中心
+    Exchange.ine: 142,
+    #: 港交所
     Exchange.hk: 116,
-    # 中国行业/概念板块
+    #: 中国行业/概念板块
     Exchange.cn: 90,
-    # 美国指数
+    #: 美国指数
     Exchange.us: 100,
+    #: 汇率
+    Exchange.forex: 119,
 }
 
 
 def to_em_entity_flag(exchange: Union[Exchange, str]):
     exchange = Exchange(exchange)
-    return exchange_map_em_flag.get(exchange)
+    return exchange_map_em_flag.get(exchange, exchange)
 
 
 def to_em_fq_flag(adjust_type: AdjustType):
@@ -521,10 +656,38 @@ def to_em_level_flag(level: IntervalLevel):
 
 def to_em_sec_id(entity_id):
     entity_type, exchange, code = decode_entity_id(entity_id)
+    # 主力合约
+    if entity_type == "future" and code[-1].isalpha():
+        code = code + "m"
+    if entity_type == "currency" and "CNYC" in code:
+        return f"120.{code}"
     return f"{to_em_entity_flag(exchange)}.{code}"
 
 
+def to_zvt_code(code):
+    #  ('中证当月连续', '8|060120'),
+    #  ('沪深当月连续', '8|040120'),
+    #  ('上证当月连续', '8|070120'),
+    #  ('十债当季连续', '8|110120'),
+    #  ('五债当季连续', '8|050120'),
+    #  ('二债当季连续', '8|130120')]
+    if code == "060120":
+        return "IC"
+    elif code == "040120":
+        return "IF"
+    elif code == "070120":
+        return "IH"
+    elif code == "110120":
+        return "T"
+    elif code == "050120":
+        return "TF"
+    elif code == "130120":
+        return "TS"
+    return code
+
+
 if __name__ == "__main__":
+    # from pprint import pprint
     # pprint(get_free_holder_report_dates(code='000338'))
     # pprint(get_holder_report_dates(code='000338'))
     # pprint(get_holders(code='000338', end_date='2021-03-31'))
@@ -540,14 +703,24 @@ if __name__ == "__main__":
     # print(len(df))
     # df = get_tradable_list(entity_type="block")
     # df = get_tradable_list(entity_type="indexus")
+    # df = get_tradable_list(entity_type="currency")
+    # df = get_tradable_list(entity_type="index")
     # df = get_kdata(entity_id="index_us_SPX", level="1d")
     # print(df)
-    df = get_treasury_yield(pn=1, ps=50, fetch_all=False)
+    # df = get_treasury_yield(pn=1, ps=50, fetch_all=False)
+    # print(df)
+    # df = get_future_list()
+    # print(df)
+    # df = get_kdata(entity_id="future_dce_I", level="1d")
+    # print(df)
+    # df = get_dragon_and_tiger(code="000989", start_date="2018-10-31")
+    df = get_dragon_and_tiger_list(start_date="2022-04-25")
     print(df)
 # the __all__ is generated
 __all__ = [
     "get_treasury_yield",
     "get_ii_holder_report_dates",
+    "get_dragon_and_tiger",
     "get_holder_report_dates",
     "get_free_holder_report_dates",
     "get_ii_holder",
@@ -561,6 +734,7 @@ __all__ = [
     "get_em_data",
     "get_kdata",
     "get_basic_info",
+    "get_future_list",
     "get_tradable_list",
     "get_news",
     "to_em_fc",
@@ -568,4 +742,5 @@ __all__ = [
     "to_em_fq_flag",
     "to_em_level_flag",
     "to_em_sec_id",
+    "to_zvt_code",
 ]

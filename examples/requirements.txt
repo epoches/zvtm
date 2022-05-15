@@ -1,0 +1,5 @@
+
+apscheduler >= 3.4.0
+eastmoneypy >= 0.0.9
+tabulate>=0.8.8
+ta

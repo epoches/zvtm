@@ -12,7 +12,8 @@ from zvtm.recorders.consts import DEFAULT_HEADER
 from zvtm.utils import to_pd_timestamp, to_float, json_callback_param, now_timestamp, to_time_str
 from zvtm.recorders.em.em_api import get_future_list,to_em_entity_flag
 from zvtm.contract.api import df_to_db
-
+from zvtm.contract.recorder import Recorder
+from zvtm.domain import Block, BlockCategory,BlockStock
 
 def get_hangye_data():
     ret_data = []
@@ -89,9 +90,9 @@ def get_stock_data(item,
 ):
     dfs = []
     # 行业
-    entity_flag = f"fs=m:{item['f12']}"
+    entity_flag = f"fs=b:{item['code']}"
     fields = "f1,f2,f3,f4,f12,f13,f14"
-    url = f"https://push2.eastmoney.com/api/qt/clist/get?np=1&fltt=2&invt=2&fields={fields}&pn=1&pz={limit}&fid=f3&po=1&{entity_flag}&ut=f057cbcbce2a86e2866ab8877db1d059&forcect=1&cb=cbCallbackMore&&callback=jQuery34109676853980006124_{now_timestamp() - 1}&_={now_timestamp()}"
+    url = f"https://push2.eastmoney.com/api/qt/clist/get?np=1&fltt=2&invt=2&fields={fields}&pn=1&pz={limit}&fid=f62&po=1&{entity_flag}&ut=f057cbcbce2a86e2866ab8877db1d059&forcect=1&cb=cbCallbackMore&&callback=jQuery34109676853980006124_{now_timestamp() - 1}&_={now_timestamp()}"
     resp = requests.get(url, headers=DEFAULT_HEADER)
     resp.raise_for_status()
     result = json_callback_param(resp.text)
@@ -99,8 +100,8 @@ def get_stock_data(item,
     df = pd.DataFrame.from_records(data=data)
     df = df[["f12", "f13", "f14"]]
     df.columns = ["stock_code", "exchange", "stock_name"]
-    df["code"] = item["f12"]
-    df["name"] = item["f14"]
+    df["code"] = item["code"]
+    df["name"] = item["name"]
     df["exchange"] = exchange
     df["entity_type"] = entity_type
     df["id"] = df[["entity_type", "exchange", "code","stock_code"]].apply(lambda x: "_".join(x.astype(str)), axis=1)
@@ -110,17 +111,14 @@ def get_stock_data(item,
     dfs.append(df)
     return pd.concat(dfs)
 
+items = Block.query_data(provider='em')
 
-items = get_hangye_data()
-dfs = []
+#items = get_hangye_data()
 
-
-
-
-for item in items:
+for i in range(len(items)):
     #item_stock_data = get_gegu_data(item)
-    df = get_stock_data(item)
-    df_to_db(df=df, data_schema="BlockStock", provider="em", force_update=True)
+    df = get_stock_data(items.iloc[i])
+    df_to_db(df=df, data_schema=BlockStock, provider="em", force_update=True)
     # item_stock_data = get_gegu_data(item)
     # data = item_stock_data['f12', 'f14']
     # df = pd.DataFrame.from_records(data=data)

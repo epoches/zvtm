@@ -25,4 +25,4 @@ from zvtm.informer.informer import EmailInformer
 # Index.record_data(provider='exchange', sleeping_time=5)
 # IndexStock.record_data(provider='exchange', sleeping_time=5)
 # Index1dKdata.record_data(provider='em', sleeping_time=5)
-Stock1dHfqKdata.record_data(provider='em', sleeping_time=5)
+Stock1dHfqKdata.record_data(provider='em', sleeping_time=0)

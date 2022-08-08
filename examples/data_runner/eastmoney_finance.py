@@ -17,7 +17,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from examples.recorder_utils import run_data_recorder
 from zvtm import init_log
-from zvtm.domain import  BalanceSheet,FinanceFactor
+from zvtm.domain import  BalanceSheet,FinanceFactor,CashFlowStatement,IncomeStatement
 logger = logging.getLogger(__name__)
 
 sched = BackgroundScheduler()
@@ -42,10 +42,26 @@ def record_stock_data(data_provider="eastmoney", entity_provider="eastmoney"):
         sleeping_time=1,
     )
 
+    run_data_recorder(
+        domain=CashFlowStatement,
+        data_provider=data_provider,
+        entity_provider=entity_provider,
+        day_data=False,
+        sleeping_time=1,
+    )
+
+    run_data_recorder(
+        domain=IncomeStatement,
+        data_provider=data_provider,
+        entity_provider=entity_provider,
+        day_data=False,
+        sleeping_time=1,
+    )
+
 
 
 if __name__ == "__main__":
-    init_log("eastmoney_balance_runner.log")
+    init_log("eastmoney_finance_runner.log")
 
     record_stock_data()
 

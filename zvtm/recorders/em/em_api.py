@@ -636,6 +636,8 @@ def to_em_fq_flag(adjust_type: AdjustType):
 
 def to_em_level_flag(level: IntervalLevel):
     level = IntervalLevel(level)
+    if level == IntervalLevel.LEVEL_1MIN:
+        return 1
     if level == IntervalLevel.LEVEL_5MIN:
         return 5
     if level == IntervalLevel.LEVEL_15MIN:

@@ -41,14 +41,15 @@ def record_stock_data(data_provider="em", entity_provider="em"):
     while True:
         now = datetime.datetime.now()
         if ((int(now.strftime("%H")) >= 9) and (int(now.strftime("%H")) <= 12)) or (int(now.strftime("%H")) >= 13  and int(now.strftime("%H")) < 15):
-            run_data_recorder(
-                domain=Stock1mHfqKdata,
-                data_provider=data_provider,
-                entity_provider=entity_provider,
-                day_data=False,
-                sleeping_time=0,
-                codes=codes,
-            )
+            # run_data_recorder(
+            #     domain=Stock1mHfqKdata,
+            #     data_provider=data_provider,
+            #     entity_provider=entity_provider,
+            #     day_data=False,
+            #     sleeping_time=0,
+            #     codes=codes,
+            # )
+            Stock1mHfqKdata.record_data(provider='em', sleeping_time=1,codes=codes)
             time.sleep(60)
         else:
             break

@@ -316,7 +316,7 @@ def get_em_data(
 def get_kdata(entity_id, level=IntervalLevel.LEVEL_1DAY, adjust_type=AdjustType.qfq, limit=10000):
     entity_type, exchange, code = decode_entity_id(entity_id)
     level = IntervalLevel(level)
-
+    # limit = abs(limit)
     sec_id = to_em_sec_id(entity_id)
     fq_flag = to_em_fq_flag(adjust_type)
     level_flag = to_em_level_flag(level)

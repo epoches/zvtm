@@ -24,3 +24,9 @@ from .block_1mon_kdata import *
 from .block_1mon_kdata import __all__ as _block_1mon_kdata_all
 
 __all__ += _block_1mon_kdata_all
+
+# import all from submodule block_1m_kdata
+from .block_1m_kdata import *
+from .block_1m_kdata import __all__ as _block_1m_kdata_all
+
+__all__ += _block_1m_kdata_all

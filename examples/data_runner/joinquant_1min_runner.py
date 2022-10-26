@@ -19,7 +19,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import datetime
 from examples.recorder_utils import run_data_recorder
 from zvtm import init_log
-from zvtm.domain import Stock1mKdata,Stock1mHfqKdata
+from zvtm.domain import Stock1mKdata,Stock1mHfqKdata,Index1mKdata
 logger = logging.getLogger(__name__)
 from schedule.utils.query_data import get_data
 sched = BackgroundScheduler()
@@ -59,6 +59,7 @@ def record_stock_data(data_provider="joinquant", entity_provider="joinquant"):
                 sleeping_time=0,
                 codes=codes,
             )
+            Index1mKdata.record_data(provider='joinquant', code='000001', sleeping_time=1)
             #start_timestamp='2022-04-01' start_timestamp= datetime.datetime.now() + datetime.timedelta(seconds=-60),
             time.sleep(60)
         else:

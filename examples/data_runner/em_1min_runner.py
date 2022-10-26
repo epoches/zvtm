@@ -3,10 +3,7 @@
 import logging
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.schedulers.blocking import BlockingScheduler
 import time
-
-from zvtm.domain import StockTradeDay
 
 logger = logging.getLogger(__name__)
 
@@ -14,12 +11,10 @@ sched = BackgroundScheduler()
 
 # -*- coding: utf-8 -*-
 import logging
-
 from apscheduler.schedulers.background import BackgroundScheduler
 import datetime
-from examples.recorder_utils import run_data_recorder
 from zvtm import init_log
-from zvtm.domain import Stock1mKdata,Stock1mHfqKdata
+from zvtm.domain import Stock1mKdata,Stock1mHfqKdata,Block1mKdata
 logger = logging.getLogger(__name__)
 from schedule.utils.query_data import get_data
 sched = BackgroundScheduler()
@@ -34,9 +29,18 @@ def get_stock():
     df = get_data(db=db, sql=sql, arg=arg)
     return df.loc[0,'codes'].split(",")
 
+def get_block():
+    db = 'stock'
+    sql = "select codes from stocks where  \
+                   strategy = %s "
+    arg = ['block']
+    df = get_data(db=db, sql=sql, arg=arg)
+    return df.loc[0,'codes'].split(",")
+
 @sched.scheduled_job('cron',day_of_week='mon-fri', hour=9, minute=30)
 def record_stock_data(data_provider="em", entity_provider="em"):
     codes = get_stock()
+    blocks = get_block()
     # A股后复权行情
     while True:
         now = datetime.datetime.now()
@@ -50,6 +54,7 @@ def record_stock_data(data_provider="em", entity_provider="em"):
             #     codes=codes,
             # )
             Stock1mHfqKdata.record_data(provider='em', sleeping_time=1,codes=codes)
+            Block1mKdata.record_data(provider='em', sleeping_time=1,codes=blocks)
             time.sleep(60)
         else:
             break

@@ -8,9 +8,9 @@ import datetime
 #     if i < len(df0)-1:
 #         Block1mKdata.record_data(provider="em", code='BK0473',sleeping_time=1,start_timestamp = df0.iloc[-i]['timestamp'].strftime("%Y-%m-%d"))
 # Block1mKdata.record_data(provider='em', sleeping_time=1)
-Block5mKdata.record_data(provider='em', sleeping_time=1,code = 'BK0473')
-Block15mKdata.record_data(provider='em', sleeping_time=1,code = 'BK0473')
-Block30mKdata.record_data(provider='em', sleeping_time=1,code = 'BK0473')
+# Block5mKdata.record_data(provider='em', sleeping_time=1,code = 'BK0473')
+# Block15mKdata.record_data(provider='em', sleeping_time=1,code = 'BK0473')
+# Block30mKdata.record_data(provider='em', sleeping_time=1,code = 'BK0473')
 Block1hKdata.record_data(provider='em', sleeping_time=1,code = 'BK0473')
 # for i in range(0, len(df0), 1):
 #     print(df0.iloc[i]['timestamp'])

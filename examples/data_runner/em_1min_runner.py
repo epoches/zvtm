@@ -44,7 +44,7 @@ def record_stock_data(data_provider="em", entity_provider="em"):
     # A股后复权行情
     while True:
         now = datetime.datetime.now()
-        if ((int(now.strftime("%H")) >= 9) and (int(now.strftime("%H")) <= 12)) or (int(now.strftime("%H")) >= 13  and int(now.strftime("%H")) < 18):
+        if ((int(now.strftime("%H")) >= 9) and (int(now.strftime("%H")) <= 12)) or (int(now.strftime("%H")) >= 13  and int(now.strftime("%H")) <= 15):
             # run_data_recorder(
             #     domain=Stock1mHfqKdata,
             #     data_provider=data_provider,
@@ -55,17 +55,38 @@ def record_stock_data(data_provider="em", entity_provider="em"):
             # )
             for code in codes:
                 Stock1mHfqKdata.record_data(provider='em', sleeping_time=1,code=code)
-                Stock5mHfqKdata.record_data(provider='em', sleeping_time=1, code=code)
-                Stock15mHfqKdata.record_data(provider='em', sleeping_time=1, code=code)
-                Stock30mHfqKdata.record_data(provider='em', sleeping_time=1, code=code)
-                Stock1hHfqKdata.record_data(provider='em', sleeping_time=1, code=code)
+                if int(now.strftime("%M")) == 0:
+                    Stock5mHfqKdata.record_data(provider='em', sleeping_time=1, code=code)
+                    Stock15mHfqKdata.record_data(provider='em', sleeping_time=1, code=code)
+                    Stock30mHfqKdata.record_data(provider='em', sleeping_time=1, code=code)
+                    Stock1hHfqKdata.record_data(provider='em', sleeping_time=1, code=code)
+                if int(now.strftime("%M")) == 10 or int(now.strftime("%M")) == 20 or int(now.strftime("%M")) == 40 or int(now.strftime("%M")) == 50:
+                    Stock5mHfqKdata.record_data(provider='em', sleeping_time=1, code=code)
+                if int(now.strftime("%M")) == 5:
+                    Stock5mHfqKdata.record_data(provider='em', sleeping_time=1, code=code)
+                if int(now.strftime("%M")) == 15 or int(now.strftime("%M")) == 45:
+                    Stock15mHfqKdata.record_data(provider='em', sleeping_time=1, code=code)
+                if int(now.strftime("%M")) == 30:
+                    Stock15mHfqKdata.record_data(provider='em', sleeping_time=1, code=code)
+                    Stock30mHfqKdata.record_data(provider='em', sleeping_time=1, code=code)
+
             for block in blocks:
-                Block1mKdata.record_data(provider='em', sleeping_time=1,code=block)
-                Block5mKdata.record_data(provider='em', sleeping_time=1, code=block)
-                Block15mKdata.record_data(provider='em', sleeping_time=1, code=block)
-                Block30mKdata.record_data(provider='em', sleeping_time=1, code=block)
-                Block1hKdata.record_data(provider='em', sleeping_time=1, code=block)
-            time.sleep(60)
+                Block1mKdata.record_data(provider='em', sleeping_time=1, code=block)
+                if int(now.strftime("%M")) == 0:
+                    Block5mKdata.record_data(provider='em', sleeping_time=1, code=code)
+                    Block15mKdata.record_data(provider='em', sleeping_time=1, code=code)
+                    Block30mKdata.record_data(provider='em', sleeping_time=1, code=code)
+                    Block1hKdata.record_data(provider='em', sleeping_time=1, code=code)
+                if int(now.strftime("%M")) == 10 or int(now.strftime("%M")) == 20 or int(now.strftime("%M")) == 40 or int(now.strftime("%M")) == 50:
+                    Block5mKdata.record_data(provider='em', sleeping_time=1, code=code)
+                if int(now.strftime("%M")) == 5:
+                    Block5mKdata.record_data(provider='em', sleeping_time=1, code=code)
+                if int(now.strftime("%M")) == 15 or int(now.strftime("%M")) == 45:
+                    Block15mKdata.record_data(provider='em', sleeping_time=1, code=code)
+                if int(now.strftime("%M")) == 30:
+                    Block15mKdata.record_data(provider='em', sleeping_time=1, code=code)
+                    Block30mKdata.record_data(provider='em', sleeping_time=1, code=code)
+            time.sleep(30)
         else:
             break
 

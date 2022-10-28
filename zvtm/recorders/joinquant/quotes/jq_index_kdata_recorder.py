@@ -81,7 +81,7 @@ class JqChinaIndexKdataRecorder(FixedCycleDataRecorder):
 
     def record(self, entity, start, end, size, timestamps):
         # 对往期数据，改这里获取。
-        # size=10000
+        size=10000
         if not self.end_timestamp:
             df = get_bars(
                 to_jq_entity_id(entity),

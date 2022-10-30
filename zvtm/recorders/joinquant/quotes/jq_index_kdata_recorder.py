@@ -81,7 +81,24 @@ class JqChinaIndexKdataRecorder(FixedCycleDataRecorder):
 
     def record(self, entity, start, end, size, timestamps):
         # 对往期数据，改这里获取。
-        size=10000
+        # size=10000
+        if size < 0:
+            # size = abs(size)
+            if self.level == IntervalLevel.LEVEL_1MIN:
+                size = (self.end_timestamp - self.start_timestamp).days * 4 * 60
+            if self.level == IntervalLevel.LEVEL_5MIN:
+                size = (self.end_timestamp - self.start_timestamp).days * 4 * 12
+            if self.level == IntervalLevel.LEVEL_15MIN:
+                size = (self.end_timestamp - self.start_timestamp).days * 4 * 4
+            if self.level == IntervalLevel.LEVEL_30MIN:
+                size = (self.end_timestamp - self.start_timestamp).days * 4 * 2
+            if self.level == IntervalLevel.LEVEL_1HOUR:
+                size = (self.end_timestamp - self.start_timestamp).days * 4
+            if self.level == IntervalLevel.LEVEL_4HOUR:
+                size = (self.end_timestamp - self.start_timestamp).days
+            if self.level == IntervalLevel.LEVEL_1DAY:
+                size = (self.end_timestamp - self.start_timestamp).days
+            size = size * 2
         if not self.end_timestamp:
             df = get_bars(
                 to_jq_entity_id(entity),

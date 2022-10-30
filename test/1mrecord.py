@@ -2,7 +2,7 @@
 from zvtm.domain import Block1mKdata,Index1mKdata,StockTradeDay,Stock1mHfqKdata,Stock5mHfqKdata,Stock15mHfqKdata,Stock30mHfqKdata,Stock1hHfqKdata,Stock4hHfqKdata,Block5mKdata,Block15mKdata,Block30mKdata,Block1hKdata
 import datetime
 # 东财无法获取历史板块数据 只能获取当天数据
-# df0 = StockTradeDay.query_data(provider='joinquant',start_timestamp='2022-05-01',end_timestamp='2022-10-24')
+df0 = StockTradeDay.query_data(provider='joinquant',start_timestamp='2020-01-01',end_timestamp='2022-07-07')
 # for i in range(1,len(df0),1):
 #     print(df0.iloc[-i]['timestamp'])
 #     if i < len(df0)-1:
@@ -11,7 +11,7 @@ import datetime
 # Block5mKdata.record_data(provider='em', sleeping_time=1,code = 'BK0473')
 # Block15mKdata.record_data(provider='em', sleeping_time=1,code = 'BK0473')
 # Block30mKdata.record_data(provider='em', sleeping_time=1,code = 'BK0473')
-Block1hKdata.record_data(provider='em', sleeping_time=1,code = 'BK0473')
+# Block1hKdata.record_data(provider='em', sleeping_time=1,code = 'BK0473')
 # for i in range(0, len(df0), 1):
 #     print(df0.iloc[i]['timestamp'])
 #     if i < len(df0) - 1:
@@ -25,5 +25,7 @@ Block1hKdata.record_data(provider='em', sleeping_time=1,code = 'BK0473')
 # Stock30mHfqKdata.record_data(provider='em',code='601788', sleeping_time=1)
 # Stock1hHfqKdata.record_data(provider='em',code='601788', sleeping_time=1)
 
-
-# Stock1mHfqKdata(provider='joinquant',code='601788',start_timestamp= datetime.datetime.now() + datetime.timedelta(hours=-16))
+for i in range(0, len(df0), 1):
+    print(df0.iloc[i]['timestamp'])
+    if i < len(df0) - 8:
+        Stock1mHfqKdata(provider='joinquant',code='601788',start_timestamp = df0.iloc[i]['timestamp'].strftime("%Y-%m-%d"), end_timestamp = df0.iloc[i + 1]['timestamp'].strftime("%Y-%m-%d %H:%M:%S"))

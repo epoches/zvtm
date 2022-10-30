@@ -108,7 +108,22 @@ class JqChinaStockKdataRecorder(FixedCycleDataRecorder):
 
     def record(self, entity, start, end, size, timestamps):
         if size < 0:
-            size = abs(size)
+            # size = abs(size)
+            if self.level == IntervalLevel.LEVEL_1MIN:
+                size = (self.end_timestamp - self.start_timestamp).days * 4 * 60
+            if self.level == IntervalLevel.LEVEL_5MIN:
+                size = (self.end_timestamp - self.start_timestamp).days * 4 * 12
+            if self.level == IntervalLevel.LEVEL_15MIN:
+                size = (self.end_timestamp - self.start_timestamp).days * 4 * 4
+            if self.level == IntervalLevel.LEVEL_30MIN:
+                size = (self.end_timestamp - self.start_timestamp).days * 4 * 2
+            if self.level == IntervalLevel.LEVEL_1HOUR:
+                size = (self.end_timestamp - self.start_timestamp).days * 4
+            if self.level == IntervalLevel.LEVEL_4HOUR:
+                size = (self.end_timestamp - self.start_timestamp).days
+            if self.level == IntervalLevel.LEVEL_1DAY:
+                size = (self.end_timestamp - self.start_timestamp).days
+            size = size * 2
         if self.adjust_type == AdjustType.hfq:
             fq_ref_date = '2000-01-01'
         else:

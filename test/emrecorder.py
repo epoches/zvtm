@@ -25,5 +25,5 @@ from zvtm.informer.informer import EmailInformer
 # Index.record_data(provider='exchange', sleeping_time=5)
 # IndexStock.record_data(provider='exchange', sleeping_time=5)
 Index1dKdata.record_data(provider='joinquant', sleeping_time=0,code='000001')
-Stock1dHfqKdata.record_data(provider='em', sleeping_time=0,codes=['605289', '600732', '002846', '002388', '603786', '000590'])
-Block1dKdata.record_data(provider='em', sleeping_time=0,codes=['BK0725', 'BK1031', 'BK0733', 'BK0459', 'BK0481', 'BK1040'])
+Stock1dHfqKdata.record_data(provider='em', sleeping_time=0,codes=['002116', '002883', '300374', '601800', '603701', '002164'])
+Block1dKdata.record_data(provider='em', sleeping_time=0,codes=['BK0726', 'BK0726', 'BK0725', 'BK0425', 'BK0481', 'BK0545'])

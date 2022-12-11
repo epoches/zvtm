@@ -31,7 +31,7 @@ def record_stock_data(data_provider="joinquant", entity_provider="joinquant"):
         entity_provider=entity_provider,
         day_data=False,
         sleeping_time=0,
-        start_timestamp='2022-04-01'
+        start_timestamp='2020-01-01'
     )
     # A股后复权行情
     run_data_recorder(
@@ -40,7 +40,7 @@ def record_stock_data(data_provider="joinquant", entity_provider="joinquant"):
         entity_provider=entity_provider,
         day_data=False,
         sleeping_time=0,
-        start_timestamp='2022-04-01'
+        start_timestamp='2020-01-01'
     )
 
 

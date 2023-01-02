@@ -1,5 +1,5 @@
 # 板块和大盘1分钟线更新
-from zvtm.domain import Block1mKdata,Index1mKdata,StockTradeDay,Stock1mHfqKdata,Stock5mHfqKdata,Stock15mHfqKdata,Stock30mHfqKdata,Stock1hHfqKdata,Stock4hHfqKdata,Block5mKdata,Block15mKdata,Block30mKdata,Block1hKdata
+from zvtm.domain import Stock1mKdata,Block1mKdata,Index1mKdata,StockTradeDay,Stock1mHfqKdata,Stock5mHfqKdata,Stock15mHfqKdata,Stock30mHfqKdata,Stock1hHfqKdata,Stock4hHfqKdata,Block5mKdata,Block15mKdata,Block30mKdata,Block1hKdata
 import datetime
 # 东财无法获取历史板块数据 只能获取当天数据
 df0 = StockTradeDay.query_data(provider='joinquant',start_timestamp='2022-10-28',end_timestamp='2022-12-31')
@@ -32,3 +32,5 @@ for i in range(0, len(df0), 1):
 
 
 Stock1mHfqKdata.record_data(provider='joinquant',code='002761')
+
+Stock1mKdata.record_data(provider='em', code='601788', sleeping_time=1)

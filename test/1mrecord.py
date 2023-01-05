@@ -25,12 +25,12 @@ df0 = StockTradeDay.query_data(provider='joinquant',start_timestamp='2022-10-28'
 # Stock30mHfqKdata.record_data(provider='em',code='601788', sleeping_time=1)
 # Stock1hHfqKdata.record_data(provider='em',code='601788', sleeping_time=1)
 
-for i in range(0, len(df0), 1):
-    print(df0.iloc[i]['timestamp'])
-    if i < len(df0) - 8:
-        Stock1mHfqKdata.record_data(provider='joinquant',code='002761',start_timestamp = df0.iloc[i]['timestamp'].strftime("%Y-%m-%d"), end_timestamp = df0.iloc[i + 1]['timestamp'].strftime("%Y-%m-%d %H:%M:%S"))
+# for i in range(0, len(df0), 1):
+#     print(df0.iloc[i]['timestamp'])
+#     if i < len(df0) - 8:
+#         Stock1mHfqKdata.record_data(provider='joinquant',code='002761',start_timestamp = df0.iloc[i]['timestamp'].strftime("%Y-%m-%d"), end_timestamp = df0.iloc[i + 1]['timestamp'].strftime("%Y-%m-%d %H:%M:%S"))
+#
+#
+# Stock1mHfqKdata.record_data(provider='joinquant',code='002761')
 
-
-Stock1mHfqKdata.record_data(provider='joinquant',code='002761')
-
-Stock1mKdata.record_data(provider='em', code='601788', sleeping_time=1)
+Stock1mKdata.record_data(provider='em', codes='601788', sleeping_time=1)

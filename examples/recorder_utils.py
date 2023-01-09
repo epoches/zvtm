@@ -7,7 +7,7 @@ from zvtm import zvt_config
 from zvtm.contract import Mixin
 from zvtm.informer import EmailInformer
 #from jqdatasdk import *
-
+from jqdatasdk import auth,get_query_count
 logger = logging.getLogger("__name__")
 
 
@@ -35,7 +35,11 @@ def run_data_recorder(
             domain.record_data(
                 entity_ids=entity_ids, provider=data_provider, sleeping_time=sleeping_time, **recorder_kv
             )
-            msg = f"record {domain.__name__} success "
+            if data_provider == 'joinquant':
+                auth(zvt_config['jq_username'], zvt_config['jq_password'])
+                msg = f"record {domain.__name__} success,数据来源: {data_provider},剩余数据条数:{get_query_count()['spare'] } "
+            else:
+                msg = f"record {domain.__name__} success,数据来源: {data_provider}"
             logger.info(msg)
             email_action.send_message(zvt_config["email_username"], msg, msg)
             break

@@ -113,15 +113,15 @@ def get_stock_data(item,
 
 items = Block.query_data(provider='em')
 
-#items = get_hangye_data()
+items = get_hangye_data()
 
 for i in range(len(items)):
-    #item_stock_data = get_gegu_data(item)
-    df = get_stock_data(items.iloc[i])
-    df_to_db(df=df, data_schema=BlockStock, provider="em", force_update=True)
-    # item_stock_data = get_gegu_data(item)
-    # data = item_stock_data['f12', 'f14']
-    # df = pd.DataFrame.from_records(data=data)
-    # for bs in item_stock_data:
-    #     data = bs['f12','f14']
-    #     df = pd.DataFrame.from_records(data=data)
+    item_stock_data = get_gegu_data(item)
+    # df = get_stock_data(items.iloc[i])
+    # df_to_db(df=df, data_schema=BlockStock, provider="em", force_update=True)
+    item_stock_data = get_gegu_data(item)
+    data = item_stock_data['f12', 'f14']
+    df = pd.DataFrame.from_records(data=data)
+    for bs in item_stock_data:
+        data = bs['f12','f14']
+        df = pd.DataFrame.from_records(data=data)

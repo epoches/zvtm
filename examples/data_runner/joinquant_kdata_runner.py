@@ -27,16 +27,16 @@ logger = logging.getLogger(__name__)
 sched = BackgroundScheduler()
 
 
-@sched.scheduled_job('cron',day_of_week='mon-fri', hour=15, minute=10)
+@sched.scheduled_job('cron',day_of_week='mon-fri', hour=3, minute=10)
 def record_stock_data(data_provider="joinquant", entity_provider="joinquant"):
     # A股标的
     run_data_recorder(domain=Stock, data_provider=data_provider, sleeping_time=0, force_update=False)
     # 交易日
     run_data_recorder(domain=StockTradeDay, data_provider=data_provider, sleeping_time=0, day_data=False)
     # 上证指数
-    run_data_recorder(
-        domain=Index1dKdata, data_provider="joinquant", entity_provider="joinquant", code='000001', day_data=False
-    )
+    # run_data_recorder(
+    #     domain=Index1dKdata, data_provider="joinquant", entity_provider="joinquant", code='000001', day_data=False
+    # )
     # A股后复权行情
     run_data_recorder(
         domain=Stock1dHfqKdata,

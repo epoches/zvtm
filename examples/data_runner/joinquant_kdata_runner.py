@@ -34,9 +34,9 @@ def record_stock_data(data_provider="joinquant", entity_provider="joinquant"):
     # 交易日
     run_data_recorder(domain=StockTradeDay, data_provider=data_provider, sleeping_time=0, day_data=False)
     # 上证指数
-    # run_data_recorder(
-    #     domain=Index1dKdata, data_provider="joinquant", entity_provider="joinquant", code='000001', day_data=False
-    # )
+    run_data_recorder(
+        domain=Index1dKdata, data_provider="joinquant", entity_provider="joinquant", code='000001', day_data=False
+    )
     # A股后复权行情
     run_data_recorder(
         domain=Stock1dHfqKdata,

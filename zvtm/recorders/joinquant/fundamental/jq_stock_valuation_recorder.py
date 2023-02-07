@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import pandas as pd
-from jqdatapy.api import get_fundamentals
+# from jqdatapy.api import get_fundamentals
+from jqdatasdk import auth
+from zvtm import zvt_config
+from jqdatasdk import get_fundamentals,query,valuation,income
 from pandas._libs.tslibs.timedeltas import Timedelta
 
 from zvtm.contract.api import df_to_db
@@ -25,6 +28,7 @@ class JqChinaStockValuationRecorder(TimeSeriesDataRecorder):
         # 过滤掉退市的
         self.entities = [entity for entity in self.entities if
                          (entity.end_date is None) or (entity.end_date > now_pd_timestamp())]
+        auth(zvt_config['jq_username'], zvt_config['jq_password'])
 
     def record(self, entity, start, end, size, timestamps):
         start = max(start, to_pd_timestamp("2005-01-01"))
@@ -36,6 +40,7 @@ class JqChinaStockValuationRecorder(TimeSeriesDataRecorder):
         df = get_fundamentals(
             table="valuation", code=to_jq_entity_id(entity), date=to_time_str(end), count=min(count.days, 500)
         )
+        # df = get_fundamentals(query(valuation, income).filter(valuation.code. == (to_jq_entity_id(entity))), date=to_time_str(start))
         df["entity_id"] = entity.id
         df["timestamp"] = pd.to_datetime(df["day"])
         df["code"] = entity.code

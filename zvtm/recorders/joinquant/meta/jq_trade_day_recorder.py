@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
-from jqdatapy.api import get_trade_days
-
+# from jqdatapy.api import get_trade_days
+from jqdatasdk import get_trade_days
 from zvtm.contract.api import df_to_db
 from zvtm.contract.recorder import TimeSeriesDataRecorder
 from zvtm.domain import StockTradeDay, Stock
 from zvtm.utils.time_utils import to_time_str
-
+from jqdatasdk import auth
+from zvtm import zvt_config
 
 class StockTradeDayRecorder(TimeSeriesDataRecorder):
     entity_provider = "joinquant"
@@ -44,11 +45,13 @@ class StockTradeDayRecorder(TimeSeriesDataRecorder):
             start_timestamp=start_timestamp,
             end_timestamp=end_timestamp,
         )
+        auth(zvt_config['jq_username'], zvt_config['jq_password'])
 
     def record(self, entity, start, end, size, timestamps):
         df = pd.DataFrame()
-        dates = get_trade_days(date=to_time_str(start))
-        dates = dates.iloc[:, 0]
+        # dates = get_trade_days(date=to_time_str(start))
+        dates = get_trade_days(start_date=to_time_str(start))
+        # dates = dates.iloc[:, 0]
         self.logger.info(f"add dates:{dates}")
         df["timestamp"] = pd.to_datetime(dates)
         df["id"] = [to_time_str(date) for date in dates]

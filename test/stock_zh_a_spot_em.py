@@ -137,7 +137,7 @@ from zvtm.utils.time_utils import now_pd_timestamp, to_time_str, to_pd_timestamp
 from zvtm.utils.pd_utils import pd_is_not_null
 from zvtm.domain.fundamental.valuation1 import StockValuation1
 from zvtm.contract.api import get_db_engine,get_schema_columns
-from zvtm.domain import StockMoneyFlow
+from zvtm.domain import StockMoneyFlow1
 from zvtm.contract.api import get_data
 
 def stock_zh_a_spot_em() -> pd.DataFrame:
@@ -306,7 +306,7 @@ force_update=True
 #
 #     df.to_sql(data_schema.__tablename__, db_engine, index=False, if_exists="append")
 
-data_schema = StockMoneyFlow
+data_schema = StockMoneyFlow1
 db_engine = get_db_engine(provider, data_schema=data_schema)
 schema_cols = get_schema_columns(data_schema)
 cols = set(df.columns.tolist()) & set(schema_cols)

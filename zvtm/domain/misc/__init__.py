@@ -29,3 +29,8 @@ from .stock_news import *
 from .stock_news import __all__ as _stock_news_all
 
 __all__ += _stock_news_all
+
+from .money_flow1 import *
+from .money_flow1 import __all__ as _money_flow_all
+
+__all__ += _money_flow_all

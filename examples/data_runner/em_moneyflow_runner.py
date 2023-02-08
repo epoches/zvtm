@@ -7,11 +7,11 @@ import logging
 from apscheduler.schedulers.background import BackgroundScheduler
 from zvtm.contract.api import get_db_engine, get_schema_columns
 from zvtm import init_log
-from zvtm.domain.fundamental.valuation1 import StockValuation1
 import requests
 import pandas as pd
 from zvtm.utils.time_utils import now_pd_timestamp, to_time_str, to_pd_timestamp
 from zvtm.utils.pd_utils import pd_is_not_null
+from zvtm.domain import StockMoneyFlow1
 from zvtm.contract.api import get_data
 logger = logging.getLogger(__name__)
 sched = BackgroundScheduler()
@@ -34,73 +34,89 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
         "invt": "2",
         "fid": "f3",
         "fs": "m:0 t:6,m:0 t:80,m:1 t:2,m:1 t:23",
-        "fields": "f9,f10,f12,f13,f14,f20,f21,f23,f114,f115,f124,f130,f131",
+        "fields": "f2,f3,f8,f12,f13,f14,f62,f64,f69,f70,f75,f76,f81,f82,f87,f124",
         "_": "1623833739532",
     }
-    # f9	市盈率 动 总市值/预估全年净利润
-    # f10	量比
-    # f12	股票代码
-    # f13	市场
-    # f14	股票名称
-    # f20	总市值
-    # f21	流通市值
-    # f23	市净率
-    # f130	市销率TTM
-    # f131	市现率TTM
-    # f114	市盈率（静） 总市值/上年度净利润
-    # f115	市盈率（TTM）
+    # close    f2
+    # change_pct    f3
+    # turnover_rate    f8
+    # f12: 股票代码    #
+    # f13: 市场    #
+    # f14: 股票名称
+    # net_inflows    f62
+    # net_inflow_rate
+    # net_main_inflows    f64 + f70
+    # net_main_inflow_rate    f69 + f75
+    # net_huge_inflows    f64
+    # net_huge_inflow_rate    f69
+    # net_big_inflows    f70
+    # net_big_inflow_rate    f75
+    # net_medium_inflows    f76
+    # net_medium_inflow_rate    f81
+    # net_small_inflows    f82
+    # net_small_inflow_rate    f87
+
     r = requests.get(url, params=params)
     data_json = r.json()
     if not data_json["data"]["diff"]:
         return pd.DataFrame()
     temp_df = pd.DataFrame(data_json["data"]["diff"])
     temp_df.columns = [
-        "pe_ttm1",
-        "lb",
+        "close",
+        "change_pct",
+        "turnover_rate",
         "code",
         "entity",
         "name",
-        "market_cap",
-        "circulating_market_cap",
-        "pb",
-        "pe",
-        "pe_ttm",
+        "net_inflows",
+        "net_huge_inflows",
+        "net_huge_inflow_rate",
+        "net_big_inflows",
+        "net_big_inflow_rate",
+        "net_medium_inflows",
+        "net_medium_inflow_rate",
+        "net_small_inflows",
+        "net_small_inflow_rate",
         "timestamp",
-        "ps",
-        "pcf",
     ]
     # temp_df.reset_index(inplace=True)
     # temp_df["index"] = temp_df.index + 1
     # temp_df.rename(columns={"index": "序号"}, inplace=True)
     temp_df = temp_df[
         [
-            "pe_ttm1",
-            "lb",
+            "close",
+            "change_pct",
+            "turnover_rate",
             "code",
             "entity",
             "name",
-            "market_cap",
-            "circulating_market_cap",
-            "pb",
-            "pe",
-            "pe_ttm",
+            "net_inflows",
+            "net_huge_inflows",
+            "net_huge_inflow_rate",
+            "net_big_inflows",
+            "net_big_inflow_rate",
+            "net_medium_inflows",
+            "net_medium_inflow_rate",
+            "net_small_inflows",
+            "net_small_inflow_rate",
             "timestamp",
-            "ps",
-            "pcf",
         ]
     ]
     temp_df["entity"] = temp_df["entity"].apply(lambda x: 'sz' if x == 0 else 'sh' )
-    temp_df["lb"] = pd.to_numeric(temp_df["lb"], errors="coerce")
-    temp_df["pb"] = pd.to_numeric(temp_df["pb"], errors="coerce")
     dt = pd.to_datetime(temp_df["timestamp"], unit='s', errors="coerce")[0].replace(hour=0, minute=0, second=0)
     temp_df["timestamp"] = dt
-    temp_df["pe"] = pd.to_numeric(temp_df["pe"], errors="coerce")
-    temp_df["pe_ttm1"] = pd.to_numeric(temp_df["pe_ttm1"], errors="coerce")
-    temp_df["ps"] = pd.to_numeric(temp_df["ps"], errors="coerce")
-    temp_df["pcf"] = pd.to_numeric(temp_df["pcf"], errors="coerce")
-    temp_df["pe_ttm"] = pd.to_numeric(temp_df["pe_ttm"], errors="coerce")
-    temp_df["market_cap"] = pd.to_numeric(temp_df["market_cap"], errors="coerce")
-    temp_df["circulating_market_cap"] = pd.to_numeric(temp_df["circulating_market_cap"], errors="coerce")
+    temp_df["close"] = pd.to_numeric(temp_df["close"], errors="coerce")
+    temp_df["change_pct"] = pd.to_numeric(temp_df["change_pct"], errors="coerce")
+    temp_df["turnover_rate"] = pd.to_numeric(temp_df["turnover_rate"], errors="coerce")
+    temp_df["net_inflows"] = pd.to_numeric(temp_df["net_inflows"], errors="coerce")
+    temp_df["net_huge_inflows"] = pd.to_numeric(temp_df["net_huge_inflows"], errors="coerce")
+    temp_df["net_huge_inflow_rate"] = pd.to_numeric(temp_df["net_huge_inflow_rate"], errors="coerce")
+    temp_df["net_big_inflows"] = pd.to_numeric(temp_df["net_big_inflows"], errors="coerce")
+    temp_df["net_medium_inflows"] = pd.to_numeric(temp_df["net_medium_inflows"], errors="coerce")
+    temp_df["net_medium_inflow_rate"] = pd.to_numeric(temp_df["net_medium_inflow_rate"], errors="coerce")
+    temp_df["net_small_inflows"] = pd.to_numeric(temp_df["net_small_inflows"], errors="coerce")
+    temp_df["net_small_inflow_rate"] = pd.to_numeric(temp_df["net_small_inflow_rate"], errors="coerce")
+
     return temp_df
 
 def get_datas():
@@ -109,14 +125,16 @@ def get_datas():
         entity_id = "{}_{}_{}".format('stock', df.loc[i, "entity"], df.loc[i, "code"])
         df.loc[i, "entity_id"] = entity_id
         df.loc[i, "id"] = "{}_{}".format(to_time_str(entity_id), df.loc[i, "timestamp"].strftime('%Y-%m-%d'))
-
     provider = 'em'
-    data_schema = StockValuation1
+
+    data_schema = StockMoneyFlow1
     db_engine = get_db_engine(provider, data_schema=data_schema)
     schema_cols = get_schema_columns(data_schema)
     cols = set(df.columns.tolist()) & set(schema_cols)
+
     df = df[cols]
     if pd_is_not_null(df):
+        # saved = saved + len(df_current)
         current = get_data(
             data_schema=data_schema, columns=[data_schema.id], provider=provider, ids=df["id"].tolist()
         )
@@ -125,11 +143,10 @@ def get_datas():
             df.to_sql(data_schema.__tablename__, db_engine, index=False, if_exists="append")
 
 
-@sched.scheduled_job('cron',day_of_week='mon-fri', hour=15, minute=8)
+@sched.scheduled_job('cron',day_of_week='mon-fri', hour=15, minute=9)
 def record_stock_data(data_provider="em", entity_provider="em"):
     get_datas()
-
-    msg = f"record StockValuation1 success,数据来源: em"
+    msg = f"record StockMoneyFlow success,数据来源: em"
 
     logger.info(msg)
     email_action.send_message(zvt_config["email_username"], msg, msg)
@@ -137,7 +154,7 @@ def record_stock_data(data_provider="em", entity_provider="em"):
 
 
 if __name__ == "__main__":
-    init_log("em_valuation_runner.log")
+    init_log("em_moneyflow_runner.log")
     email_action = EmailInformer()
     record_stock_data()
     sched.start()

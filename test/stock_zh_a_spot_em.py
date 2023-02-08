@@ -135,8 +135,10 @@ import requests
 import pandas as pd
 from zvtm.utils.time_utils import now_pd_timestamp, to_time_str, to_pd_timestamp
 from zvtm.utils.pd_utils import pd_is_not_null
-
-
+from zvtm.domain.fundamental.valuation1 import StockValuation1
+from zvtm.contract.api import get_db_engine,get_schema_columns
+from zvtm.domain import StockMoneyFlow
+from zvtm.contract.api import get_data
 
 def stock_zh_a_spot_em() -> pd.DataFrame:
     """
@@ -162,6 +164,14 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
     # close    f2
     # change_pct    f3
     # turnover_rate    f8
+    # f9	市盈率 动 总市值/预估全年净利润
+    # f10	量比
+    # f12	股票代码
+    # f13	市场
+    # f14	股票名称
+    # f20	总市值
+    # f21	流通市值
+    # f23	市净率
     # net_inflows    f62
     # net_inflow_rate
     # net_main_inflows    f64 + f70
@@ -174,18 +184,11 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
     # net_medium_inflow_rate    f81
     # net_small_inflows    f82
     # net_small_inflow_rate    f87
-    # f9	市盈率 动 总市值/预估全年净利润
-    # f10	量比
-    # f12	股票代码
-    # f13	市场
-    # f14	股票名称
-    # f20	总市值
-    # f21	流通市值
-    # f23	市净率
-    # f130	市销率TTM
-    # f131	市现率TTM
     # f114	市盈率（静） 总市值/上年度净利润
     # f115	市盈率（TTM）
+    # f124: 交易时间
+    # f130	市销率TTM
+    # f131	市现率TTM
     r = requests.get(url, params=params)
     data_json = r.json()
     if not data_json["data"]["diff"]:
@@ -202,6 +205,7 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
         "name",
         "market_cap",
         "circulating_market_cap",
+        "pb",
         "net_inflows",
         "net_huge_inflows",
         "net_huge_inflow_rate",
@@ -211,7 +215,6 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
         "net_medium_inflow_rate",
         "net_small_inflows",
         "net_small_inflow_rate",
-        "pb",
         "pe",
         "pe_ttm",
         "timestamp",
@@ -286,17 +289,34 @@ for i in range(len(df)):
 
 # print(df)
 provider = 'em'
-from zvtm.domain.fundamental.valuation1 import StockValuation1
-data_schema = StockValuation1
 force_update=True
+# data_schema = StockValuation1
+# db_engine = get_db_engine(provider, data_schema=data_schema)
+# schema_cols = get_schema_columns(data_schema)
+# cols = set(df.columns.tolist()) & set(schema_cols)
+#
+# df = df[cols]
+# if pd_is_not_null(df):
+#     # saved = saved + len(df_current)
+#     current = get_data(
+#         data_schema=data_schema, columns=[data_schema.id], provider=provider, ids=df["id"].tolist()
+#     )
+#     if pd_is_not_null(current):
+#         df = df[~df["id"].isin(current["id"])]
+#
+#     df.to_sql(data_schema.__tablename__, db_engine, index=False, if_exists="append")
 
-from zvtm.contract.api import get_db_engine,get_schema_columns
+data_schema = StockMoneyFlow
 db_engine = get_db_engine(provider, data_schema=data_schema)
-
 schema_cols = get_schema_columns(data_schema)
 cols = set(df.columns.tolist()) & set(schema_cols)
 
 df = df[cols]
 if pd_is_not_null(df):
     # saved = saved + len(df_current)
+    current = get_data(
+        data_schema=data_schema, columns=[data_schema.id], provider=provider, ids=df["id"].tolist()
+    )
+    if pd_is_not_null(current):
+        df = df[~df["id"].isin(current["id"])]
     df.to_sql(data_schema.__tablename__, db_engine, index=False, if_exists="append")

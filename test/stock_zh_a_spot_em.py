@@ -156,9 +156,24 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
         "invt": "2",
         "fid": "f3",
         "fs": "m:0 t:6,m:0 t:80,m:1 t:2,m:1 t:23",
-        "fields": "f9,f10,f12,f13,f14,f20,f21,f23,f114,f115,f124,f130,f131",
+        "fields": "f2,f3,f8,f9,f10,f12,f13,f14,f20,f21,f23,f62,f64,f69,f70,f75,f76,f81,f82,f87,f114,f115,f124,f130,f131",
         "_": "1623833739532",
     }
+    # close    f2
+    # change_pct    f3
+    # turnover_rate    f8
+    # net_inflows    f62
+    # net_inflow_rate
+    # net_main_inflows    f64 + f70
+    # net_main_inflow_rate    f69 + f75
+    # net_huge_inflows    f64
+    # net_huge_inflow_rate    f69
+    # net_big_inflows    f70
+    # net_big_inflow_rate    f75
+    # net_medium_inflows    f76
+    # net_medium_inflow_rate    f81
+    # net_small_inflows    f82
+    # net_small_inflow_rate    f87
     # f9	市盈率 动 总市值/预估全年净利润
     # f10	量比
     # f12	股票代码
@@ -177,6 +192,9 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
         return pd.DataFrame()
     temp_df = pd.DataFrame(data_json["data"]["diff"])
     temp_df.columns = [
+        "close",
+        "change_pct",
+        "turnover_rate",
         "pe_ttm1",
         "lb",
         "code",
@@ -184,18 +202,31 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
         "name",
         "market_cap",
         "circulating_market_cap",
+        "net_inflows",
+        "net_huge_inflows",
+        "net_huge_inflow_rate",
+        "net_big_inflows",
+        "net_big_inflow_rate",
+        "net_medium_inflows",
+        "net_medium_inflow_rate",
+        "net_small_inflows",
+        "net_small_inflow_rate",
         "pb",
         "pe",
         "pe_ttm",
         "timestamp",
         "ps",
         "pcf",
+
     ]
     # temp_df.reset_index(inplace=True)
     # temp_df["index"] = temp_df.index + 1
     # temp_df.rename(columns={"index": "序号"}, inplace=True)
     temp_df = temp_df[
         [
+            "close",
+            "change_pct",
+            "turnover_rate",
             "pe_ttm1",
             "lb",
             "code",
@@ -204,7 +235,15 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
             "market_cap",
             "circulating_market_cap",
             "pb",
-
+            "net_inflows",
+            "net_huge_inflows",
+            "net_huge_inflow_rate",
+            "net_big_inflows",
+            "net_big_inflow_rate",
+            "net_medium_inflows",
+            "net_medium_inflow_rate",
+            "net_small_inflows",
+            "net_small_inflow_rate",
             "pe",
             "pe_ttm",
             "timestamp",
@@ -215,6 +254,18 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
     temp_df["entity"] = temp_df["entity"].apply(lambda x: 'sz' if x == 0 else 'sh' )
     temp_df["lb"] = pd.to_numeric(temp_df["lb"], errors="coerce")
     temp_df["pb"] = pd.to_numeric(temp_df["pb"], errors="coerce")
+    temp_df["close"] = pd.to_numeric(temp_df["close"], errors="coerce")
+    temp_df["change_pct"] = pd.to_numeric(temp_df["change_pct"], errors="coerce")
+    temp_df["turnover_rate"] = pd.to_numeric(temp_df["turnover_rate"], errors="coerce")
+    temp_df["net_inflows"] = pd.to_numeric(temp_df["net_inflows"], errors="coerce")
+    temp_df["net_huge_inflows"] = pd.to_numeric(temp_df["net_huge_inflows"], errors="coerce")
+    temp_df["net_huge_inflow_rate"] = pd.to_numeric(temp_df["net_huge_inflow_rate"], errors="coerce")
+    temp_df["net_big_inflows"] = pd.to_numeric(temp_df["net_big_inflows"], errors="coerce")
+    temp_df["net_big_inflow_rate"] = pd.to_numeric(temp_df["net_big_inflow_rate"], errors="coerce")
+    temp_df["net_medium_inflows"] = pd.to_numeric(temp_df["net_medium_inflows"], errors="coerce")
+    temp_df["net_medium_inflow_rate"] = pd.to_numeric(temp_df["net_medium_inflow_rate"], errors="coerce")
+    temp_df["net_small_inflows"] = pd.to_numeric(temp_df["net_small_inflows"], errors="coerce")
+    temp_df["net_small_inflow_rate"] = pd.to_numeric(temp_df["net_small_inflow_rate"], errors="coerce")
     dt = pd.to_datetime(temp_df["timestamp"], unit='s', errors="coerce")[0].replace(hour=0, minute=0, second=0)
     temp_df["timestamp"] = dt
     temp_df["pe"] = pd.to_numeric(temp_df["pe"], errors="coerce")

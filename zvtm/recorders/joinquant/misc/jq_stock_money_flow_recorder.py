@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
-from jqdatapy import get_token, get_money_flow
-#from jqdatasdk import *
+# from jqdatapy import get_token, get_money_flow
+
+from jqdatasdk import auth,get_money_flow
 from zvtm import zvt_config
 from zvtm.api.kdata import generate_kdata_id
 from zvtm.contract import IntervalLevel
@@ -12,7 +13,7 @@ from zvtm.recorders.joinquant.common import to_jq_entity_id
 from zvtm.recorders.joinquant.misc.jq_index_money_flow_recorder import JoinquantIndexMoneyFlowRecorder
 from zvtm.utils import pd_is_not_null, to_time_str
 from zvtm.utils.time_utils import TIME_FORMAT_DAY
-
+import datetime
 
 class JoinquantStockMoneyFlowRecorder(FixedCycleDataRecorder):
     entity_provider = "joinquant"
@@ -62,7 +63,8 @@ class JoinquantStockMoneyFlowRecorder(FixedCycleDataRecorder):
             one_day_trading_minutes,
         )
         self.compute_index_money_flow = compute_index_money_flow
-        get_token(zvt_config["jq_username"], zvt_config["jq_password"], force=True)
+        auth(zvt_config['jq_username'], zvt_config['jq_password'])
+        # get_token(zvt_config["jq_username"], zvt_config["jq_password"], force=True)
         #auth(zvt_config["jq_username"], zvt_config["jq_password"])
 
     def generate_domain_id(self, entity, original_data):
@@ -74,13 +76,17 @@ class JoinquantStockMoneyFlowRecorder(FixedCycleDataRecorder):
             JoinquantIndexMoneyFlowRecorder().run()
 
     def record(self, entity, start, end, size, timestamps):
+        if size > 300:
+            size = 300
         if not self.end_timestamp:
-            df = get_money_flow(code=to_jq_entity_id(entity), date=to_time_str(start))
+            # df = get_money_flow(code=to_jq_entity_id(entity), date=to_time_str(start))
             # 使用jqdatasdk
-            #df = get_money_flow(security_list=to_jq_entity_id(entity), count=size)
+            if end == None:
+                end = start + datetime.timedelta(days=size)
+                df = get_money_flow(security_list=to_jq_entity_id(entity).split(','), end_date=end, count=size)
         else:
-            df = get_money_flow(code=to_jq_entity_id(entity), date=start, end_date=to_time_str(self.end_timestamp))
-            #df = get_money_flow(security_list=to_jq_entity_id(entity), start_date=to_time_str(start), end_date=to_time_str(self.end_timestamp))
+            # df = get_money_flow(code=to_jq_entity_id(entity), date=start, end_date=to_time_str(self.end_timestamp))
+            df = get_money_flow(security_list=to_jq_entity_id(entity), start_date=to_time_str(start), end_date=to_time_str(self.end_timestamp))
 
         df = df.dropna()
 

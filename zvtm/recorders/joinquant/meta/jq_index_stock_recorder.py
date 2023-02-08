@@ -12,9 +12,9 @@ from zvtm.domain import Index, IndexStock
 
 from zvtm.utils.time_utils import pre_month_start_date
 
-from jqdatasdk import get_index_stocks,auth,get_index_weights
+from jqdatasdk import get_index_stocks,auth,get_index_weights,get_all_securities
 from zvtm import zvt_config
-from jqdatapy.api import get_all_securities, run_query
+# from jqdatapy.api import get_all_securities, run_query
 from zvtm.contract.recorder import Recorder
 from zvtm.utils.pd_utils import pd_is_not_null
 from zvtm.domain import EtfStock, Stock, Etf, StockDetail,Index,IndexStock

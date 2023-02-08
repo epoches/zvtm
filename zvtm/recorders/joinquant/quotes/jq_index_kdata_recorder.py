@@ -2,8 +2,8 @@
 import argparse
 
 import pandas as pd
-from jqdatapy.api import get_token, get_bars
-
+# from jqdatapy.api import get_token, get_bars
+from jqdatasdk import auth,get_bars
 from zvtm import init_log, zvt_config
 from zvtm.api.kdata import generate_kdata_id, get_kdata_schema, get_kdata
 from zvtm.contract import IntervalLevel
@@ -48,7 +48,8 @@ class JqChinaIndexKdataRecorder(FixedCycleDataRecorder):
         level = IntervalLevel(level)
         self.data_schema = get_kdata_schema(entity_type="index", level=level)
         self.jq_trading_level = to_jq_trading_level(level)
-        get_token(zvt_config["jq_username"], zvt_config["jq_password"], force=True)
+        # get_token(zvt_config["jq_username"], zvt_config["jq_password"], force=True)
+        auth(zvt_config['jq_username'], zvt_config['jq_password'])
         super().__init__(
             force_update,
             sleeping_time,

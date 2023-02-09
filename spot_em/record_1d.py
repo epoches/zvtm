@@ -65,7 +65,7 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
         "量比",
         "5分钟涨跌",
         "代码",
-        "_",
+        "entity",
         "名称",
         "最高",
         "最低",
@@ -113,6 +113,7 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
             "5分钟涨跌",
             "60日涨跌幅",
             "年初至今涨跌幅",
+            "entity",
         ]
     ]
     temp_df["最新价"] = pd.to_numeric(temp_df["最新价"], errors="coerce")
@@ -135,6 +136,7 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
     temp_df["5分钟涨跌"] = pd.to_numeric(temp_df["5分钟涨跌"], errors="coerce")
     temp_df["60日涨跌幅"] = pd.to_numeric(temp_df["60日涨跌幅"], errors="coerce")
     temp_df["年初至今涨跌幅"] = pd.to_numeric(temp_df["年初至今涨跌幅"], errors="coerce")
+    temp_df["entity"] = temp_df["entity"].apply(lambda x: 'sz' if x == 0 else 'sh')
     return temp_df
 
 df = stock_zh_a_spot_em()
@@ -169,9 +171,10 @@ for i in range(len(df)):
     df.loc[i,"entity_id"] = entity_id
     df.loc[i,"id"] = "{}_{}".format(to_time_str(entity_id),dt)
     df.loc[i,"timestamp"] = dt
-    df.loc[i, "levle"] = "1d"
-    
-df = df[cols]
+    df.loc[i, "level"] = "1d"
+    df.loc[i, "provider"] = "em"
+df = df[schema_cols]
+# df = df[cols]
 print(df)
 # if pd_is_not_null(df):
 #     # saved = saved + len(df_current)

@@ -65,7 +65,7 @@ class JoinquantStockMoneyFlowRecorder(FixedCycleDataRecorder):
         self.compute_index_money_flow = compute_index_money_flow
         auth(zvt_config['jq_username'], zvt_config['jq_password'])
         # get_token(zvt_config["jq_username"], zvt_config["jq_password"], force=True)
-        #auth(zvt_config["jq_username"], zvt_config["jq_password"])
+
 
     def generate_domain_id(self, entity, original_data):
         return generate_kdata_id(entity_id=entity.id, timestamp=original_data["timestamp"], level=self.level)
@@ -82,7 +82,8 @@ class JoinquantStockMoneyFlowRecorder(FixedCycleDataRecorder):
             # df = get_money_flow(code=to_jq_entity_id(entity), date=to_time_str(start))
             # 使用jqdatasdk
             if end == None:
-                end = start + datetime.timedelta(days=size)
+                end = datetime.datetime.now() + datetime.timedelta(days=size)
+                end = end.strftime("%Y-%m-%d")
                 df = get_money_flow(security_list=to_jq_entity_id(entity).split(','), end_date=end, count=size)
         else:
             # df = get_money_flow(code=to_jq_entity_id(entity), date=start, end_date=to_time_str(self.end_timestamp))

@@ -35,13 +35,13 @@ def record_stock_data(data_provider="em", entity_provider="em"):
     run_data_recorder(domain=Block, data_provider=data_provider, sleeping_time=0, force_update=False)
     run_data_recorder(domain=BlockStock, data_provider=data_provider, sleeping_time=0, force_update=False)
 
-    run_data_recorder(
-        domain=Stock1dKdata,
-        data_provider=data_provider,
-        entity_provider=entity_provider,
-        day_data=False,
-        sleeping_time=0,
-    )
+    # run_data_recorder(
+    #     domain=Stock1dKdata,
+    #     data_provider=data_provider,
+    #     entity_provider=entity_provider,
+    #     day_data=False,
+    #     sleeping_time=0,
+    # )
     # A股后复权行情
     run_data_recorder(
         domain=Stock1dHfqKdata,

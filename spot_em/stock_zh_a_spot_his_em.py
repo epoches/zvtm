@@ -3,7 +3,11 @@
 # https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery112407372648993479995_1675913352824&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&ut=7eea3edcaed734bea9cbfc24409ed989&klt=101&fqt=1&secid=1.603777&beg=0&end=20500000&_=1675913352885
 import requests
 import pandas as pd
-
+from zvtm.utils.pd_utils import pd_is_not_null
+from zvtm.utils.time_utils import to_time_str, now_pd_timestamp, TIME_FORMAT_DAY, TIME_FORMAT_ISO8601
+from zvtm.contract.api import df_to_db
+from zvtm.domain import  Stock1dKdata,Stock1dHfqKdata,Stock1hKdata,Stock1mHfqKdata,Stock1monKdata
+from zvtm.contract.api import get_db_engine,get_schema_columns
 
 def code_id_map_em() -> dict:
     """
@@ -80,7 +84,7 @@ def code_id_map_em() -> dict:
 def stock_zh_a_hist(
     symbol: str = "000001",
     period: str = "daily",
-    start_date: str = "19700101",
+    start_date: str = "20230210",
     end_date: str = "20500101",
     adjust: str = "",
 ) -> pd.DataFrame:
@@ -148,7 +152,10 @@ def stock_zh_a_hist(
     temp_df["涨跌幅"] = pd.to_numeric(temp_df["涨跌幅"])
     temp_df["涨跌额"] = pd.to_numeric(temp_df["涨跌额"])
     temp_df["换手率"] = pd.to_numeric(temp_df["换手率"])
-
+    temp_df["code"] = data_json["data"]["code"]
+    temp_df["entity"] = data_json["data"]["market"]
+    temp_df["name"] = data_json["data"]["name"]
+    temp_df["entity"] = temp_df["entity"].apply(lambda x: 'sz' if x == 0 else 'sh')
     return temp_df
 
 
@@ -341,3 +348,43 @@ def stock_zh_a_hist_pre_min_em(
     temp_df["最新价"] = pd.to_numeric(temp_df["最新价"])
     temp_df["时间"] = pd.to_datetime(temp_df["时间"]).astype(str)
     return temp_df
+
+#
+# df = stock_zh_a_hist(symbol='601788',start_date='20230210',adjust='',period='daily')
+# print(df)
+
+df = stock_zh_a_hist_pre_min_em(symbol='601788',start_time="9:00:00",end_time="11:00:00")
+print(df)
+
+# df = stock_zh_a_hist_min_em(symbol='601788',start_date="2023-02-09 09:32:00",period='5m',adjust='')
+# print(df)
+# force_update=True
+# data_schema = Stock1dKdata
+# provider ='em'
+# db_engine = get_db_engine(provider, data_schema=data_schema)
+# schema_cols = get_schema_columns(data_schema)
+# cols = set(df.columns.tolist()) & set(schema_cols)
+# df.rename(columns={"代码": "code"}, inplace=True)
+# df.rename(columns={"名称": "name"}, inplace=True)
+# df.rename(columns={"收盘": "close"}, inplace=True)
+# df.rename(columns={"最高": "high"}, inplace=True)
+# df.rename(columns={"开盘": "open"}, inplace=True)
+# df.rename(columns={"最低": "low"}, inplace=True)
+# df.rename(columns={"成交量": "volume"}, inplace=True)
+# df.rename(columns={"成交额": "turnover"}, inplace=True)
+# df.rename(columns={"涨跌幅": "change_pct"}, inplace=True)
+# df.rename(columns={"换手率": "turnover_rate"}, inplace=True)
+# import datetime
+# dt = datetime.datetime.now().strftime('%Y-%m-%d')
+# for i in range(len(df)):
+#     entity_id = "{}_{}_{}".format('stock',df.loc[i,"entity"],df.loc[i,"code"])
+#     df.loc[i,"entity_id"] = entity_id
+#     df.loc[i,"id"] = "{}_{}".format(to_time_str(entity_id),dt)
+#     df.loc[i,"timestamp"] = dt
+#     df.loc[i, "level"] = "1d"
+#     df.loc[i, "provider"] = "em"
+# df = df[schema_cols]
+# if pd_is_not_null(df):
+#     df_to_db(df=df, data_schema=data_schema, provider=provider, force_update=force_update)
+# # else:
+# #     logger.info(f"no kdata for {entity.id}")

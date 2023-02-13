@@ -31,6 +31,7 @@ from zvtm.contract.api import df_to_db
 import datetime
 from zvtm.informer import EmailInformer
 from zvtm import zvt_config
+from schedule.utils.query_data import get_data
 
 logger = logging.getLogger(__name__)
 sched = BackgroundScheduler()
@@ -126,7 +127,7 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
         ]
     ]
     temp_df["最新价"] = pd.to_numeric(temp_df["最新价"], errors="coerce")
-    temp_df["涨跌幅"] = pd.to_numeric(temp_df["涨跌幅"], errors="coerce")
+    temp_df["涨跌幅"] = pd.to_numeric(temp_df["涨跌幅"], errors="coerce")/100
     temp_df["涨跌额"] = pd.to_numeric(temp_df["涨跌额"], errors="coerce")
     temp_df["成交量"] = pd.to_numeric(temp_df["成交量"], errors="coerce")
     temp_df["成交额"] = pd.to_numeric(temp_df["成交额"], errors="coerce")
@@ -136,7 +137,7 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
     temp_df["今开"] = pd.to_numeric(temp_df["今开"], errors="coerce")
     temp_df["昨收"] = pd.to_numeric(temp_df["昨收"], errors="coerce")
     temp_df["量比"] = pd.to_numeric(temp_df["量比"], errors="coerce")
-    temp_df["换手率"] = pd.to_numeric(temp_df["换手率"], errors="coerce")
+    temp_df["换手率"] = pd.to_numeric(temp_df["换手率"], errors="coerce")/100
     temp_df["市盈率-动态"] = pd.to_numeric(temp_df["市盈率-动态"], errors="coerce")
     temp_df["市净率"] = pd.to_numeric(temp_df["市净率"], errors="coerce")
     temp_df["总市值"] = pd.to_numeric(temp_df["总市值"], errors="coerce")
@@ -148,7 +149,7 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
     temp_df["entity"] = temp_df["entity"].apply(lambda x: 'sz' if x == 0 else 'sh')
     return temp_df
 
-@sched.scheduled_job('cron',day_of_week='mon-fri', hour=15, minute=5)
+
 def record_stock_data():
     email_action = EmailInformer()
     msg = f"record stock1d success,数据来源: em"
@@ -192,10 +193,20 @@ def record_stock_data():
             f"record stock1d error: {e}",
         )
 
+@sched.scheduled_job('cron',day_of_week='mon-fri', hour=15, minute=5)
+def isopen():
+    dt = datetime.datetime.now().strftime('%Y-%m-%d')
+    db = 'tushare'
+    sql = "select timestamp from trade_day where timestamp = %s "
+    arg = [dt]
+    df = get_data(db=db, sql=sql, arg=arg)
+    if len(df) > 0:
+        record_stock_data()
+    # print(df)
 if __name__ == "__main__":
     init_log("em_kdata1d_runner.log")
-
-    record_stock_data()
+    isopen()
+    # record_stock_data()
 
     sched.start()
 

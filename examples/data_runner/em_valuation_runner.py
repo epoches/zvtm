@@ -12,7 +12,10 @@ import requests
 import pandas as pd
 from zvtm.utils.time_utils import now_pd_timestamp, to_time_str, to_pd_timestamp
 from zvtm.utils.pd_utils import pd_is_not_null
-from zvtm.contract.api import get_data
+from zvtm.contract.api import df_to_db
+# from zvtm.contract.api import get_data
+from schedule.utils.query_data import get_data as get_data_sch
+import datetime
 logger = logging.getLogger(__name__)
 sched = BackgroundScheduler()
 
@@ -112,33 +115,41 @@ def get_datas():
 
     provider = 'em'
     data_schema = StockValuation1
-    db_engine = get_db_engine(provider, data_schema=data_schema)
+    force_update = True
+    # db_engine = get_db_engine(provider, data_schema=data_schema)
     schema_cols = get_schema_columns(data_schema)
     cols = set(df.columns.tolist()) & set(schema_cols)
     df = df[cols]
     if pd_is_not_null(df):
-        current = get_data(
-            data_schema=data_schema, columns=[data_schema.id], provider=provider, ids=df["id"].tolist()
-        )
-        if pd_is_not_null(current):
-            df = df[~df["id"].isin(current["id"])]
-            df.to_sql(data_schema.__tablename__, db_engine, index=False, if_exists="append")
+        df_to_db(df=df, data_schema=data_schema, provider=provider, force_update=force_update)
+        # current = get_data(
+        #     data_schema=data_schema, columns=[data_schema.id], provider=provider, ids=df["id"].tolist()
+        # )
+        # if pd_is_not_null(current):
+        #     df = df[~df["id"].isin(current["id"])]
+        #     df.to_sql(data_schema.__tablename__, db_engine, index=False, if_exists="append")
 
 
-@sched.scheduled_job('cron',day_of_week='mon-fri', hour=15, minute=8)
+
 def record_stock_data(data_provider="em", entity_provider="em"):
     get_datas()
-
     msg = f"record StockValuation1 success,数据来源: em"
-
     logger.info(msg)
     email_action.send_message(zvt_config["email_username"], msg, msg)
 
-
+@sched.scheduled_job('cron',day_of_week='mon-fri', hour=15, minute=8)
+def isopen():
+    dt = datetime.datetime.now().strftime('%Y-%m-%d')
+    db = 'tushare'
+    sql = "select timestamp from trade_day where timestamp = %s "
+    arg = [dt]
+    df = get_data_sch(db=db, sql=sql, arg=arg)
+    if len(df) > 0:
+        record_stock_data()
 
 if __name__ == "__main__":
     init_log("em_valuation_runner.log")
     email_action = EmailInformer()
-    record_stock_data()
+    isopen()
     sched.start()
     sched._thread.join()

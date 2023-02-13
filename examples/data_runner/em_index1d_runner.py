@@ -8,7 +8,7 @@ import logging
 from apscheduler.schedulers.background import BackgroundScheduler
 from zvtm.contract.api import get_db_engine, get_schema_columns
 from zvtm import init_log
-from zvtm.domain.fundamental.valuation1 import StockValuation1
+# from zvtm.domain.fundamental.valuation1 import StockValuation1
 import requests
 import pandas as pd
 from zvtm.utils.time_utils import now_pd_timestamp, to_time_str, to_pd_timestamp
@@ -79,7 +79,7 @@ def get_datas():
     force_update = True
     data_schema = Index1dKdata
     provider = 'em'
-    db_engine = get_db_engine(provider, data_schema=data_schema)
+    # db_engine = get_db_engine(provider, data_schema=data_schema)
     schema_cols = get_schema_columns(data_schema)
     cols = set(df.columns.tolist()) & set(schema_cols)
     df.rename(columns={"date": "timestamp"}, inplace=True)
@@ -88,18 +88,26 @@ def get_datas():
         df_to_db(df=df, data_schema=data_schema, provider=provider, force_update=force_update)
 
 
-@sched.scheduled_job('cron',day_of_week='mon-fri', hour=15, minute=1)
+
 def record_stock_data(data_provider="em", entity_provider="em"):
     get_datas()
     msg = f"record emindex1dsh000001 success,数据来源: em"
     logger.info(msg)
     email_action.send_message(zvt_config["email_username"], msg, msg)
 
-
+@sched.scheduled_job('cron',day_of_week='mon-fri', hour=15, minute=1)
+def isopen():
+    dt = datetime.datetime.now().strftime('%Y-%m-%d')
+    db = 'tushare'
+    sql = "select timestamp from trade_day where timestamp = %s "
+    arg = [dt]
+    df = get_data(db=db, sql=sql, arg=arg)
+    if len(df) > 0:
+        record_stock_data()
 
 if __name__ == "__main__":
     init_log("em_index1d000001_runner.log")
     email_action = EmailInformer()
-    record_stock_data()
+    isopen()
     sched.start()
     sched._thread.join()

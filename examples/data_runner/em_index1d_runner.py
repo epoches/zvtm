@@ -1,23 +1,26 @@
+# -*- coding: utf-8 -*-
 
-# import akshare as ak
+from zvtm import zvt_config
+from zvtm.informer import EmailInformer
+import demjson
 from zvtm.domain import Index1dKdata
 import logging
 from apscheduler.schedulers.background import BackgroundScheduler
+from zvtm.contract.api import get_db_engine, get_schema_columns
 from zvtm import init_log
+from zvtm.domain.fundamental.valuation1 import StockValuation1
 import requests
 import pandas as pd
-import demjson
 from zvtm.utils.time_utils import now_pd_timestamp, to_time_str, to_pd_timestamp
 from zvtm.utils.pd_utils import pd_is_not_null
-from zvtm.contract.api import get_db_engine,get_schema_columns
-from zvtm.domain import Stock1dKdata
-from zvtm.contract.api import df_to_db
+from zvtm.contract.api import get_data
 import datetime
-from zvtm.informer import EmailInformer
-from zvtm import zvt_config
+from zvtm.contract.api import df_to_db
 
-# index_stock_info_df = ak.index_stock_info()
-# print(index_stock_info_df)
+logger = logging.getLogger(__name__)
+sched = BackgroundScheduler()
+
+
 def stock_zh_index_daily_em(symbol: str = "sh000913",beg:str=datetime.datetime.now().strftime("%Y%m%d")) -> pd.DataFrame:
     """
     东方财富网-股票指数数据
@@ -67,20 +70,36 @@ def stock_zh_index_daily_em(symbol: str = "sh000913",beg:str=datetime.datetime.n
     # print(temp_df)
     return temp_df
 
-dt = datetime.datetime.now().strftime("%Y%m%d")
-
-df = stock_zh_index_daily_em(symbol="sh000001",beg=dt)
-# print(df)
 
 
 
-force_update=True
-data_schema = Index1dKdata
-provider ='em'
-db_engine = get_db_engine(provider, data_schema=data_schema)
-schema_cols = get_schema_columns(data_schema)
-cols = set(df.columns.tolist()) & set(schema_cols)
-df.rename(columns={"date": "timestamp"}, inplace=True)
-df = df[schema_cols]
-if pd_is_not_null(df):
-    df_to_db(df=df, data_schema=data_schema, provider=provider, force_update=force_update)
+def get_datas():
+    dt = datetime.datetime.now().strftime("%Y%m%d")
+    df = stock_zh_index_daily_em(symbol="sh000001", beg=dt)
+    force_update = True
+    data_schema = Index1dKdata
+    provider = 'em'
+    db_engine = get_db_engine(provider, data_schema=data_schema)
+    schema_cols = get_schema_columns(data_schema)
+    cols = set(df.columns.tolist()) & set(schema_cols)
+    df.rename(columns={"date": "timestamp"}, inplace=True)
+    df = df[schema_cols]
+    if pd_is_not_null(df):
+        df_to_db(df=df, data_schema=data_schema, provider=provider, force_update=force_update)
+
+
+@sched.scheduled_job('cron',day_of_week='mon-fri', hour=15, minute=1)
+def record_stock_data(data_provider="em", entity_provider="em"):
+    get_datas()
+    msg = f"record emindex1dsh000001 success,数据来源: em"
+    logger.info(msg)
+    email_action.send_message(zvt_config["email_username"], msg, msg)
+
+
+
+if __name__ == "__main__":
+    init_log("em_index1d000001_runner.log")
+    email_action = EmailInformer()
+    record_stock_data()
+    sched.start()
+    sched._thread.join()

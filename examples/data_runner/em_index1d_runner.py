@@ -14,6 +14,7 @@ import pandas as pd
 from zvtm.utils.time_utils import now_pd_timestamp, to_time_str, to_pd_timestamp
 from zvtm.utils.pd_utils import pd_is_not_null
 from zvtm.contract.api import get_data
+from schedule.utils.query_data import get_data as get_data_sch
 import datetime
 from zvtm.contract.api import df_to_db
 
@@ -101,7 +102,7 @@ def isopen():
     db = 'tushare'
     sql = "select timestamp from trade_day where timestamp = %s "
     arg = [dt]
-    df = get_data(db=db, sql=sql, arg=arg)
+    df = get_data_sch(db=db, sql=sql, arg=arg)
     if len(df) > 0:
         record_stock_data()
 

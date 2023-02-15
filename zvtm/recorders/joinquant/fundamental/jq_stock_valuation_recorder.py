@@ -37,10 +37,10 @@ class JqChinaStockValuationRecorder(TimeSeriesDataRecorder):
         count: Timedelta = end - start
 
         # df = get_fundamentals_continuously(q, end_date=now_time_str(), count=count.days + 1, panel=False)
-        df = get_fundamentals(
-            table="valuation", code=to_jq_entity_id(entity), date=to_time_str(end), count=min(count.days, 500)
-        )
-        # df = get_fundamentals(query(valuation, income).filter(valuation.code. == (to_jq_entity_id(entity))), date=to_time_str(start))
+        # df = get_fundamentals(
+        #     table="valuation", code=to_jq_entity_id(entity), date=to_time_str(end), count=min(count.days, 500)
+        # )
+        df = get_fundamentals(query(valuation, income).filter(valuation.code == (to_jq_entity_id(entity))), date=to_time_str(start))
         df["entity_id"] = entity.id
         df["timestamp"] = pd.to_datetime(df["day"])
         df["code"] = entity.code

@@ -43,7 +43,7 @@ class StockMoneyFlow1(MoneyFlowBase, Mixin):
     net_small_inflow_rate = Column(Float)
 
 
-register_schema(providers=["em"], db_name="money_flow", schema_base=MoneyFlowBase, entity_type="stock")
+register_schema(providers=["em"], db_name="money_flow1", schema_base=MoneyFlowBase, entity_type="stock")
 
 # the __all__ is generated
 __all__ = ["StockMoneyFlow1"]

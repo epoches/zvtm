@@ -14,6 +14,8 @@ from zvtm.recorders.joinquant.misc.jq_index_money_flow_recorder import Joinquant
 from zvtm.utils import pd_is_not_null, to_time_str
 from zvtm.utils.time_utils import TIME_FORMAT_DAY
 import datetime
+from zvtm.utils.time_utils import to_time_str, now_pd_timestamp, TIME_FORMAT_DAY, TIME_FORMAT_ISO8601
+
 
 class JoinquantStockMoneyFlowRecorder(FixedCycleDataRecorder):
     entity_provider = "joinquant"
@@ -66,6 +68,12 @@ class JoinquantStockMoneyFlowRecorder(FixedCycleDataRecorder):
         auth(zvt_config['jq_username'], zvt_config['jq_password'])
         # get_token(zvt_config["jq_username"], zvt_config["jq_password"], force=True)
 
+    def init_entities(self):
+        super().init_entities()
+        # 过滤掉退市的
+        self.entities = [
+            entity for entity in self.entities if (entity.end_date is None) or (entity.end_date > now_pd_timestamp())
+        ]
 
     def generate_domain_id(self, entity, original_data):
         return generate_kdata_id(entity_id=entity.id, timestamp=original_data["timestamp"], level=self.level)

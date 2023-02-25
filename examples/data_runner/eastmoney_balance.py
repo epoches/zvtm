@@ -32,6 +32,7 @@ def record_stock_data(data_provider="eastmoney", entity_provider="eastmoney"):
         entity_provider=entity_provider,
         day_data=False,
         sleeping_time=1,
+        force_update=True,
     )
 
     run_data_recorder(
@@ -40,6 +41,7 @@ def record_stock_data(data_provider="eastmoney", entity_provider="eastmoney"):
         entity_provider=entity_provider,
         day_data=False,
         sleeping_time=1,
+        force_update=True,
     )
 
 

@@ -65,7 +65,7 @@ class JoinquantStockMoneyFlowRecorder(FixedCycleDataRecorder):
             one_day_trading_minutes,
         )
         self.compute_index_money_flow = compute_index_money_flow
-        auth(zvt_config['jq_username'], zvt_config['jq_password'])
+        # auth(zvt_config['jq_username'], zvt_config['jq_password'])
         # get_token(zvt_config["jq_username"], zvt_config["jq_password"], force=True)
 
     def init_entities(self):

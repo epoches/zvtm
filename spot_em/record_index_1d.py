@@ -69,7 +69,7 @@ def stock_zh_index_daily_em(symbol: str = "sh000913",beg:str=datetime.datetime.n
 
 dt = datetime.datetime.now().strftime("%Y%m%d")
 
-df = stock_zh_index_daily_em(symbol="sh000001",beg=dt)
+df = stock_zh_index_daily_em(symbol="sz399006",beg=dt)
 # print(df)
 
 

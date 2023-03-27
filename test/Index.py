@@ -21,8 +21,8 @@ def run():
         email_action = EmailInformer()
 
         try:
-            Index.record_data(provider='exchange')
-            IndexStock.record_data(provider='exchange')
+            # Index.record_data(provider='exchange')
+            # IndexStock.record_data(provider='exchange')
             Index1dKdata.record_data(provider='em')
             email_action.send_message(zvt_config['email_username'], 'index runner finished', '')
             break

@@ -83,48 +83,56 @@ def to_float(the_str, default=None):
 def value_to_pct(value, default=0):
     return value / 100 if value else default
 
-# code = '000001'
-code = '600039'
-sec_id = '1' + '.' + code
-url = f"https://push2his.eastmoney.com/api/qt/stock/kline/get?secid={sec_id}&klt=5&fqt=0&lmt=912&end=20500000&iscca=1&fields1=f1,f2,f3,f4,f5,f6,f7,f8&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63,f64&ut=f057cbcbce2a86e2866ab8877db1d059&forcect=1"
-resp = requests.get(url, headers=DEFAULT_HEADER)
-resp.raise_for_status()
-results = resp.json()
-data = results["data"]
-kdatas = []
 
-if data:
-    klines = data["klines"]
-    name = data["name"]
 
-    for result in klines:
-        fields = result.split(",")
-        the_timestamp = to_pd_timestamp(fields[0])
-        open = to_float(fields[1])
-        close = to_float(fields[2])
-        high = to_float(fields[3])
-        low = to_float(fields[4])
-        volume = to_float(fields[5])
-        turnover = to_float(fields[6])
-        # 7 振幅
-        change_pct = value_to_pct(to_float(fields[8]))
-        # 9 变动
-        turnover_rate = value_to_pct(to_float(fields[10]))
 
-        kdatas.append(
-            dict(
-                timestamp=the_timestamp,
-                provider="em",
-                code=code,
-                name=name,
-                open=open,
-                close=close,
-                high=high,
-                low=low,
-                volume=volume,
-                turnover=turnover,
-                turnover_rate=turnover_rate,
-                change_pct=change_pct,
+if __name__ == "__main__":
+    # code = '000001'
+    code = '600039'
+    if code[0] == '0':
+        sec_id = '0' + '.' + code
+    else:
+        sec_id = '1' + '.' + code
+    url = f"https://push2his.eastmoney.com/api/qt/stock/kline/get?secid={sec_id}&klt=5&fqt=0&lmt=912&end=20500000&iscca=1&fields1=f1,f2,f3,f4,f5,f6,f7,f8&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63,f64&ut=f057cbcbce2a86e2866ab8877db1d059&forcect=1"
+    resp = requests.get(url, headers=DEFAULT_HEADER)
+    resp.raise_for_status()
+    resp.close()
+    results = resp.json()
+    data = results["data"]
+    kdatas = []
+
+    if data:
+        klines = data["klines"]
+        name = data["name"]
+
+        for result in klines:
+            fields = result.split(",")
+            the_timestamp = to_pd_timestamp(fields[0])
+            open = to_float(fields[1])
+            close = to_float(fields[2])
+            high = to_float(fields[3])
+            low = to_float(fields[4])
+            volume = to_float(fields[5])
+            turnover = to_float(fields[6])
+            # 7 振幅
+            change_pct = value_to_pct(to_float(fields[8]))
+            # 9 变动
+            turnover_rate = value_to_pct(to_float(fields[10]))
+
+            kdatas.append(
+                dict(
+                    timestamp=the_timestamp,
+                    provider="em",
+                    code=code,
+                    name=name,
+                    open=open,
+                    close=close,
+                    high=high,
+                    low=low,
+                    volume=volume,
+                    turnover=turnover,
+                    turnover_rate=turnover_rate,
+                    change_pct=change_pct,
+                )
             )
-        )
-    print(kdatas)
+        print(kdatas)

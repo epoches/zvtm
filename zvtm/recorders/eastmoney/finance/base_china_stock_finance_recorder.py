@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from jqdatapy.api import get_fundamentals
+# from jqdatapy.api import get_fundamentals
 
 from zvtm.api.utils import to_report_period_type
 from zvtm.contract.api import get_data
@@ -16,6 +16,7 @@ from zvtm.recorders.joinquant.common import to_jq_entity_id
 from zvtm.utils.pd_utils import index_df
 from zvtm.utils.pd_utils import pd_is_not_null
 from zvtm.utils.time_utils import to_time_str, to_pd_timestamp
+
 
 
 def to_jq_report_period(timestamp):
@@ -70,6 +71,8 @@ class BaseChinaStockFinanceRecorder(EastmoneyTimestampsDataRecorder):
             start_timestamp=start_timestamp,
             end_timestamp=end_timestamp,
         )
+
+
 
         try:
             self.fetch_jq_timestamp = True
@@ -146,26 +149,28 @@ class BaseChinaStockFinanceRecorder(EastmoneyTimestampsDataRecorder):
         return "ReportDate"
 
     def fill_timestamp_with_jq(self, security_item, the_data):
+        # pass
+        the_data.timestamp = the_data.report_date
         # get report published date from jq
-        try:
-            df = get_fundamentals(
-                table="indicator",
-                code=to_jq_entity_id(security_item),
-                columns="pubDate",
-                date=to_jq_report_period(the_data.report_date),
-                count=None,
-                parse_dates=["pubDate"],
-            )
-            if pd_is_not_null(df):
-                the_data.timestamp = to_pd_timestamp(df["pubDate"][0])
-                self.logger.info(
-                    "jq fill {} {} timestamp:{} for report_date:{}".format(
-                        self.data_schema, security_item.id, the_data.timestamp, the_data.report_date
-                    )
-                )
-                self.session.commit()
-        except Exception as e:
-            self.logger.error(e)
+        # try:
+        #     df = get_fundamentals(
+        #         table="indicator",
+        #         code=to_jq_entity_id(security_item),
+        #         columns="pubDate",
+        #         date=to_jq_report_period(the_data.report_date),
+        #         count=None,
+        #         parse_dates=["pubDate"],
+        #     )
+        #     if pd_is_not_null(df):
+        #         the_data.timestamp = to_pd_timestamp(df["pubDate"][0])
+        #         self.logger.info(
+        #             "jq fill {} {} timestamp:{} for report_date:{}".format(
+        #                 self.data_schema, security_item.id, the_data.timestamp, the_data.report_date
+        #             )
+        #         )
+        #         self.session.commit()
+        # except Exception as e:
+        #     self.logger.error(e)
 
     def on_finish_entity(self, entity):
         super().on_finish_entity(entity)

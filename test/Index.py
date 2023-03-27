@@ -4,7 +4,7 @@ import logging
 import time
 
 from apscheduler.schedulers.background import BackgroundScheduler
-
+from zvtm.consts import IMPORTANT_INDEX
 from zvtm import init_log, zvt_config
 from zvtm.domain import Index, Index1dKdata, IndexStock
 from zvtm.informer.informer import EmailInformer
@@ -21,9 +21,9 @@ def run():
         email_action = EmailInformer()
 
         try:
-            # Index.record_data(provider='exchange')
-            # IndexStock.record_data(provider='exchange')
-            Index1dKdata.record_data(provider='em')
+            Index.record_data(provider='exchange')
+            IndexStock.record_data(provider='exchange')
+            Index1dKdata.record_data(provider='em',codes=IMPORTANT_INDEX, day_data=True)
             email_action.send_message(zvt_config['email_username'], 'index runner finished', '')
             break
         except Exception as e:

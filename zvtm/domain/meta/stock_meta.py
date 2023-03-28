@@ -31,7 +31,7 @@ class StockDetail(StockMetaBase, TradableEntity):
     #: 成立日期
     date_of_establishment = Column(DateTime)
     #: 公司简介
-    profile = Column(String(length=4096))
+    profile = Column(String(length=8192))
     #: 主营业务
     main_business = Column(String(length=512))
     #: 发行量(股)

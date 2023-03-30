@@ -31,6 +31,8 @@ class EmChinaStockValuationRecorder(TimeSeriesDataRecorder):
         self.entities = [entity for entity in self.entities if
                          (entity.end_date is None) or (entity.end_date > now_pd_timestamp())]
         url = "http://82.push2.eastmoney.com/api/qt/clist/get"
+        # f38	总股本
+        # f39	流通股
         params = {
             "pn": "1",
             "pz": "50000",
@@ -41,7 +43,7 @@ class EmChinaStockValuationRecorder(TimeSeriesDataRecorder):
             "invt": "2",
             "fid": "f3",
             "fs": "m:0 t:6,m:0 t:80,m:1 t:2,m:1 t:23",
-            "fields": "f9,f10,f12,f13,f14,f20,f21,f23,f114,f115,f124,f130,f131",
+            "fields": "f9,f10,f12,f13,f14,f20,f21,f23,f38,f39,f114,f115,f124,f130,f131",
             "_": "1623833739532",
         }
         r = requests.get(url, params=params)
@@ -58,6 +60,8 @@ class EmChinaStockValuationRecorder(TimeSeriesDataRecorder):
             "market_cap",
             "circulating_market_cap",
             "pb",
+            "capitalization",
+            "circulating_cap",
             "pe",
             "pe_ttm",
             "timestamp",
@@ -77,6 +81,8 @@ class EmChinaStockValuationRecorder(TimeSeriesDataRecorder):
                 "market_cap",
                 "circulating_market_cap",
                 "pb",
+                "capitalization",
+                "circulating_cap",
                 "pe",
                 "pe_ttm",
                 "timestamp",
@@ -95,6 +101,8 @@ class EmChinaStockValuationRecorder(TimeSeriesDataRecorder):
         temp_df["pcf"] = pd.to_numeric(temp_df["pcf"], errors="coerce")
         temp_df["pe_ttm"] = pd.to_numeric(temp_df["pe_ttm"], errors="coerce")
         temp_df["market_cap"] = pd.to_numeric(temp_df["market_cap"], errors="coerce")
+        temp_df["capitalization"] = pd.to_numeric(temp_df["capitalization"], errors="coerce")
+        temp_df["circulating_cap"] = pd.to_numeric(temp_df["circulating_cap"], errors="coerce")
         temp_df["circulating_market_cap"] = pd.to_numeric(temp_df["circulating_market_cap"], errors="coerce")
 
         for i in range(len(temp_df)):

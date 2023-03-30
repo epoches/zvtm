@@ -37,7 +37,7 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
         "invt": "2",
         "fid": "f3",
         "fs": "m:0 t:6,m:0 t:80,m:1 t:2,m:1 t:23",
-        "fields": "f9,f10,f12,f13,f14,f20,f21,f23,f114,f115,f124,f130,f131",
+        "fields": "f9,f10,f12,f13,f14,f20,f21,f23,f38,f39,f114,f115,f124,f130,f131",
         "_": "1623833739532",
     }
     # f9	市盈率 动 总市值/预估全年净利润
@@ -66,6 +66,8 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
         "market_cap",
         "circulating_market_cap",
         "pb",
+        "capitalization",
+        "circulating_cap",
         "pe",
         "pe_ttm",
         "timestamp",
@@ -85,6 +87,8 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
             "market_cap",
             "circulating_market_cap",
             "pb",
+            "capitalization",
+            "circulating_cap",
             "pe",
             "pe_ttm",
             "timestamp",
@@ -104,6 +108,8 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
     temp_df["pe_ttm"] = pd.to_numeric(temp_df["pe_ttm"], errors="coerce")
     temp_df["market_cap"] = pd.to_numeric(temp_df["market_cap"], errors="coerce")
     temp_df["circulating_market_cap"] = pd.to_numeric(temp_df["circulating_market_cap"], errors="coerce")
+    temp_df["capitalization"] = pd.to_numeric(temp_df["capitalization"], errors="coerce")
+    temp_df["circulating_cap"] = pd.to_numeric(temp_df["circulating_cap"], errors="coerce")
     return temp_df
 
 def get_datas():

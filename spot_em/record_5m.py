@@ -84,11 +84,7 @@ def value_to_pct(value, default=0):
     return value / 100 if value else default
 
 
-
-
-if __name__ == "__main__":
-    # code = '000001'
-    code = '600039'
+def get_kdata(code):
     if code[0] == '0':
         sec_id = '0' + '.' + code
     else:
@@ -100,7 +96,6 @@ if __name__ == "__main__":
     results = resp.json()
     data = results["data"]
     kdatas = []
-
     if data:
         klines = data["klines"]
         name = data["name"]
@@ -135,4 +130,12 @@ if __name__ == "__main__":
                     change_pct=change_pct,
                 )
             )
-        print(kdatas)
+        # print(kdatas)
+    return kdatas
+
+
+if __name__ == "__main__":
+    # code = '000001'
+    code = '600039'
+    df = get_kdata(code)
+    print(df)

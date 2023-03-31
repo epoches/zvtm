@@ -13,7 +13,12 @@ class StockValuation1(ValuationBase, Mixin):
 
     code = Column(String(length=32))
     name = Column(String(length=32))
-
+    # f38	总股本
+    # f39	流通股
+    #: 总股本(股)
+    capitalization = Column(Float)
+    #: 公司已发行的普通股股份总数(包含A股，B股和H股的总股本)
+    circulating_cap = Column(Float)
     #: 市值
     market_cap = Column(Float)
     #: 流通市值

@@ -24,7 +24,7 @@ class StockDetail(StockMetaBase, TradableEntity):
     #: 行业指数
     industry_indices = Column(String(length=128))
     #: 所属板块
-    concept_indices = Column(String(length=128))
+    concept_indices = Column(String(length=512))
     #: 所属区域
     area_indices = Column(String(length=128))
 
@@ -33,7 +33,7 @@ class StockDetail(StockMetaBase, TradableEntity):
     #: 公司简介
     profile = Column(String(length=8192))
     #: 主营业务
-    main_business = Column(String(length=512))
+    main_business = Column(String(length=4196))
     #: 发行量(股)
     issues = Column(BigInteger)
     #: 发行价格

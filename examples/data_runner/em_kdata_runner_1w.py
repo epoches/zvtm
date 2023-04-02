@@ -32,8 +32,8 @@ def record_stock_data(data_provider="em", entity_provider="em"):
     # A股标的
     run_data_recorder(domain=Stock, data_provider="eastmoney", sleeping_time=0)
     run_data_recorder(domain=StockDetail, data_provider="eastmoney", sleeping_time=0)
-    run_data_recorder(domain=Block, data_provider=data_provider, sleeping_time=0, force_update=False)
-    run_data_recorder(domain=BlockStock, data_provider=data_provider, sleeping_time=0, force_update=False)
+    run_data_recorder(domain=Block, data_provider=data_provider, sleeping_time=0)
+    run_data_recorder(domain=BlockStock, data_provider=data_provider, sleeping_time=0)
 
     run_data_recorder(
         domain=Stock1wkHfqKdata,

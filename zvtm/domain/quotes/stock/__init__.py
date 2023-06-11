@@ -114,3 +114,5 @@ from .stock_30m_kdata import *
 from .stock_30m_kdata import __all__ as _stock_30m_kdata_all
 
 __all__ += _stock_30m_kdata_all
+
+__all__ += _stock_30m_kdata_all

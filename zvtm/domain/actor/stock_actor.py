@@ -65,7 +65,7 @@ class StockActorSummary(StockActorBase, TradableMeetActor):
     #: 是否完成
     is_complete = Column(Boolean)
     #: 持股市值
-    actor_type = Column(String)
+    actor_type = Column(String(length=128))
     actor_count = Column(Integer)
 
     #: 持股数

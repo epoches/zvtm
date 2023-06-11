@@ -8,8 +8,10 @@ from zvtm import init_log, zvt_config
 from zvtm.domain import *
 from zvtm.informer.informer import EmailInformer
 
-#Stock.record_data(provider='eastmoney', sleeping_time=5)
-#StockDetail.record_data(provider='eastmoney', sleeping_time=5)
+# Stock.record_data(provider='eastmoney', sleeping_time=5)
+# StockDetail.record_data(provider='eastmoney', sleeping_time=5)
+# Stock.record_data(provider='em', sleeping_time=5)
+# StockDetail.record_data(provider='em', sleeping_time=5)
 #FinanceFactor.record_data(provider='eastmoney', sleeping_time=5)
 #BalanceSheet.record_data(provider='eastmoney', sleeping_time=5)
 #IncomeStatement.record_data(provider='eastmoney', sleeping_time=5)
@@ -24,6 +26,6 @@ from zvtm.informer.informer import EmailInformer
 # StockActorSummary.record_data(provider='em', sleeping_time=5)
 # Index.record_data(provider='exchange', sleeping_time=5)
 # IndexStock.record_data(provider='exchange', sleeping_time=5)
-Index1dKdata.record_data(provider='joinquant', sleeping_time=0,code='000001')
-Stock1dHfqKdata.record_data(provider='em', sleeping_time=0,codes=['002116', '002883', '300374', '601800', '603701', '002164'])
-Block1dKdata.record_data(provider='em', sleeping_time=0,codes=['BK0726', 'BK0726', 'BK0725', 'BK0425', 'BK0481', 'BK0545'])
+# Index1dKdata.record_data(provider='joinquant', sleeping_time=0,code='000001')
+Stock1dHfqKdata.record_data(provider='em', sleeping_time=0)
+# Block1dKdata.record_data(provider='em', sleeping_time=0,codes=['BK0726', 'BK0726', 'BK0725', 'BK0425', 'BK0481', 'BK0545'])

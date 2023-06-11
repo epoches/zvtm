@@ -403,7 +403,11 @@ class TimeSeriesDataRecorder(EntityEventRecorder):
         unfinished_items = self.entities
         raising_exception = None
         while True:
-            count = len(unfinished_items)
+            if unfinished_items:
+                count = len(unfinished_items)
+            else:
+                count = 0
+                unfinished_items = list()
             for index, entity_item in enumerate(unfinished_items):
                 try:
                     self.logger.info(f"run to {index + 1}/{count}")

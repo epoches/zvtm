@@ -1,3 +1,5 @@
-from zvtm.recorders.exchange.exchange_stock_meta_recorder import recorder
 
+from zvtm.domain import Stock,StockDetail
+Stock.record_data(provider="exchange")
+StockDetail.record_data(provider="exchange")
 

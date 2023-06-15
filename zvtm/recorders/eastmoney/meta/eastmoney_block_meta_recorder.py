@@ -48,7 +48,6 @@ class EastmoneyBlockRecorder(Recorder):
                 df_to_db(data_schema=self.data_schema, df=df, provider=self.provider, force_update=self.force_update)
             self.logger.info(f"finish record eastmoney blocks:{category.value}")
 
-
 class EastmoneyBlockStockRecorder(TimeSeriesDataRecorder):
     entity_provider = "eastmoney"
     entity_schema = Block

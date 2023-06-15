@@ -18,18 +18,18 @@ sched = BackgroundScheduler()
 @sched.scheduled_job("cron", hour=15, minute=30, day_of_week="mon-fri")
 def record_stock_data(data_provider="em", entity_provider="em", sleeping_time=2):
     # A股标的
-    run_data_recorder(domain=Stock, data_provider=data_provider, force_update=False)
-    # A股后复权行情
-    run_data_recorder(
-        domain=Stock1dHfqKdata,
-        data_provider=data_provider,
-        entity_provider=entity_provider,
-        day_data=True,
-        sleeping_time=sleeping_time,
-    )
+    # run_data_recorder(domain=Stock, data_provider=data_provider, force_update=False)
+    # # A股后复权行情
+    # run_data_recorder(
+    #     domain=Stock1dHfqKdata,
+    #     data_provider=data_provider,
+    #     entity_provider=entity_provider,
+    #     day_data=True,
+    #     sleeping_time=sleeping_time,
+    # )
 
     # 板块(概念，行业)
-    run_data_recorder(domain=Block, entity_provider=entity_provider, data_provider=entity_provider, force_update=False)
+    # run_data_recorder(domain=Block, entity_provider=entity_provider, data_provider=entity_provider, force_update=False)
     # 板块行情(概念，行业)
     run_data_recorder(
         domain=Block1dKdata,

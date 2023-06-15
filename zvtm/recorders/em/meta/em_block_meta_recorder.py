@@ -28,9 +28,9 @@ class EMBlockStockRecorder(Recorder):
             df_to_db(df=df, data_schema=self.data_schema, provider=self.provider, force_update=self.force_update)
 
 if __name__ == "__main__":
-    recorder = EMBlockRecorder()
-    recorder.run()
-    # stockrecorder = EMBlockStockRecorder()
-    # stockrecorder.run()
+    # recorder = EMBlockRecorder()
+    # recorder.run()
+    stockrecorder = EMBlockStockRecorder()
+    stockrecorder.run()
 # the __all__ is generated
 __all__ = ["EMBlockRecorder","EMBlockStockRecorder"]

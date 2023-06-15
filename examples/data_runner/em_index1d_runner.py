@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+# 获取上证指数 修改时间可以获取以前时间批量数据
 from zvtm import zvt_config
 from zvtm.informer import EmailInformer
 import demjson

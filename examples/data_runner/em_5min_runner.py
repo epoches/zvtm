@@ -17,17 +17,24 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from examples.recorder_utils import run_data_recorder
 from zvtm import init_log
-from zvtm.domain import  Stock5mHfqKdata
+from zvtm.domain import  Stock5mHfqKdata,Block5mKdata
 logger = logging.getLogger(__name__)
 
 sched = BackgroundScheduler()
 
 
-@sched.scheduled_job('cron',day_of_week='mon-fri', hour=15, minute=10)
+@sched.scheduled_job('cron',day_of_week='sat', hour=22, minute=10)
 def record_stock_data(data_provider="em", entity_provider="em"):
-    # A股15m hfq
+    # A股5m hfq
     run_data_recorder(
         domain=Stock5mHfqKdata,
+        data_provider=data_provider,
+        entity_provider=entity_provider,
+        day_data=False,
+        sleeping_time=1,
+    )
+    run_data_recorder(
+        domain=Block5mKdata,
         data_provider=data_provider,
         entity_provider=entity_provider,
         day_data=False,

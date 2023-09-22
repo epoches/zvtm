@@ -2,7 +2,7 @@
 import logging
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from zvtm.domain import Block,BlockStock,Block1dKdata,Block1wkKdata,Block1monKdata
+from zvtm.domain import Block,BlockStock,Block1dKdata,Block1wkKdata,Block1monKdata,Stock1hHfqKdata,Block1hKdata,Stock15mHfqKdata,Block15mKdata,Stock5mHfqKdata,Block5mKdata,Stock1mHfqKdata,Block1mKdata
 
 
 logger = logging.getLogger(__name__)
@@ -53,6 +53,66 @@ def record_stock_data(data_provider="em", entity_provider="em"):
     # block
     run_data_recorder(
         domain=Block1dKdata,
+        data_provider=data_provider,
+        entity_provider=entity_provider,
+        day_data=False,
+        sleeping_time=0,
+    )
+    # A股60m hfq
+    run_data_recorder(
+        domain=Stock1hHfqKdata,
+        data_provider=data_provider,
+        entity_provider=entity_provider,
+        day_data=False,
+        sleeping_time=0,
+    )
+    run_data_recorder(
+        domain=Block1hKdata,
+        data_provider=data_provider,
+        entity_provider=entity_provider,
+        day_data=False,
+        sleeping_time=0,
+    )
+    # A股15m hfq
+    run_data_recorder(
+        domain=Stock15mHfqKdata,
+        data_provider=data_provider,
+        entity_provider=entity_provider,
+        day_data=False,
+        sleeping_time=0,
+    )
+    run_data_recorder(
+        domain=Block15mKdata,
+        data_provider=data_provider,
+        entity_provider=entity_provider,
+        day_data=False,
+        sleeping_time=0,
+    )
+    # A股5m hfq
+    run_data_recorder(
+        domain=Stock5mHfqKdata,
+        data_provider=data_provider,
+        entity_provider=entity_provider,
+        day_data=False,
+        sleeping_time=0,
+    )
+    run_data_recorder(
+        domain=Block5mKdata,
+        data_provider=data_provider,
+        entity_provider=entity_provider,
+        day_data=False,
+        sleeping_time=0,
+    )
+    # A股5m hfq
+    run_data_recorder(
+        domain=Stock1mHfqKdata,
+        data_provider=data_provider,
+        entity_provider=entity_provider,
+        day_data=False,
+        sleeping_time=0,
+    )
+    run_data_recorder(
+        domain=Block1mKdata,
         data_provider=data_provider,
         entity_provider=entity_provider,
         day_data=False,

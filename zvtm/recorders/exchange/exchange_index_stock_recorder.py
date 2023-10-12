@@ -78,5 +78,6 @@ class ExchangeIndexStockRecorder(TimestampsDataRecorder):
 if __name__ == "__main__":
     # ExchangeIndexMetaRecorder().run()
     ExchangeIndexStockRecorder().run()#codes=["399370"]
+
 # the __all__ is generated
 __all__ = ["ExchangeIndexStockRecorder"]

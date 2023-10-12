@@ -44,51 +44,51 @@ def record_stock_data(data_provider="em", entity_provider="em"):
         day_data=False,
         sleeping_time=0,
     )
-    # A股15m hfq
-    run_data_recorder(
-        domain=Stock15mHfqKdata,
-        data_provider=data_provider,
-        entity_provider=entity_provider,
-        day_data=False,
-        sleeping_time=0,
-    )
-    run_data_recorder(
-        domain=Block15mKdata,
-        data_provider=data_provider,
-        entity_provider=entity_provider,
-        day_data=False,
-        sleeping_time=0,
-    )
-    # A股5m hfq
-    run_data_recorder(
-        domain=Stock5mHfqKdata,
-        data_provider=data_provider,
-        entity_provider=entity_provider,
-        day_data=False,
-        sleeping_time=0,
-    )
-    run_data_recorder(
-        domain=Block5mKdata,
-        data_provider=data_provider,
-        entity_provider=entity_provider,
-        day_data=False,
-        sleeping_time=0,
-    )
-    # A股5m hfq
-    run_data_recorder(
-        domain=Stock1mHfqKdata,
-        data_provider=data_provider,
-        entity_provider=entity_provider,
-        day_data=False,
-        sleeping_time=0,
-    )
-    run_data_recorder(
-        domain=Block1mKdata,
-        data_provider=data_provider,
-        entity_provider=entity_provider,
-        day_data=False,
-        sleeping_time=0,
-    )
+    # # A股15m hfq
+    # run_data_recorder(
+    #     domain=Stock15mHfqKdata,
+    #     data_provider=data_provider,
+    #     entity_provider=entity_provider,
+    #     day_data=False,
+    #     sleeping_time=0,
+    # )
+    # run_data_recorder(
+    #     domain=Block15mKdata,
+    #     data_provider=data_provider,
+    #     entity_provider=entity_provider,
+    #     day_data=False,
+    #     sleeping_time=0,
+    # )
+    # # A股5m hfq
+    # run_data_recorder(
+    #     domain=Stock5mHfqKdata,
+    #     data_provider=data_provider,
+    #     entity_provider=entity_provider,
+    #     day_data=False,
+    #     sleeping_time=0,
+    # )
+    # run_data_recorder(
+    #     domain=Block5mKdata,
+    #     data_provider=data_provider,
+    #     entity_provider=entity_provider,
+    #     day_data=False,
+    #     sleeping_time=0,
+    # )
+    # # A股1m hfq
+    # run_data_recorder(
+    #     domain=Stock1mHfqKdata,
+    #     data_provider=data_provider,
+    #     entity_provider=entity_provider,
+    #     day_data=False,
+    #     sleeping_time=0,
+    # )
+    # run_data_recorder(
+    #     domain=Block1mKdata,
+    #     data_provider=data_provider,
+    #     entity_provider=entity_provider,
+    #     day_data=False,
+    #     sleeping_time=0,
+    # )
 
 
 

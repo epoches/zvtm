@@ -30,41 +30,41 @@ sched = BackgroundScheduler()
 @sched.scheduled_job('cron',day_of_week='sat', hour=1, minute=10)
 def record_stock_data(data_provider="em", entity_provider="em"):
     # A股标的
-    run_data_recorder(domain=Stock, data_provider="eastmoney", sleeping_time=0)
-    run_data_recorder(domain=StockDetail, data_provider="eastmoney", sleeping_time=0)
-    run_data_recorder(domain=Block, data_provider=data_provider, sleeping_time=0)
-    run_data_recorder(domain=BlockStock, data_provider=data_provider, sleeping_time=0)
-    run_data_recorder(domain=Stock, data_provider="exchange", sleeping_time=0)
+    # run_data_recorder(domain=Stock, data_provider="eastmoney", sleeping_time=0)
+    # run_data_recorder(domain=StockDetail, data_provider="eastmoney", sleeping_time=0)
+    # run_data_recorder(domain=Block, data_provider=data_provider, sleeping_time=0)
+    # run_data_recorder(domain=BlockStock, data_provider=data_provider, sleeping_time=0)
+    # run_data_recorder(domain=Stock, data_provider="exchange", sleeping_time=0)
     run_data_recorder(domain=StockDetail, data_provider="exchange", sleeping_time=0)
-    run_data_recorder(
-        domain=Stock1wkHfqKdata,
-        data_provider=data_provider,
-        entity_provider=entity_provider,
-        day_data=False,
-        sleeping_time=1,
-    )
+    # run_data_recorder(
+    #     domain=Stock1wkHfqKdata,
+    #     data_provider=data_provider,
+    #     entity_provider=entity_provider,
+    #     day_data=False,
+    #     sleeping_time=1,
+    # )
     run_data_recorder(
         domain=Stock1monHfqKdata,
         data_provider=data_provider,
         entity_provider=entity_provider,
         day_data=False,
-        sleeping_time=1,
+        sleeping_time=0,
     )
-
-    run_data_recorder(
-        domain=Block1wkKdata,
-        data_provider=data_provider,
-        entity_provider=entity_provider,
-        day_data=False,
-        sleeping_time=1,
-    )
-    run_data_recorder(
-        domain=Block1monKdata,
-        data_provider=data_provider,
-        entity_provider=entity_provider,
-        day_data=False,
-        sleeping_time=1,
-    )
+    #
+    # run_data_recorder(
+    #     domain=Block1wkKdata,
+    #     data_provider=data_provider,
+    #     entity_provider=entity_provider,
+    #     day_data=False,
+    #     sleeping_time=1,
+    # )
+    # run_data_recorder(
+    #     domain=Block1monKdata,
+    #     data_provider=data_provider,
+    #     entity_provider=entity_provider,
+    #     day_data=False,
+    #     sleeping_time=1,
+    # )
 
 
 

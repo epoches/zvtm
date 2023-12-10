@@ -9,7 +9,7 @@ token = 'd36d566f61ff364b5b6824484426752e1bbbe092dfaaec2d9c2cd996'
 pro = ts.pro_api(token)
 
 
-df = pro.trade_cal(exchange='', start_date='20140101', end_date='20231231')
+df = pro.trade_cal(exchange='', start_date='20240101', end_date='20241231')
 # print(df)
 df = df[df['is_open'] == 1]
 # print(df)

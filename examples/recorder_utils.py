@@ -30,10 +30,10 @@ def run_data_recorder(
         email_action = EmailInformer()
 
 
-        #spare = get_query_count() , 剩余数据条数:{spare['spare'] }  {zvt_config['jq_username']}剩余数据条数:{spare['spare'] }
+        #,force_update=True
         try:
             domain.record_data(
-                entity_ids=entity_ids, provider=data_provider, sleeping_time=sleeping_time,force_update=True, **recorder_kv
+                entity_ids=entity_ids, provider=data_provider, sleeping_time=sleeping_time, **recorder_kv
             )
             if data_provider == 'joinquant':
                 auth(zvt_config['jq_username'], zvt_config['jq_password'])

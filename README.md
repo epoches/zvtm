@@ -5,4 +5,9 @@
 ## 4、test 目录的record.py做了几个简单的demo。具体详见上面zvt的说明。
 ## 5、原有数据可以通过sql3mysql进行转化。
 
+
   
+### pip 安装出错
+ error in demjson setup command: use_2to3 is invalid.
+ pip install --upgrade setuptools==57.5.0
+ python -m pip install --upgrade pip

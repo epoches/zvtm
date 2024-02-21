@@ -18,6 +18,10 @@ https://quote.eastmoney.com/center/gridlist.html#hs_a_board
 # f18	昨收
 # 市值,流通市值,pe,pb  f20,f21,f9,f23
 # -*- coding: utf-8 -*-
+import sys
+sys.path.insert(0, sys.path[0]+"/../")
+sys.path.insert(0, sys.path[0]+"/../../")
+sys.path.insert(0, sys.path[0]+"/../../../")
 import logging
 from apscheduler.schedulers.background import BackgroundScheduler
 from zvtm import init_log

@@ -76,6 +76,7 @@ def stock_zh_index_daily_em(symbol: str = "sh000913",beg:str=datetime.datetime.n
 
 def get_datas():
     dt = datetime.datetime.now().strftime("%Y%m%d")
+    dt='20240219'
     df = stock_zh_index_daily_em(symbol="sh000001", beg=dt)
     force_update = True
     data_schema = Index1dKdata

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-
+import sys
+sys.path.insert(0, sys.path[0]+"/../../")
 from zvtm import zvt_config
 from zvtm.informer import EmailInformer
 

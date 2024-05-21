@@ -27,7 +27,10 @@ def get_fc(security_item):
 
 
 def get_company_type(stock_domain: StockDetail):
-    industries = stock_domain.industries.split(",")
+    if stock_domain.industries is not None:
+        industries = stock_domain.industries.split(",")
+    else:
+        industries = ""
     if ("银行" in industries) or ("信托" in industries):
         return CompanyType.yinhang
     if "保险" in industries:
@@ -36,6 +39,29 @@ def get_company_type(stock_domain: StockDetail):
         return CompanyType.quanshang
     return CompanyType.qiye
 
+import gzip
+import json
+def is_valid_json(json_str):
+    try:
+        # 尝试解析字符串为JSON
+        parsed_json = json.loads(json_str)
+        return True, parsed_json  # 返回一个元组，包含布尔值和解析后的JSON对象
+    except json.JSONDecodeError:
+        # 如果抛出JSONDecodeError异常，说明不是有效的JSON
+        return False, None
+
+def decode_text(encoded_text, encodings):
+    for encoding in encodings:
+        try:
+            decoded_text = encoded_text.decode(encoding)
+            print(f"Trying {encoding}...")
+            print(decoded_text)
+            return decoded_text
+        except UnicodeDecodeError:
+            continue
+    return None
+
+encodings_to_try = ['utf-8', 'gbk']
 
 def company_type_flag(security_item):
     try:
@@ -56,27 +82,79 @@ def company_type_flag(security_item):
 
     resp = requests.post("https://emh5.eastmoney.com/api/CaiWuFenXi/GetCompanyType", json=param)
 
-    ct = resp.json().get("Result").get("CompanyType")
-
-    logger.warning("{} not catching company type:{}".format(security_item, ct))
+    # ct = resp.json().get("Result").get("CompanyType")
+    # try:
+    # 尝试解析JSON
+    content = decode_text(resp.content, encodings_to_try)
+    # 检查字符串中的 Status 字段是否为 '0'
+    # status_str = '"Status":0'
+    # print(content)
+    if content is not None:#status_str in content:#isinstance(resp.content, dict) and resp.text and is_valid_json(resp.text):#isinstance(resp.json()["Result"], dict):
+        # print(resp.content)
+        # data = resp.json()
+        data = json.loads(content).get("Result")
+        if data is not None:
+            ct = data["Result"].get("CompanyType")
+        else:
+            ct = 4
+    else:
+        decompressed_data = gzip.decompress(resp.content)
+        # 假设解压缩后的数据是UTF-8编码的
+        decoded_text = decompressed_data.decode('utf-8')
+        # 尝试将解码后的内容解析为字典
+        json_dict = json.loads(decoded_text)
+        print("resp.content 被解码并解析为字典:{}", json_dict)
+        logger.warning("{} not catching json dict:{}".format(security_item, json_dict))
+        ct = 4  # 或者设定其他默认行为
+    # except json.JSONDecodeError as e:
+    #     # JSON解析错误，记录异常
+    #     logging.error("JSONDecodeError: {}".format(e))
+    #     result = None  # 或者进行其他错误处理
+    # logger.warning("{} not catching company type:{}".format(security_item, ct))
 
     return ct
+
 
 
 def call_eastmoney_api(url=None, method="post", param=None, path_fields=None):
     if method == "post":
         resp = requests.post(url, json=param)
+    origin_result = {}
+    # try:
+    # 尝试解析JSON
+    content = decode_text(resp.content, encodings_to_try)
+    # status_str = '"Status":0'
+    # print(content)
+    if content is not None:#status_str in content:#isinstance(resp.content, dict) and resp.text and is_valid_json(resp.text):#isinstance(resp.json()["Result"], dict):
+        # print(resp.content)
+        # data = resp.json()
+        # origin_result = data.get("Result")
+        # # origin_result = decode_text(origin_result, encodings_to_try)
+        # # print(origin_result)
+        origin_result = json.loads(content).get("Result")
+    else:
+        decompressed_data = gzip.decompress(resp.content)
+        # 假设解压缩后的数据是UTF-8编码的
+        decoded_text = decompressed_data.decode('utf-8')
+        # 尝试将解码后的内容解析为字典
+        json_dict = json.loads(decoded_text)
+        print("resp.content 被解码并解析为字典:{}",json_dict)
+        logger.exception("code:{},content:{},{}".format(resp.status_code, resp.text,json_dict))
+        return None
+    # except json.JSONDecodeError as e:
+    #     # JSON解析错误，记录异常
+    #     logging.error("JSONDecodeError: {}".format(e))
+    # resp.encoding = "utf8"
+    # #import gzip
+    # try:
+    #     #gzip.decompress(resp.json().get("Result")).decode("utf-8")
+    #     origin_result = resp.json().get("Result")
+    # except Exception as e:
+    #     logger.exception("code:{},content:{}".format(resp.status_code, resp.text))
+    #     #
+    #     raise e
 
-    resp.encoding = "utf8"
-    #import gzip
-    try:
-        #gzip.decompress(resp.json().get("Result")).decode("utf-8")
-        origin_result = resp.json().get("Result")
-    except Exception as e:
-        logger.exception("code:{},content:{}".format(resp.status_code, resp.text))
-        raise e
-
-    if path_fields:
+    if origin_result is not None and path_fields:
         the_data = get_from_path_fields(origin_result, path_fields)
         if not the_data:
             logger.warning(

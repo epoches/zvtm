@@ -37,7 +37,7 @@ def init_log(file_name="zvtm.log", log_dir=None, simple_formatter=True):
 
     file_name = os.path.join(log_dir, file_name)
 
-    file_log_handler = RotatingFileHandler(file_name, maxBytes=524288000, backupCount=10)
+    file_log_handler = RotatingFileHandler(file_name, maxBytes=524288000, backupCount=10, encoding='utf-8')
 
     file_log_handler.setLevel(logging.INFO)
 

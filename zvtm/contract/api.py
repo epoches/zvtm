@@ -60,10 +60,10 @@ def get_db_engine(
     #engine_url = 'mysql+mysqldb://root:root@localhost:3306/'
     engine_url = zvt_config['engine_url']
     if not db_engine:
-        db_engine = create_engine(engine_url+engine_key+'?charset=utf8&connect_timeout=30',pool_size=5,max_overflow=10,pool_timeout=30,pool_recycle=3600,pool_pre_ping=True,echo=False) #jqdata?charset=utf8
+        db_engine = create_engine(engine_url+engine_key+'?charset=utf8&connect_timeout=30',pool_size=5,max_overflow=10,pool_timeout=30,pool_recycle=360,pool_pre_ping=True,echo=False) #jqdata?charset=utf8
         if not database_exists(db_engine.url):
             create_database(engine_url+engine_key+'?charset=utf8')
-            db_engine = create_engine(engine_url + engine_key + '?charset=utf8')
+            db_engine = create_engine(engine_url + engine_key + '?charset=utf8&connect_timeout=30',pool_size=5,max_overflow=10,pool_timeout=30,pool_recycle=360,pool_pre_ping=True,echo=False)
         zvt_context.db_engine_map[engine_key] = db_engine
     return db_engine
 

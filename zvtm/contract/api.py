@@ -352,7 +352,7 @@ def get_data(
         query = query.filter(data_schema.code.in_(codes))
     if ids:
         query = query.filter(data_schema.id.in_(ids))
-
+    # query = query.filter(data_schema.name.not_in(['%退%']))
     # we always store different level in different schema,the level param is not useful now
     if level:
         try:

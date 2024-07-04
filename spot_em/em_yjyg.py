@@ -323,11 +323,11 @@ def stock_yysj_em(symbol: str = "沪深A股", date: str = "20200331") -> pd.Data
 
 
 if __name__ == "__main__":
-    stock_yjkb_em_df = stock_yjkb_em(date="20221231")
+    stock_yjkb_em_df = stock_yjkb_em(date="20240630")
     print(stock_yjkb_em_df)
 
-    stock_yjyg_em_df = stock_yjyg_em(date="20221231")
+    stock_yjyg_em_df = stock_yjyg_em(date="20240630")
     print(stock_yjyg_em_df)
 
-    stock_yysj_em_df = stock_yysj_em(symbol="沪市A股", date="20221231")
+    stock_yysj_em_df = stock_yysj_em(symbol="沪市A股", date="20240630")
     print(stock_yysj_em_df)

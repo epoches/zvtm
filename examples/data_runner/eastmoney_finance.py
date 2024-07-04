@@ -34,33 +34,33 @@ def record_stock_data(data_provider="eastmoney", entity_provider="eastmoney"):
         sleeping_time=0,
         force_update=True,
     )
-
-    run_data_recorder(
-        domain=FinanceFactor,
-        data_provider=data_provider,
-        entity_provider=entity_provider,
-        day_data=False,
-        sleeping_time=1,
-        force_update=True,
-    )
     #
-    run_data_recorder(
-        domain=CashFlowStatement,
-        data_provider=data_provider,
-        entity_provider=entity_provider,
-        day_data=False,
-        sleeping_time=1,
-        force_update = True,
-    )
-    #
-    run_data_recorder(
-        domain=IncomeStatement,
-        data_provider=data_provider,
-        entity_provider=entity_provider,
-        day_data=False,
-        sleeping_time=1,
-        force_update=True,
-    )
+    # run_data_recorder(
+    #     domain=FinanceFactor,
+    #     data_provider=data_provider,
+    #     entity_provider=entity_provider,
+    #     day_data=False,
+    #     sleeping_time=1,
+    #     force_update=True,
+    # )
+    # #
+    # run_data_recorder(
+    #     domain=CashFlowStatement,
+    #     data_provider=data_provider,
+    #     entity_provider=entity_provider,
+    #     day_data=False,
+    #     sleeping_time=1,
+    #     force_update = True,
+    # )
+    # #
+    # run_data_recorder(
+    #     domain=IncomeStatement,
+    #     data_provider=data_provider,
+    #     entity_provider=entity_provider,
+    #     day_data=False,
+    #     sleeping_time=1,
+    #     force_update=True,
+    # )
 
 
 

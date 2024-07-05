@@ -35,6 +35,8 @@ def stock_yjkb_em(date: str = "20211231") -> pd.DataFrame:
     r = requests.get(url, params=params)
     data_json = r.json()
     big_df = pd.DataFrame()
+    if data_json["code"] == 9201:
+        return pd.DataFrame()
     total_page = data_json["result"]["pages"]
     for page in tqdm(range(1, total_page + 1), leave=False):
         params.update(
@@ -115,17 +117,31 @@ def stock_yjkb_em(date: str = "20211231") -> pd.DataFrame:
     big_df["公告日期"] = pd.to_datetime(big_df["公告日期"]).dt.date
     return big_df
 
-if __name__ == "__main__":
-    stock_yjkb_em_df = stock_yjkb_em(date="20240331")
+import logging
+from apscheduler.schedulers.background import BackgroundScheduler
+from zvtm import init_log
+import numpy as np
+import pandas as pd
+sched = BackgroundScheduler()
+logger = logging.getLogger("__name__")
+import datetime
+from datetime import  timedelta
+@sched.scheduled_job('cron',day_of_week='mon-fri', hour=23, minute=10)
+def record_stock_data():
+    now = datetime.datetime.now()
+    now = now.strftime("%Y%m%d")
+    stock_yjkb_em_df = stock_yjkb_em(date=now)
     print(stock_yjkb_em_df)
-    import numpy as np
-    import pandas as pd
+    if len(stock_yjkb_em_df) == 0:
+        logger.info("今日没有数据")
+        return False
     from sqlalchemy import create_engine, MetaData, Table, Column, String, Float, BLOB, Date
     from sqlalchemy.orm import sessionmaker
     from sqlalchemy.dialects.mysql import insert
     from sqlalchemy.exc import SQLAlchemyError
     from zvtm import zvt_config
-    DATABASE_URI = 'mysql+pymysql://'+ zvt_config['mysql_user'] +':' +zvt_config['mysql_password'] + '@' +zvt_config['mysql_host'] + ':' + zvt_config['mysql_port']  +'/eastmoney_finance'
+    DATABASE_URI = 'mysql+pymysql://' + zvt_config['mysql_user'] + ':' + zvt_config['mysql_password'] + '@' + \
+                   zvt_config['mysql_host'] + ':' + zvt_config['mysql_port'] + '/eastmoney_finance'
 
     # 创建数据库引擎
     engine = create_engine(DATABASE_URI, echo=True)
@@ -198,11 +214,11 @@ if __name__ == "__main__":
                     '公告日期': row['公告日期']
                 })
                     .on_duplicate_key_update({  # 使用字典指定更新的列
-                        '股票代码': row['股票代码'],
-                        '股票简称': row['股票简称'],
-                        # ... 其他列
-                        # '公告日期': row['公告日期']
-                    }
+                    '股票代码': row['股票代码'],
+                    '股票简称': row['股票简称'],
+                    # ... 其他列
+                    # '公告日期': row['公告日期']
+                }
                 )
             )
             # 执行语句
@@ -217,3 +233,13 @@ if __name__ == "__main__":
     finally:
         # 关闭会话
         session.close()
+
+if __name__ == "__main__":
+
+    init_log("em_yjkb.log")
+
+    record_stock_data()
+
+    sched.start()
+
+    sched._thread.join()

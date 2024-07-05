@@ -33,6 +33,8 @@ def stock_yjbb_em(date: str = "20200331") -> pd.DataFrame:
     }
     r = requests.get(url, params=params)
     data_json = r.json()
+    if data_json["code"] == 9201:
+        return pd.DataFrame()
     page_num = data_json["result"]["pages"]
     big_df = pd.DataFrame()
     for page in tqdm(range(1, page_num + 1), leave=False):
@@ -117,33 +119,51 @@ def stock_yjbb_em(date: str = "20200331") -> pd.DataFrame:
     big_df['最新公告日期'] = pd.to_datetime(big_df['最新公告日期']).dt.date
     return big_df
 
-
-if __name__ == "__main__":
-    stock_yjbb_em_df = stock_yjbb_em(date="20240331")
+import logging
+from apscheduler.schedulers.background import BackgroundScheduler
+from zvtm import init_log
+import numpy as np
+import pandas as pd
+sched = BackgroundScheduler()
+logger = logging.getLogger("__name__")
+import datetime
+from datetime import  timedelta
+@sched.scheduled_job('cron',day_of_week='mon-fri', hour=23, minute=10)
+def record_stock_data():
+    now = datetime.datetime.now()
+    month = (now.month - 1) - (now.month - 1) % 3 + 1
+    this_quarter_start = datetime.datetime(now.year , month, 1)
+    # 上季第一天和最后一天
+    last_quarter_end = this_quarter_start - timedelta(days=1)
+    last_quarter_end = last_quarter_end.strftime("%Y%m%d")
+    stock_yjbb_em_df = stock_yjbb_em(date=last_quarter_end)
     print(stock_yjbb_em_df)
+    if len(stock_yjbb_em_df) == 0:
+        logger.info("上季度还没有数据")
+        return False
     stock_yjbb_em_df['最新公告日期'] = pd.to_datetime(stock_yjbb_em_df['最新公告日期'])
     stock_yjbb_em_df['最新公告日期'] = stock_yjbb_em_df['最新公告日期'].dt.strftime('%Y-%m-%d')
     stock_yjbb_em_df['序号'] = stock_yjbb_em_df['股票代码'] + '_' + stock_yjbb_em_df['最新公告日期']
-    import numpy as np
-    import pandas as pd
+
 
     # Assuming 'df' is your DataFrame and it has '营业收入_季度环比增长' and '净利润_季度环比增长' columns
-    stock_yjbb_em_df = stock_yjbb_em_df.fillna(value=np.nan)  # Make sure all NaNs are explicitly set if they weren't already
+    stock_yjbb_em_df = stock_yjbb_em_df.fillna(
+        value=np.nan)  # Make sure all NaNs are explicitly set if they weren't already
 
     # Replace NaN with a default value, e.g., 0
     stock_yjbb_em_df.replace({np.nan: 0}, inplace=True)
-    import pandas as pd
-    from sqlalchemy import create_engine, Column, Integer, String, Float, Date,insert
-    from sqlalchemy.orm import sessionmaker,declarative_base
+
+    from sqlalchemy import create_engine, Column, Integer, String, Float, Date, insert
+    from sqlalchemy.orm import sessionmaker, declarative_base
     from zvtm import zvt_config
-    DATABASE_URI = 'mysql+pymysql://'+ zvt_config['mysql_user'] +':' +zvt_config['mysql_password'] + '@' +zvt_config['mysql_host'] + ':' + zvt_config['mysql_port']  +'/eastmoney_finance'
+    DATABASE_URI = 'mysql+pymysql://' + zvt_config['mysql_user'] + ':' + zvt_config['mysql_password'] + '@' + \
+                   zvt_config['mysql_host'] + ':' + zvt_config['mysql_port'] + '/eastmoney_finance'
 
     # 创建数据库引擎
     engine = create_engine(DATABASE_URI, echo=False)
 
     # 定义模型基类
     Base = declarative_base()
-
 
     # 定义数据库表模型
     class StockInfo(Base):
@@ -166,7 +186,6 @@ if __name__ == "__main__":
 
         def __repr__(self):
             return f"<StockInfo(序号={self.序号}, 股票代码='{self.股票代码}', 股票简称='{self.股票简称}')>"
-
 
     # 创建表（如果表不存在）
     Base.metadata.create_all(engine)
@@ -200,9 +219,18 @@ if __name__ == "__main__":
         # 将语句添加到会话
         session.execute(stmt)
 
-
     # 提交事务
     session.commit()
 
     # 关闭 Session
     session.close()
+
+if __name__ == "__main__":
+
+    init_log("em_yjbb.log")
+
+    record_stock_data()
+
+    sched.start()
+
+    sched._thread.join()

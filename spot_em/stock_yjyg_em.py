@@ -29,6 +29,8 @@ def stock_yjyg_em(date: str = "20200331") -> pd.DataFrame:
     r = requests.get(url, params=params)
     data_json = r.json()
     big_df = pd.DataFrame()
+    if data_json["code"] == 9201:
+        return pd.DataFrame()
     total_page = data_json["result"]["pages"]
     for page in tqdm(range(1, total_page + 1), leave=False):
         params.update(
@@ -94,14 +96,31 @@ def stock_yjyg_em(date: str = "20200331") -> pd.DataFrame:
     big_df["上年同期值"] = pd.to_numeric(big_df["上年同期值"], errors="coerce")
     return big_df
 
-if __name__ == "__main__":
-    stock_yjyg_em_df = stock_yjyg_em(date="20240630")
+import logging
+from apscheduler.schedulers.background import BackgroundScheduler
+from zvtm import init_log
+import numpy as np
+import pandas as pd
+sched = BackgroundScheduler()
+logger = logging.getLogger("__name__")
+import datetime
+from datetime import  timedelta
+@sched.scheduled_job('cron',day_of_week='mon-fri', hour=23, minute=10)
+def record_stock_data():
+    now = datetime.datetime.now()
+    month = (now.month - 1) - (now.month - 1) % 3 + 1
+    this_quarter_start = datetime.datetime(now.year, month, 1)
+    # 上季第一天和最后一天
+    last_quarter_end = this_quarter_start - timedelta(days=1)
+    last_quarter_end = last_quarter_end.strftime("%Y%m%d")
+    stock_yjyg_em_df = stock_yjyg_em(date=last_quarter_end)
     print(stock_yjyg_em_df)
+    if len(stock_yjyg_em_df) == 0:
+        logger.info("上季度没有数据")
+        return False
     stock_yjyg_em_df['公告日期'] = pd.to_datetime(stock_yjyg_em_df['公告日期'])
     stock_yjyg_em_df['公告日期'] = stock_yjyg_em_df['公告日期'].dt.strftime('%Y-%m-%d')
     stock_yjyg_em_df['序号'] = stock_yjyg_em_df['股票代码'] + '_' + stock_yjyg_em_df['公告日期']
-    import numpy as np
-    import pandas as pd
 
     stock_yjyg_em_df = stock_yjyg_em_df.fillna(
         value=np.nan)  # Make sure all NaNs are explicitly set if they weren't already
@@ -109,7 +128,7 @@ if __name__ == "__main__":
     stock_yjyg_em_df.replace({np.nan: 0}, inplace=True)
     stock_yjyg_em_df['业绩变动原因'].replace({0: '无'}, inplace=True)
     stock_yjyg_em_df['业绩变动原因'] = stock_yjyg_em_df['业绩变动原因'].apply(lambda x: x.encode('utf-8'))
-    import pandas as pd
+
     from sqlalchemy import create_engine, MetaData, Table, Column, String, Float, BLOB, Date
     from sqlalchemy.orm import sessionmaker
     from sqlalchemy.dialects.mysql import insert
@@ -179,3 +198,12 @@ if __name__ == "__main__":
     finally:
         # 关闭会话
         session.close()
+
+if __name__ == "__main__":
+    init_log("em_yjyg.log")
+
+    record_stock_data()
+
+    sched.start()
+
+    sched._thread.join()

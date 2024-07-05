@@ -128,7 +128,7 @@ sched = BackgroundScheduler()
 logger = logging.getLogger("__name__")
 import datetime
 from datetime import  timedelta
-@sched.scheduled_job('cron',day_of_week='mon-fri', hour=23, minute=10)
+@sched.scheduled_job('cron',day_of_week='mon-fri', hour=20, minute=00)
 def record_stock_data():
     now = datetime.datetime.now()
     month = (now.month - 1) - (now.month - 1) % 3 + 1

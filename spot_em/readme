@@ -1,3 +1,6 @@
 stock_yjbb_em 业绩报表存入数据库 按季
 stock_yjkb_em 业绩快报存入数据库
 stock_yjyg_em 业绩预告存入数据库
+stock_gpzy_em 股权质押存入数据库
+stock_hold_control 大股东买卖
+record_1d_hfq em 1d hfq保存

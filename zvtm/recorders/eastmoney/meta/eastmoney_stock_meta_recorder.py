@@ -78,14 +78,14 @@ class EastmoneyStockDetailRecorder(Recorder):
             param = {"color": "w", "fc": fc}
             resp = requests.post("https://emh5.eastmoney.com/api/GongSiGaiKuang/GetFaXingXiangGuan", json=param)
             resp.encoding = "utf8"
+            if len(resp.json()["Result"]["FaXingXiangGuan"])>0:
+                resp_json = resp.json()["Result"]["FaXingXiangGuan"]
 
-            resp_json = resp.json()["Result"]["FaXingXiangGuan"]
-
-            security_item.issue_pe = to_float(resp_json["PEIssued"])
-            security_item.price = to_float(resp_json["IssuePrice"])
-            security_item.issues = to_float(resp_json["ShareIssued"])
-            security_item.raising_fund = to_float((resp_json["NetCollection"]))
-            security_item.net_winning_rate = pct_to_float(resp_json["LotRateOn"])
+                security_item.issue_pe = to_float(resp_json["PEIssued"])
+                security_item.price = to_float(resp_json["IssuePrice"])
+                security_item.issues = to_float(resp_json["ShareIssued"])
+                security_item.raising_fund = to_float((resp_json["NetCollection"]))
+                security_item.net_winning_rate = pct_to_float(resp_json["LotRateOn"])
 
             self.session.commit()
 

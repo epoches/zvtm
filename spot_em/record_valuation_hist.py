@@ -95,8 +95,8 @@ def code_id_map_em() -> dict:
 def stock_zh_a_hist(
     symbol: str = "000001",
     period: str = "daily",
-    start_date: str = "20230210",
-    end_date: str = "20500101",
+    start_date: str = "20240520",
+    end_date: str = "20500521",
     adjust: str = "",
 ) -> pd.DataFrame:
     """

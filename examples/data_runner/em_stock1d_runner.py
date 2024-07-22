@@ -199,6 +199,7 @@ def record_stock_data():
 
 @sched.scheduled_job('cron',day_of_week='mon-fri', hour=15, minute=5)
 def isopen():
+    # dt = '2024-07-18'
     dt = datetime.datetime.now().strftime('%Y-%m-%d')
     db = 'tushare'
     sql = "select timestamp from trade_day where timestamp = %s "

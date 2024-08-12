@@ -5,3 +5,6 @@ stock_gpzy_em 股权质押存入数据库
 stock_hold_control 大股东买卖
 record_1d_hfq em 1d hfq保存
 stock_zh_a_spot_his_em 对历史数据获取并保存
+stock_fhps_em 分红送配
+index_tdx 行业板块保存
+index_gn_tdx 概念板块保存

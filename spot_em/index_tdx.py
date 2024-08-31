@@ -140,10 +140,10 @@ def record_stock_data():
     for i in tqdm(range(len(df_block))):
         code = df_block['code'].iloc[i]
         name = df_block['name'].iloc[i]
-        entity = ''#df_block['c0'].iloc[i]
+        entity = 'hy'#df_block['c0'].iloc[i]
         # code = '881241'
         # entity = 'sh'
-        df = client.index(symbol=code, frequency=4, start=0, offset=1)
+        df = client.index(symbol=code, frequency=4, start=0, offset=800)
         if len(df) == 0:
             continue
         # if i ==4:
@@ -183,7 +183,7 @@ def record_stock_data():
 
     # 定义表结构，这里需要根据实际的数据库表结构进行修改
     stock_table = Table(
-        'index_hy_1d_kdata', metadata,
+        'index_1d_kdata', metadata,
         Column('id', String(128), primary_key=True),
         Column('code', String(20)),
         Column('name', String(60)),

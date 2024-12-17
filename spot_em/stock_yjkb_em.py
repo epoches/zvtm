@@ -240,6 +240,6 @@ if __name__ == "__main__":
 
     record_stock_data()
 
-    sched.start()
-
-    sched._thread.join()
+    # sched.start()
+    #
+    # sched._thread.join()

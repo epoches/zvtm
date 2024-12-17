@@ -118,7 +118,7 @@ def record_stock_data():
         entity = 'gn'
         # code = '881241'
         # entity = 'sh'
-        df = client.index(symbol=code, frequency=4, start=0, offset=800)
+        df = client.index(symbol=code, frequency=4, start=0, offset=1)
         if len(df) == 0:
             continue
         # if i ==3:
@@ -218,6 +218,6 @@ if __name__ == "__main__":
 
     record_stock_data()
 
-    sched.start()
-
-    sched._thread.join()
+    # sched.start()
+    #
+    # sched._thread.join()

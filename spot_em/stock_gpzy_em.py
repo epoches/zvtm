@@ -694,9 +694,9 @@ if __name__ == "__main__":
 
     record_stock_data()
 
-    sched.start()
-
-    sched._thread.join()
+    # sched.start()
+    #
+    # sched._thread.join()
     # stock_em_gpzy_distribute_statistics_company_df = (
     #     stock_gpzy_distribute_statistics_company_em()
     # )

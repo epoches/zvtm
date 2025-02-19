@@ -424,9 +424,9 @@ if __name__ == "__main__":
 
     record_stock_data()
 
-    sched.start()
-
-    sched._thread.join()
+    # sched.start()
+    #
+    # sched._thread.join()
 
     # stock_hold_management_person_em_df = stock_hold_management_person_em(
     #     symbol="001308", name="吴远"

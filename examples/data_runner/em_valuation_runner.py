@@ -20,24 +20,24 @@ import datetime
 logger = logging.getLogger(__name__)
 sched = BackgroundScheduler()
 
-def stock_zh_a_spot_em() -> pd.DataFrame:
+def stock_zh_a_spot_val_em() -> pd.DataFrame:
     """
     东方财富网-沪深京 A 股-实时行情
     https://quote.eastmoney.com/center/gridlist.html#hs_a_board
     :return: 实时行情
     :rtype: pandas.DataFrame
     """
-    url = "http://82.push2.eastmoney.com/api/qt/clist/get"
+    url = "https://82.push2.eastmoney.com/api/qt/clist/get"
     params = {
         "pn": "1",
-        "pz": "50000",
+        "pz": "20000",
         "po": "1",
-        "np": "1",
+        "np": "2",
         "ut": "bd1d9ddb04089700cf9c27f6f7426281",
         "fltt": "2",
         "invt": "2",
         "fid": "f3",
-        "fs": "m:0 t:6,m:0 t:80,m:1 t:2,m:1 t:23",
+        "fs": "m:0 t:6,m:0 t:80,m:1 t:2,m:1 t:23,m:0 t:81 s:2048",
         "fields": "f9,f10,f12,f13,f14,f20,f21,f23,f38,f39,f114,f115,f124,f130,f131",
         "_": "1623833739532",
     }
@@ -57,7 +57,7 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
     data_json = r.json()
     if not data_json["data"]["diff"]:
         return pd.DataFrame()
-    temp_df = pd.DataFrame(data_json["data"]["diff"])
+    temp_df = pd.DataFrame(data_json["data"]["diff"]).T
     temp_df.columns = [
         "pe_ttm1",
         "lb",
@@ -114,12 +114,13 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
     return temp_df
 
 def get_datas():
-    df = stock_zh_a_spot_em()
-    for i in range(len(df)):
-        entity_id = "{}_{}_{}".format('stock', df.loc[i, "entity"], df.loc[i, "code"])
-        df.loc[i, "entity_id"] = entity_id
-        df.loc[i, "id"] = "{}_{}".format(to_time_str(entity_id), df.loc[i, "timestamp"].strftime('%Y-%m-%d'))
-
+    df = stock_zh_a_spot_val_em()
+    # for i in range(len(df)):
+    #     entity_id = "{}_{}_{}".format('stock', df.loc[i, "entity"], df.loc[i, "code"])
+    #     df.loc[i, "entity_id"] = entity_id
+    #     df.loc[i, "id"] = "{}_{}".format(to_time_str(entity_id), df.loc[i, "timestamp"].strftime('%Y-%m-%d'))
+    df['entity_id'] = 'stock_' + df['entity'].astype(str) + '_' + df['code'].astype(str)
+    df['id'] = to_time_str(df['entity_id']) + '_' + df['timestamp'].dt.strftime('%Y-%m-%d')
     provider = 'em'
     data_schema = StockValuation1
     force_update = True

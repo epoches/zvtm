@@ -158,6 +158,9 @@ class TradableType(Enum):
     #: A股(中国)
     #: China stock
     stock = "stock"
+    #: 可转债(中国)
+    #: China convertible Bond
+    cbond = "cbond"
     #: A股指数(中国)
     #: China index
     index = "index"
@@ -195,6 +198,8 @@ class Exchange(Enum):
     sh = "sh"
     #: 深证交易所
     sz = "sz"
+    #: 北交所
+    bj = "bj"
 
     #: 对于中国的非交易所的 标的
     cn = "cn"
@@ -225,6 +230,9 @@ class Exchange(Enum):
     #: 上海国际能源交易中心
     ine = "ine"
 
+    #: 广州期货所
+    gfex = "gfex"
+
     #: 外汇交易所(虚拟)
     #: currency exchange(virtual)
     forex = "forex"
@@ -234,7 +242,8 @@ class Exchange(Enum):
 tradable_type_map_exchanges = {
     TradableType.block: [Exchange.cn],
     TradableType.index: [Exchange.sh, Exchange.sz],
-    TradableType.stock: [Exchange.sh, Exchange.sz],
+    TradableType.stock: [Exchange.sh, Exchange.sz, Exchange.bj],
+    TradableType.cbond: [Exchange.sh, Exchange.sz],
     TradableType.stockhk: [Exchange.hk],
     TradableType.stockus: [Exchange.nasdaq, Exchange.nyse],
     TradableType.indexus: [Exchange.us],

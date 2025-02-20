@@ -40,17 +40,30 @@ class ExchangeStockMetaRecorder(Recorder):
         if exchange == "sh":
             df = pd.read_csv(
                 io.BytesIO(response.content),
-                sep="\s+",
+                sep="\t+",
                 encoding="GB2312",
                 dtype=str,
                 parse_dates=["上市日期"],
-                error_bad_lines=False,
+                # date_format="%Y-%m-%d",
+                # on_bad_lines="skip",
             )
-            if df is not None:
-                df = df.loc[:, ["公司代码", "公司简称", "上市日期"]]
+            print(df)
 
-        elif exchange == 'sz':
-            df = pd.read_excel(io.BytesIO(response.content), sheet_name='A股列表', dtype=str, parse_dates=['A股上市日期'])
+            if df is not None:
+                # 根据固定列位置选择（需确保数据格式稳定）
+                df = df.iloc[:, [0, 1, 4]]  # 选择第1、2、5列
+                df.columns = ["公司代码", "公司简称", "上市日期"]  # 强制重命名
+
+                # df = df.loc[:, ["公司代码", "公司简称", "上市日期"]]
+
+        elif exchange == "sz":
+            df = pd.read_excel(
+                io.BytesIO(response.content),
+                sheet_name="A股列表",
+                dtype=str,
+                parse_dates=["A股上市日期"],
+                # date_format="%Y-m-d",
+            )
             if df is not None:
                 df = df.loc[:, ["A股代码", "A股简称", "A股上市日期"]]
 
@@ -63,6 +76,7 @@ class ExchangeStockMetaRecorder(Recorder):
             # 600996,贵广网络,2016-12-26,2016-12-26,sh,stock,stock_sh_600996,,次新股,贵州,,
             df.loc[df["code"] == "600996", "list_date"] = "2016-12-26"
             print(df[df["list_date"] == "-"])
+            print(df["list_date"])
             df["list_date"] = df["list_date"].apply(lambda x: to_pd_timestamp(x))
             df["exchange"] = exchange
             df["entity_type"] = "stock"
@@ -71,9 +85,9 @@ class ExchangeStockMetaRecorder(Recorder):
             df["timestamp"] = df["list_date"]
             df = df.dropna(axis=0, how="any")
             df = df.drop_duplicates(subset=("id"), keep="last")
-            df_to_db(df=df, data_schema=self.data_schema, provider=self.provider, force_update=True)
+            df_to_db(df=df, data_schema=self.data_schema, provider=self.provider, force_update=False)
             # persist StockDetail too
-            df_to_db(df=df, data_schema=StockDetail, provider=self.provider, force_update=True)
+            df_to_db(df=df, data_schema=StockDetail, provider=self.provider, force_update=False)
             self.logger.info(df.tail())
             self.logger.info("persist stock list successs")
 
@@ -83,5 +97,7 @@ __all__ = ["ExchangeStockMetaRecorder"]
 if __name__ == "__main__":
     recorder = ExchangeStockMetaRecorder()
     recorder.run()
+
+
 # the __all__ is generated
 __all__ = ["ExchangeStockMetaRecorder"]

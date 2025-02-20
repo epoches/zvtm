@@ -29,8 +29,11 @@ sched = BackgroundScheduler()
 @sched.scheduled_job('cron',day_of_week='sat', hour=1, minute=10)
 def record_stock_data(data_provider="em", entity_provider="em"):
     # A股标的
-    # run_data_recorder(domain=Stock, data_provider='exchange', force_update=True)
-    run_data_recorder(domain=Stock, data_provider='em', force_update=True)
+    run_data_recorder(domain=Stock, data_provider='exchange', force_update=True)
+    run_data_recorder(domain=StockDetail, data_provider='exchange', force_update=True)
+    # run_data_recorder(domain=Stock, data_provider='em', force_update=True)
+    # run_data_recorder(domain=Stock, data_provider='eastmoney', force_update=True)
+    # run_data_recorder(domain=StockDetail, data_provider='eastmoney', force_update=True)
 
 
 if __name__ == "__main__":

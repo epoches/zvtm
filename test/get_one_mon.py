@@ -1,3 +1,4 @@
+# 获取股票月线数据
 # -*- coding: utf-8 -*-
 import logging
 import random
@@ -15,13 +16,8 @@ from zvtm.contract.api import decode_entity_id
 from zvtm.domain import BlockCategory
 from zvtm.recorders.consts import DEFAULT_HEADER
 from zvtm.utils import to_pd_timestamp, to_float, json_callback_param, now_timestamp, to_time_str
-exchange_map_em_flag = {
-    #: 深证交易所
-    Exchange.sz: 0,
-    #: 上证交易所
-    Exchange.sh: 1,
-}
 
+from zvtm.recorders.em.em_api import exchange_map_em_flag
 def to_em_entity_flag(exchange: Union[Exchange, str]):
     exchange = Exchange(exchange)
     return exchange_map_em_flag.get(exchange, exchange)

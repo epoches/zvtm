@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, JSON, Boolean, DateTime, Integer
 from sqlalchemy.orm import declarative_base
 
 from zvtm.contract import Mixin
@@ -11,10 +11,42 @@ NewsBase = declarative_base()
 class StockNews(NewsBase, Mixin):
     __tablename__ = "stock_news"
 
+    #: 新闻编号
+    news_code = Column(String(length=128))
+    #: 新闻地址
+    news_url = Column(String(length=256))
+    #: 新闻标题
+    news_title = Column(String(length=26))
+    #: 新闻内容
+    news_content = Column(String(length=4680))
+    #: 新闻解读
+    news_analysis = Column(JSON)
+    #: 用户设置为忽略
+    ignore_by_user = Column(Boolean, default=False)
+
+
+class StockHotTopic(NewsBase, Mixin):
+    __tablename__ = "stock_hot_topic"
+
+    #: 出现时间
+    created_timestamp = Column(DateTime)
+    #: 热度排行
+    position = Column(Integer)
+    #: 相关标的
+    entity_ids = Column(JSON)
+
+    #: 新闻编号
+    news_code = Column(String(length=128))
     #: 新闻标题
     news_title = Column(String(length=128))
+    #: 新闻内容
+    news_content = Column(String(length=4680))
+    #: 新闻解读
+    news_analysis = Column(JSON)
 
 
 register_schema(providers=["em"], db_name="stock_news", schema_base=NewsBase, entity_type="stock")
+
+
 # the __all__ is generated
-__all__ = ["StockNews"]
+__all__ = ["StockNews", "StockHotTopic"]

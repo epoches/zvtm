@@ -32,7 +32,7 @@ def record_stock_data(data_provider="em", entity_provider="em"):
     run_data_recorder(domain=Stock, data_provider='exchange', force_update=True)
     run_data_recorder(domain=Stock, data_provider='em', force_update=True)
     run_data_recorder(domain=Stock, data_provider='eastmoney', force_update=True)
-    run_data_recorder(domain=StockDetail, data_provider='eastmoney', force_update=True)
+    # run_data_recorder(domain=StockDetail, data_provider='eastmoney', force_update=True)
 
 
 if __name__ == "__main__":

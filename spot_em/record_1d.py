@@ -1,4 +1,4 @@
-# 实时行情入库
+# 实时行情入库  还是有问题 超时
 """
 东方财富网-沪深京 A 股-实时行情
 https://quote.eastmoney.com/center/gridlist.html#hs_a_board
@@ -70,7 +70,8 @@ def record_stock_data():
             df.loc[i, "provider"] = "em"
         df = df[schema_cols]
         if pd_is_not_null(df):
-            df_to_db(df=df, data_schema=data_schema, provider=provider, force_update=force_update)
+            df_to_db(df=df, data_schema=data_schema, provider=provider, force_update=True)
+            # df.to_sql(data_schema.__tablename__, db_engine, index=False, if_exists="append")  一次性清库了
         logger.info(msg)
         email_action.send_message(zvt_config["email_username"], msg, msg)
     except Exception as e:

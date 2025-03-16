@@ -3,14 +3,12 @@
 import io
 
 import pandas as pd
-import requests
 
 from zvtm.contract.api import df_to_db
 from zvtm.contract.recorder import Recorder
 from zvtm.domain import Stock, StockDetail
-from zvtm.recorders.consts import DEFAULT_SH_HEADER, DEFAULT_SZ_HEADER
 from zvtm.utils.time_utils import to_pd_timestamp
-from ak.stock.stock_info import stock_info_sh_name_code,stock_info_sz_name_code
+from zvtm.ak.stock.stock_info import stock_info_sh_name_code,stock_info_sz_name_code
 
 class ExchangeStockMetaRecorder(Recorder):
     data_schema = Stock

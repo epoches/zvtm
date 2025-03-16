@@ -7,4 +7,6 @@ from zvtm.domain import Stock, Stock1dHfqKdata
 #                                                          start_timestamp='2022-01-18',end_timestamp = '2022-03-26')
 # print(df)
 
+df = Stock.query_data(provider='em')
+print(df[['code','name']])
 

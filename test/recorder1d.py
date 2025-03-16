@@ -2,7 +2,7 @@
 from zvtm.domain import  Stock1dHfqKdata,StockValuation,Stock1dKdata,Stock,StockSummary
 
 # Stock.record_data(provider='joinquant', sleeping_time=0, day_data=True)
-Stock1dKdata.record_data(provider='joinquant', sleeping_time=0, day_data=True)
+Stock1dKdata.record_data(provider='em', sleeping_time=0, day_data=True)
 # Stock1dHfqKdata.record_data(provider='joinquant', sleeping_time=0, day_data=True)
 #StockValuation.record_data(provider='joinquant', sleeping_time=0)
 # Stock1dKdata.record_data(provider='joinquant', sleeping_time=0,code='000156'

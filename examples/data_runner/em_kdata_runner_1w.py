@@ -50,7 +50,7 @@ def record_stock_data(data_provider="em", entity_provider="em"):
     #     day_data=False,
     #     sleeping_time=0,
     # )
-    #
+
     run_data_recorder(
         domain=Block1wkKdata,
         data_provider=data_provider,

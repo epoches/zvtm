@@ -484,7 +484,7 @@ def df_to_db(
     df: pd.DataFrame,
     data_schema: DeclarativeMeta,
     provider: str,
-    force_update: bool = False,
+    force_update: bool = True,
     sub_size: int = 5000,
     drop_duplicates: bool = True,
 ) -> object:

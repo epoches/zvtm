@@ -19,7 +19,7 @@ from schedule.utils.query_data import get_data as get_data_sch
 import datetime
 logger = logging.getLogger(__name__)
 sched = BackgroundScheduler()
-
+from zvtm.ak.utils.func import fetch_paginated_data
 def stock_zh_a_spot_val_em() -> pd.DataFrame:
     """
     东方财富网-沪深京 A 股-实时行情
@@ -30,15 +30,15 @@ def stock_zh_a_spot_val_em() -> pd.DataFrame:
     url = "https://82.push2.eastmoney.com/api/qt/clist/get"
     params = {
         "pn": "1",
-        "pz": "20000",
+        "pz": "100",
         "po": "1",
-        "np": "2",
+        "np": "1",
         "ut": "bd1d9ddb04089700cf9c27f6f7426281",
         "fltt": "2",
         "invt": "2",
-        "fid": "f3",
+        "fid": "f12",
         "fs": "m:0 t:6,m:0 t:80,m:1 t:2,m:1 t:23,m:0 t:81 s:2048",
-        "fields": "f9,f10,f12,f13,f14,f20,f21,f23,f38,f39,f114,f115,f124,f130,f131",
+        "fields": "f3,f9,f10,f12,f13,f14,f20,f21,f23,f38,f39,f114,f115,f124,f130,f131",
         "_": "1623833739532",
     }
     # f9	市盈率 动 总市值/预估全年净利润
@@ -53,12 +53,15 @@ def stock_zh_a_spot_val_em() -> pd.DataFrame:
     # f131	市现率TTM
     # f114	市盈率（静） 总市值/上年度净利润
     # f115	市盈率（TTM）
-    r = requests.get(url, params=params)
-    data_json = r.json()
-    if not data_json["data"]["diff"]:
-        return pd.DataFrame()
-    temp_df = pd.DataFrame(data_json["data"]["diff"]).T
+    temp_df = fetch_paginated_data(url, params)
+    # r = requests.get(url, params=params)
+    # data_json = r.json()
+    # if not data_json["data"]["diff"]:
+    #     return pd.DataFrame()
+    # temp_df = pd.DataFrame(data_json["data"]["diff"]).T
     temp_df.columns = [
+        "index",
+        "close",
         "pe_ttm1",
         "lb",
         "code",
@@ -158,6 +161,7 @@ def isopen():
 if __name__ == "__main__":
     init_log("em_valuation_runner.log")
     email_action = EmailInformer()
+    record_stock_data()
     isopen()
     sched.start()
     sched._thread.join()

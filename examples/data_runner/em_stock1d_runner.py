@@ -41,7 +41,7 @@ from zvtm.contract.api import df_to_db
 import datetime
 from zvtm.informer import EmailInformer
 from zvtm import zvt_config
-from schedule.utils.query_data import get_data
+from zvtm.utils.query_data import get_data
 
 logger = logging.getLogger(__name__)
 sched = BackgroundScheduler()

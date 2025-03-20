@@ -20,7 +20,7 @@ arrow
 sqlalchemy_utils
 apscheduler
 schedule
-dbutils
+DBUtils==3.0.3
 TA-Lib
 seaborn
 pyfinance

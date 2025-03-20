@@ -891,7 +891,7 @@ def stock_zh_b_spot_em() -> pd.DataFrame:
     )
     return temp_df
 
-
+from examples.data_runner.em_stock1d_runner import market_map
 def stock_zh_a_hist(
     symbol: str = "000001",
     period: str = "daily",
@@ -964,10 +964,12 @@ def stock_zh_a_hist(
     temp_df["涨跌幅"] = pd.to_numeric(temp_df["涨跌幅"], errors="coerce")
     temp_df["涨跌额"] = pd.to_numeric(temp_df["涨跌额"], errors="coerce")
     temp_df["换手率"] = pd.to_numeric(temp_df["换手率"], errors="coerce")
+    # temp_df["entity"] = temp_df['entity'].apply(
+    #     lambda x: market_map.get(x, f'unknown_{x}')  # 保留未知代码便于调试
+    # )
     temp_df = temp_df[
         [
             "日期",
-            "股票代码",
             "开盘",
             "收盘",
             "最高",
@@ -978,6 +980,7 @@ def stock_zh_a_hist(
             "涨跌幅",
             "涨跌额",
             "换手率",
+            "股票代码",
         ]
     ]
     return temp_df

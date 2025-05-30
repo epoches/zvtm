@@ -388,7 +388,7 @@ if __name__ == "__main__":
     #     # else:
     #     current_date = current_date.replace(month=12, day=31, year=next_date.year)
     # 获取数据
-    df = stock_fhps_em(date="20240930")
+    df = stock_fhps_em(date="20250331")
     print(df.tail())
     # 保存数据到MySQL
     save_to_mysql(df)

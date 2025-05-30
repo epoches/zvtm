@@ -42,17 +42,18 @@ def record_stock_data(data_provider="em", entity_provider="em"):
     #     day_data=False,
     #     sleeping_time=0,
     # )
-    # # A股后复权行情
+    # block
     run_data_recorder(
-        domain=Stock1dHfqKdata,
+        domain=Block1dKdata,
         data_provider=data_provider,
         entity_provider=entity_provider,
         day_data=False,
         sleeping_time=0,
     )
-    # block
+
+    # A股后复权行情
     run_data_recorder(
-        domain=Block1dKdata,
+        domain=Stock1dHfqKdata,
         data_provider=data_provider,
         entity_provider=entity_provider,
         day_data=False,

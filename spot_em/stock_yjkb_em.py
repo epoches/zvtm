@@ -12,12 +12,11 @@ import pandas as pd
 import requests
 from tqdm import tqdm
 
-
 def stock_yjkb_em(date: str = "20211231") -> pd.DataFrame:
     """
     东方财富-数据中心-年报季报-业绩快报
     https://data.eastmoney.com/bbsj/202003/yjkb.html
-    :param date: "20200331", "20200630", "20200930", "20201231"; 从 20100331 开始
+    :param date: 财报发布日期; choice of {"20200331", "20200630", "20200930", "20201231", ...}; 从 20100331 开始
     :type date: str
     :return: 业绩快报
     :rtype: pandas.DataFrame
@@ -30,13 +29,12 @@ def stock_yjkb_em(date: str = "20211231") -> pd.DataFrame:
         "pageNumber": "1",
         "reportName": "RPT_FCI_PERFORMANCEE",
         "columns": "ALL",
-        "filter": f"""(SECURITY_TYPE_CODE in ("058001001","058001008"))(TRADE_MARKET_CODE!="069001017")(REPORT_DATE='{'-'.join([date[:4], date[4:6], date[6:]])}')""",
+        "filter": f"""(SECURITY_TYPE_CODE in ("058001001","058001008"))(TRADE_MARKET_CODE!="069001017")
+        (REPORT_DATE='{'-'.join([date[:4], date[4:6], date[6:]])}')""",
     }
     r = requests.get(url, params=params)
     data_json = r.json()
     big_df = pd.DataFrame()
-    if data_json["code"] == 9201:
-        return pd.DataFrame()
     total_page = data_json["result"]["pages"]
     for page in tqdm(range(1, total_page + 1), leave=False):
         params.update(
@@ -47,7 +45,7 @@ def stock_yjkb_em(date: str = "20211231") -> pd.DataFrame:
         r = requests.get(url, params=params)
         data_json = r.json()
         temp_df = pd.DataFrame(data_json["result"]["data"])
-        big_df = pd.concat([big_df, temp_df], ignore_index=True)
+        big_df = pd.concat(objs=[big_df, temp_df], ignore_index=True)
 
     big_df.reset_index(inplace=True)
     big_df["index"] = range(1, len(big_df) + 1)
@@ -103,19 +101,138 @@ def stock_yjkb_em(date: str = "20211231") -> pd.DataFrame:
         ]
     ]
     big_df["每股收益"] = pd.to_numeric(big_df["每股收益"], errors="coerce")
-    big_df["营业收入-营业收入"] = pd.to_numeric(big_df["营业收入-营业收入"], errors="coerce")
-    big_df["营业收入-去年同期"] = pd.to_numeric(big_df["营业收入-去年同期"], errors="coerce")
-    big_df["营业收入-同比增长"] = pd.to_numeric(big_df["营业收入-同比增长"], errors="coerce")
-    big_df["营业收入-季度环比增长"] = pd.to_numeric(big_df["营业收入-季度环比增长"], errors="coerce")
+    big_df["营业收入-营业收入"] = pd.to_numeric(
+        big_df["营业收入-营业收入"], errors="coerce"
+    )
+    big_df["营业收入-去年同期"] = pd.to_numeric(
+        big_df["营业收入-去年同期"], errors="coerce"
+    )
+    big_df["营业收入-同比增长"] = pd.to_numeric(
+        big_df["营业收入-同比增长"], errors="coerce"
+    )
+    big_df["营业收入-季度环比增长"] = pd.to_numeric(
+        big_df["营业收入-季度环比增长"], errors="coerce"
+    )
     big_df["净利润-净利润"] = pd.to_numeric(big_df["净利润-净利润"], errors="coerce")
-    big_df["净利润-去年同期"] = pd.to_numeric(big_df["净利润-去年同期"], errors="coerce")
-    big_df["净利润-同比增长"] = pd.to_numeric(big_df["净利润-同比增长"], errors="coerce")
-    big_df["净利润-季度环比增长"] = pd.to_numeric(big_df["净利润-季度环比增长"], errors="coerce")
+    big_df["净利润-去年同期"] = pd.to_numeric(
+        big_df["净利润-去年同期"], errors="coerce"
+    )
+    big_df["净利润-同比增长"] = pd.to_numeric(
+        big_df["净利润-同比增长"], errors="coerce"
+    )
+    big_df["净利润-季度环比增长"] = pd.to_numeric(
+        big_df["净利润-季度环比增长"], errors="coerce"
+    )
     big_df["每股净资产"] = pd.to_numeric(big_df["每股净资产"], errors="coerce")
     big_df["净资产收益率"] = pd.to_numeric(big_df["净资产收益率"], errors="coerce")
     big_df["净资产收益率"] = pd.to_numeric(big_df["净资产收益率"], errors="coerce")
     big_df["公告日期"] = pd.to_datetime(big_df["公告日期"]).dt.date
     return big_df
+
+
+# def stock_yjkb_em(date: str = "20211231") -> pd.DataFrame:
+#     """
+#     东方财富-数据中心-年报季报-业绩快报
+#     https://data.eastmoney.com/bbsj/202003/yjkb.html
+#     :param date: "20200331", "20200630", "20200930", "20201231"; 从 20100331 开始
+#     :type date: str
+#     :return: 业绩快报
+#     :rtype: pandas.DataFrame
+#     """
+#     url = "https://datacenter.eastmoney.com/securities/api/data/v1/get"
+#     params = {
+#         "sortColumns": "UPDATE_DATE,SECURITY_CODE",
+#         "sortTypes": "-1,-1",
+#         "pageSize": "500",
+#         "pageNumber": "1",
+#         "reportName": "RPT_FCI_PERFORMANCEE",
+#         "columns": "ALL",
+#         "filter": f"""(SECURITY_TYPE_CODE in ("058001001","058001008"))(TRADE_MARKET_CODE!="069001017")(REPORT_DATE='{'-'.join([date[:4], date[4:6], date[6:]])}')""",
+#     }
+#     r = requests.get(url, params=params)
+#     data_json = r.json()
+#     big_df = pd.DataFrame()
+#     if data_json["code"] == 9201:
+#         return pd.DataFrame()
+#     total_page = data_json["result"]["pages"]
+#     for page in tqdm(range(1, total_page + 1), leave=False):
+#         params.update(
+#             {
+#                 "pageNumber": page,
+#             }
+#         )
+#         r = requests.get(url, params=params)
+#         data_json = r.json()
+#         temp_df = pd.DataFrame(data_json["result"]["data"])
+#         big_df = pd.concat([big_df, temp_df], ignore_index=True)
+#
+#     big_df.reset_index(inplace=True)
+#     big_df["index"] = range(1, len(big_df) + 1)
+#     big_df.columns = [
+#         "序号",
+#         "股票代码",
+#         "股票简称",
+#         "市场板块",
+#         "_",
+#         "证券类型",
+#         "_",
+#         "公告日期",
+#         "_",
+#         "每股收益",
+#         "营业收入-营业收入",
+#         "营业收入-去年同期",
+#         "净利润-净利润",
+#         "净利润-去年同期",
+#         "每股净资产",
+#         "净资产收益率",
+#         "营业收入-同比增长",
+#         "净利润-同比增长",
+#         "营业收入-季度环比增长",
+#         "净利润-季度环比增长",
+#         "所处行业",
+#         "_",
+#         "_",
+#         "_",
+#         "_",
+#         "_",
+#         "_",
+#         "_",
+#         "_",
+#     ]
+#     big_df = big_df[
+#         [
+#             "序号",
+#             "股票代码",
+#             "股票简称",
+#             "每股收益",
+#             "营业收入-营业收入",
+#             "营业收入-去年同期",
+#             "营业收入-同比增长",
+#             "营业收入-季度环比增长",
+#             "净利润-净利润",
+#             "净利润-去年同期",
+#             "净利润-同比增长",
+#             "净利润-季度环比增长",
+#             "每股净资产",
+#             "净资产收益率",
+#             "所处行业",
+#             "公告日期",
+#         ]
+#     ]
+#     big_df["每股收益"] = pd.to_numeric(big_df["每股收益"], errors="coerce")
+#     big_df["营业收入-营业收入"] = pd.to_numeric(big_df["营业收入-营业收入"], errors="coerce")
+#     big_df["营业收入-去年同期"] = pd.to_numeric(big_df["营业收入-去年同期"], errors="coerce")
+#     big_df["营业收入-同比增长"] = pd.to_numeric(big_df["营业收入-同比增长"], errors="coerce")
+#     big_df["营业收入-季度环比增长"] = pd.to_numeric(big_df["营业收入-季度环比增长"], errors="coerce")
+#     big_df["净利润-净利润"] = pd.to_numeric(big_df["净利润-净利润"], errors="coerce")
+#     big_df["净利润-去年同期"] = pd.to_numeric(big_df["净利润-去年同期"], errors="coerce")
+#     big_df["净利润-同比增长"] = pd.to_numeric(big_df["净利润-同比增长"], errors="coerce")
+#     big_df["净利润-季度环比增长"] = pd.to_numeric(big_df["净利润-季度环比增长"], errors="coerce")
+#     big_df["每股净资产"] = pd.to_numeric(big_df["每股净资产"], errors="coerce")
+#     big_df["净资产收益率"] = pd.to_numeric(big_df["净资产收益率"], errors="coerce")
+#     big_df["净资产收益率"] = pd.to_numeric(big_df["净资产收益率"], errors="coerce")
+#     big_df["公告日期"] = pd.to_datetime(big_df["公告日期"]).dt.date
+#     return big_df
 
 import logging
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -129,8 +246,13 @@ from datetime import  timedelta
 @sched.scheduled_job('cron',day_of_week='mon-fri', hour=20, minute=00)
 def record_stock_data():
     now = datetime.datetime.now()
-    now = now.strftime("%Y%m%d")
-    stock_yjkb_em_df = stock_yjkb_em(date=now)
+    # now = now.strftime("%Y%m%d")
+    month = (now.month - 1) - (now.month - 1) % 3 + 1
+    this_quarter_start = datetime.datetime(now.year , month, 1)
+    # 上季第一天和最后一天
+    last_quarter_end = this_quarter_start - timedelta(days=1)
+    last_quarter_end = last_quarter_end.strftime("%Y%m%d")
+    stock_yjkb_em_df = stock_yjkb_em(date=last_quarter_end)
     print(stock_yjkb_em_df)
     if len(stock_yjkb_em_df) == 0:
         logger.info("今日没有数据")

@@ -20,6 +20,7 @@ from zvtm import zvt_config
 # print("✅ 修正后的关键路径：")
 # print(f"[0] {sys.path[0]}")  # 应显示 D:\source\zvtm\zvtm
 #
+import time
 logger = logging.getLogger(__name__)
 sched = BackgroundScheduler()
 from zvtm.utils.query_data import get_data
@@ -118,7 +119,7 @@ if __name__ == "__main__":
     init_log("em_kdatahfq1d_runner.log")
 
     isopen()
-
+    # record_stock_data()
     sched.start()
 
     sched._thread.join()

@@ -933,6 +933,8 @@ def stock_zh_a_hist(
         "end": end_date,
         "_": "1623766962675",
     }
+    proxies = {"http": "http://127.0.0.1:1081"}
+
     r = requests.get(url, params=params, timeout=timeout)
     data_json = r.json()
     if not (data_json["data"] and data_json["data"]["klines"]):

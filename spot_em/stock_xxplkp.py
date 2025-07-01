@@ -1,4 +1,4 @@
-# 信息披露考评保存到数据库
+# 信息披露考评保存到csv
 # !/usr/bin/env python
 # -*- coding:utf-8 -*-
 """

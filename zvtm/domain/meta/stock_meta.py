@@ -46,6 +46,6 @@ class StockDetail(StockMetaBase, TradableEntity):
     net_winning_rate = Column(Float)
 
 
-register_schema(providers=["exchange", "joinquant", "eastmoney", "em"], db_name="stock_meta", schema_base=StockMetaBase)
+register_schema(providers=["exchange", "eastmoney", "em"], db_name="stock_meta", schema_base=StockMetaBase)
 # the __all__ is generated
 __all__ = ["Stock", "StockDetail"]

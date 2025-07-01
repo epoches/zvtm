@@ -43,14 +43,32 @@ def record_stock_data():
         list_of_df = []
         dt = datetime.datetime.now().strftime('%Y%m%d')
         for code in stocks_list['code']:
-            df_code = stock_zh_a_hist(
-                symbol=code,
-                period="daily",
-                start_date=dt,
-                end_date=dt,
-                adjust="hfq",
-            )
-            list_of_df.append(df_code)
+            try:
+                df_code = stock_zh_a_hist(
+                        symbol=code,
+                        period="daily",
+                        start_date='20250524',
+                        end_date=dt,
+                        adjust="hfq",
+                )
+                time.sleep(3)
+                print(f"Successfully fetched data for {code}")
+                list_of_df.append(df_code)
+            except Exception as e:
+                print(f"Error fetching data for {code}: {e}")
+                continue
+
+            #
+            # df_code = stock_zh_a_hist(
+            #     symbol=code,
+            #     period="daily",
+            #     start_date='20250524',
+            #     end_date=dt,
+            #     adjust="hfq",
+            # )
+            # time.sleep(3)
+            # print(code)
+            # list_of_df.append(df_code)
         df = pd.concat(list_of_df, ignore_index=True)
         # concat数据
         force_update=True

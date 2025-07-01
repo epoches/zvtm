@@ -11,7 +11,7 @@ from zvtm.api.utils import get_recent_report_date
 from zvtm.contract import Mixin, AdjustType
 from zvtm.contract.api import decode_entity_id, get_entity_schema, get_entity_ids
 from zvtm.contract.drawer import Drawer
-from zvtm.domain import FundStock, StockValuation, BlockStock, Block
+from zvtm.domain import StockValuation, BlockStock, Block
 from zvtm.utils import now_pd_timestamp, next_date, pd_is_not_null
 from zvtm.utils.time_utils import month_start_end_ranges, to_time_str
 

@@ -12,7 +12,7 @@ class Index30mKdata(KdataBase, IndexKdataCommon):
     __tablename__ = "index_30m_kdata"
 
 
-register_schema(providers=["em", "sina",'joinquant'], db_name="index_30m_kdata", schema_base=KdataBase, entity_type="index")
+register_schema(providers=["em", "sina"], db_name="index_30m_kdata", schema_base=KdataBase, entity_type="index")
 
 # the __all__ is generated
 __all__ = ["Index30mKdata"]

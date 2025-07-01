@@ -1,3 +1,4 @@
+# 获取通达信 概念 行业 指数 数值
 import pandas as pd
 import requests
 from tqdm import tqdm

@@ -1,3 +1,4 @@
+# 通达信指数板块数据保存 除gn外
 import pandas as pd
 import requests
 from tqdm import tqdm
@@ -104,43 +105,24 @@ def get_stock_hyblock_tdx_loc():
     #df.to_excel('tdxhy.xlsx', index=False)
     return df
 
-# 读取行业板块
-def hy_block(blk='hy'):
-    #begintime = datetime.datetime.now()
-    stocklist = get_stock_hyblock_tdx_loc()
-    #print(stocklist)
-    blocklist = get_block_zs_tdx_loc(blk)
-    #blocklist = blocklist.drop(blocklist[blocklist['name'].str.contains('TDX')].index)
-    blocklist['block5'] = blocklist['block'].str[0:5]
-    #print(blocklist)
-    blocklist['num'] = 0
-    blocklist['stocks'] = ''
-    for i in range(len(blocklist)):
-        blockkey = blocklist.iat[i, 2]
-        if (len(blockkey) == 5):
-            datai = stocklist[stocklist['block5'] == blockkey]  # 根据板块名称过滤
-        else:
-            datai = stocklist[stocklist['block'] == blockkey]  # 根据板块名称过滤
-        # 板块内进行排序填序号
-        datai = datai.sort_values(by=['code'], ascending=[True])
-        codelist = datai['code'].tolist()
-        blocklist.iat[i, 4] = len(codelist)
-        blocklist.iat[i, 5] = str(codelist)
-    blocklist = blocklist.drop(blocklist[blocklist['num'] == 0].index)
-    return blocklist
+
 
 from datetime import  timedelta
 @sched.scheduled_job('cron',day_of_week='mon-fri', hour=20, minute=00)
 def record_stock_data():
     # 获取entity_id 和 code
-    df_block = get_block_zs_tdx_loc('hy')
+    df_block = get_block_zs_tdx_loc('zs')
+
     df_index = pd.DataFrame(columns=['open', 'close', 'high', 'low', 'vol', 'amount', 'year', 'month', 'day',
        'hour', 'minute', 'datetime', 'up_count', 'down_count', 'volume',
        'code', 'entity', 'entity_id', 'timestamp', 'id'])
+    df_block = df_block[df_block['type'] != '4']
+    zsmapping = {'2': 'hy', '3': 'dq', '4': 'gn', '5': 'fg', '12': 'yjhy', '6': 'zs'}
     for i in tqdm(range(len(df_block))):
         code = df_block['code'].iloc[i]
         name = df_block['name'].iloc[i]
-        entity = 'hy'#df_block['c0'].iloc[i]
+        lxdm = df_block['type'].iloc[i]
+        entity = zsmapping[lxdm]
         # code = '881241'
         # entity = 'sh'
         df = client.index(symbol=code, frequency=4, start=0, offset=1)

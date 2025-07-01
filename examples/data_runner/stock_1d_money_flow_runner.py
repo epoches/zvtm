@@ -24,7 +24,7 @@ sched = BackgroundScheduler()
 
 
 @sched.scheduled_job('cron',day_of_week='mon-fri', hour=20, minute=5)
-def record_stock_data(data_provider="joinquant", entity_provider="joinquant"):
+def record_stock_data(data_provider="em", entity_provider="em"):
     # A股后复权行情
     run_data_recorder(
         domain=StockMoneyFlow,

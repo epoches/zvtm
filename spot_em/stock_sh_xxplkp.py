@@ -1,128 +1,167 @@
-# # 上证信息披露考评是一个pdf 只好读取并保存
-# import pdfplumber
-# import pandas as pd
-# import os
-#
-# def extract_pdf_table_to_df(pdf_path, show_progress=False):
-#     """增强版PDF表格提取函数，带进度显示"""
-#     from tqdm import tqdm
-#
-#     if not os.path.exists(pdf_path):
-#         raise FileNotFoundError(f"PDF文件不存在: {pdf_path}")
-#
-#     all_data = []
-#     total_pages = 0
-#     processed_pages = 0
-#
-#     with pdfplumber.open(pdf_path) as pdf:
-#         total_pages = len(pdf.pages)
-#         progress = tqdm(total=total_pages, desc="处理PDF页面", disable=not show_progress)
-#
-#         for page in pdf.pages:
-#             try:
-#                 tables = page.extract_tables()
-#
-#                 for table in tables:
-#                     for row_idx, row in enumerate(table):
-#                         if len(row) == 4:
-#                             # 跳过表头行（检查第一行或第二行）
-#                             if row_idx < 2 and (row[0] == "序号" or row[1] == "证券代码"):
-#                                 continue
-#
-#                             # 清理数据：去除多余空格和空值
-#                             clean_row = [str(item).strip() if item is not None else "" for item in row]
-#                             all_data.append(clean_row)
-#             except Exception as e:
-#                 print(f"处理第 {processed_pages+1} 页时出错: {e}")
-#
-#             processed_pages += 1
-#             progress.update(1)
-#
-#         progress.close()
-#
-#     # 创建DataFrame
-#     df = pd.DataFrame(all_data, columns=['序号', '证券代码', '证券简称', '评价结果'])
-#
-#     # 转换序号为数值类型
-#     df['序号'] = pd.to_numeric(df['序号'], errors='coerce')
-#
-#     # 删除可能的空行
-#     df = df.dropna(subset=['证券代码'])
-#
-#     print(f"成功处理 {processed_pages}/{total_pages} 页，提取 {len(df)} 条记录")
-#     return df
-#
-# # 使用示例
-# if __name__ == "__main__":
-#     # 假设pdf_text是PDF文本内容
-#     file_path = r"F:\203\book\股票\附件：沪市上市公司信息披露工作评价结果（2023-2024）.pdf"
-#
-#     df = extract_pdf_table_to_df(file_path)
-#
-#     # 查看数据
-#     print(df.head())
-#
-
+# 上证信息披露考评是一个pdf 只好读取并保存到csv
+import pdfplumber
 import pandas as pd
-import re
+import os
+from tqdm import tqdm
 
 
-def extract_pdf_table_from_text(pdf_text):
+def extract_pdf_data(pdf_path):
     """
-    直接从PDF文本内容中提取表格数据
-
-    参数:
-    pdf_text (str): PDF文本内容
-
-    返回:
-    pd.DataFrame: 包含表格数据的DataFrame
+    从PDF文档中提取上市公司信息披露评价数据
+    :param pdf_path: PDF文件路径
+    :return: 包含所有数据的DataFrame
     """
-    # 初始化数据存储列表
-    data = []
+    # 检查文件是否存在
+    if not os.path.exists(pdf_path):
+        raise FileNotFoundError(f"PDF文件不存在: {pdf_path}")
 
-    # 使用正则表达式匹配表格行
-    table_pattern = re.compile(r'^\|\s*(\d+)\s*\|\s*(\d{6})\s*\|\s*([^\|]+?)\s*\|\s*([A-D])\s*\|$')
+    print(f"开始解析PDF文件: {os.path.basename(pdf_path)}")
 
-    # 按行处理文本
-    lines = pdf_text.split('\n')
-    for line in lines:
-        # 跳过非表格行
-        if not line.strip().startswith('|'):
-            continue
+    all_data = []
+    total_pages = 0
+    processed_pages = 0
 
-        # 尝试匹配表格行模式
-        match = table_pattern.match(line.strip())
-        if match:
-            # 提取并清理数据
-            row = [
-                match.group(1).strip(),  # 序号
-                match.group(2).strip(),  # 证券代码
-                match.group(3).strip(),  # 证券简称
-                match.group(4).strip()  # 评价结果
-            ]
-            data.append(row)
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            total_pages = len(pdf.pages)
+            print(f"PDF共 {total_pages} 页")
+
+            # 创建进度条
+            progress_bar = tqdm(total=total_pages, desc="处理页面")
+
+            # 遍历每一页
+            for page in pdf.pages:
+                try:
+                    # 提取当前页的表格
+                    tables = page.extract_tables()
+
+                    # 处理每个表格
+                    for table in tables:
+                        # 跳过空表
+                        if not table or len(table) < 2:
+                            continue
+
+                        # 处理每一行数据
+                        for row_idx, row in enumerate(table):
+                            # 跳过表头行
+                            if row_idx == 0 and ("序号" in row or "证券代码" in row):
+                                continue
+
+                            # 检查行是否有效
+                            if len(row) < 11:
+                                continue
+
+                            # 提取关键字段
+                            serial = row[1]  # 序号
+                            code = row[4]  # 证券代码
+                            name = row[7]  # 证券简称
+
+                            # 评价结果可能在位置9或10
+                            rating = row[9] if row[9] in ['A', 'B', 'C', 'D'] else row[10]
+
+                            # 确保所有字段都有值
+                            if serial and code and name and rating:
+                                all_data.append([serial, code, name, rating])
+
+                except Exception as e:
+                    print(f"处理第 {processed_pages+1} 页时出错: {str(e)}")
+
+                processed_pages += 1
+                progress_bar.update(1)
+
+            progress_bar.close()
+
+    except Exception as e:
+        print(f"解析PDF时发生错误: {str(e)}")
+        return None
 
     # 创建DataFrame
-    df = pd.DataFrame(data, columns=['序号', '证券代码', '证券简称', '评价结果'])
+    if not all_data:
+        print("未提取到任何数据")
+        return None
 
-    # 转换序号为数值类型
-    df['序号'] = pd.to_numeric(df['序号'], errors='coerce')
+    try:
+        # 创建DataFrame
+        df = pd.DataFrame(all_data, columns=['序号', '证券代码', '证券简称', '评价结果'])
 
-    return df
+        # 数据清洗
+        df['序号'] = pd.to_numeric(df['序号'], errors='coerce').fillna(0).astype(int)
+
+        # 处理证券代码
+        df['证券代码'] = df['证券代码'].apply(
+            lambda x: str(x).strip().zfill(6) if str(x).isdigit() else str(x)
+        )
+
+        # 处理证券简称
+        df['证券简称'] = df['证券简称'].str.strip()
+
+        # 处理评价结果
+        df['评价结果'] = df['评价结果'].str.strip().str.upper()
+
+        # 删除空值
+        df = df.dropna(subset=['证券代码', '证券简称'])
+
+        # 删除重复项
+        df = df.drop_duplicates(subset=['证券代码'])
+
+        print(f"成功提取 {len(df)} 条记录")
+        return df
+
+    except Exception as e:
+        print(f"创建DataFrame时出错: {str(e)}")
+        return None
 
 
-# 使用示例
-if __name__ == "__main__":
-    # 从文件读取PDF文本内容
-    with open(r"F:\203\book\股票\附件：沪市上市公司信息披露工作评价结果（2023-2024）.pdf", 'r', encoding='utf-8') as f:
-        pdf_text = f.read()
+def save_to_csv(df, output_path):
+    """将DataFrame保存为CSV文件"""
+    if df is None or df.empty:
+        print("无数据可保存")
+        return False
+
+    try:
+        df.to_csv(output_path, index=False, encoding='utf-8-sig')
+        print(f"数据已保存到: {output_path}")
+        return True
+    except Exception as e:
+        print(f"保存CSV文件时出错: {str(e)}")
+        return False
+
+
+def main():
+    """主函数"""
+    # 配置输入输出路径
+    pdf_path = "F:\\203\\book\\股票\\附件：沪市上市公司信息披露工作评价结果（2023-2024）.pdf"  # 替换为您的PDF文件路径
+    output_csv = "disclosure_evaluation_results.csv"
 
     # 提取数据
-    df = extract_pdf_table_from_text(pdf_text)
+    df = extract_pdf_data(pdf_path)
 
-    # 保存到CSV文件
-    df.to_csv('disclosure_ratings.csv', index=False, encoding='utf-8-sig')
+    if df is not None:
+        # 保存数据
+        save_to_csv(df, output_csv)
 
-    # 打印结果
-    print(f"成功提取 {len(df)} 条记录")
-    print(df.head())
+        # 打印前10条记录
+        print("\n数据预览 (前10条):")
+        print(df.head(10))
+
+        # 打印统计信息
+        print("\n评价结果分布:")
+        print(df['评价结果'].value_counts())
+
+        # 打印总记录数
+        print(f"\n总记录数: {len(df)}")
+    else:
+        print("未能提取数据，请检查PDF文件格式")
+
+
+if __name__ == "__main__":
+    # 安装必要库（如果尚未安装）
+    try:
+        import pdfplumber
+    except ImportError:
+        print("正在安装依赖库...")
+        import subprocess
+
+        subprocess.run(["pip", "install", "pdfplumber", "pandas", "tqdm"])
+
+    main()

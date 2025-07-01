@@ -935,7 +935,7 @@ def stock_zh_a_hist(
     }
     proxies = {"http": "http://127.0.0.1:1081"}
 
-    r = requests.get(url, params=params, timeout=timeout)
+    r = requests.get(url, params=params, timeout=timeout,proxies=proxies)
     data_json = r.json()
     if not (data_json["data"] and data_json["data"]["klines"]):
         return pd.DataFrame()
@@ -1775,41 +1775,41 @@ def stock_us_hist_min_em(
 
 
 if __name__ == "__main__":
-    stock_zh_a_spot_em_df = stock_zh_a_spot_em()
-    print(stock_zh_a_spot_em_df)
-
-    stock_sh_a_spot_em_df = stock_sh_a_spot_em()
-    print(stock_sh_a_spot_em_df)
-
-    stock_sz_a_spot_em_df = stock_sz_a_spot_em()
-    print(stock_sz_a_spot_em_df)
-
-    stock_bj_a_spot_em_df = stock_bj_a_spot_em()
-    print(stock_bj_a_spot_em_df)
-
-    stock_new_a_spot_em_df = stock_new_a_spot_em()
-    print(stock_new_a_spot_em_df)
-
-    stock_cy_a_spot_em_df = stock_cy_a_spot_em()
-    print(stock_cy_a_spot_em_df)
-
-    stock_kc_a_spot_em_df = stock_kc_a_spot_em()
-    print(stock_kc_a_spot_em_df)
-
-    stock_zh_b_spot_em_df = stock_zh_b_spot_em()
-    print(stock_zh_b_spot_em_df)
-
-    stock_hk_spot_em_df = stock_hk_spot_em()
-    print(stock_hk_spot_em_df)
-
-    stock_hk_main_board_spot_em_df = stock_hk_main_board_spot_em()
-    print(stock_hk_main_board_spot_em_df)
+    # stock_zh_a_spot_em_df = stock_zh_a_spot_em()
+    # print(stock_zh_a_spot_em_df)
+    #
+    # stock_sh_a_spot_em_df = stock_sh_a_spot_em()
+    # print(stock_sh_a_spot_em_df)
+    #
+    # stock_sz_a_spot_em_df = stock_sz_a_spot_em()
+    # print(stock_sz_a_spot_em_df)
+    #
+    # stock_bj_a_spot_em_df = stock_bj_a_spot_em()
+    # print(stock_bj_a_spot_em_df)
+    #
+    # stock_new_a_spot_em_df = stock_new_a_spot_em()
+    # print(stock_new_a_spot_em_df)
+    #
+    # stock_cy_a_spot_em_df = stock_cy_a_spot_em()
+    # print(stock_cy_a_spot_em_df)
+    #
+    # stock_kc_a_spot_em_df = stock_kc_a_spot_em()
+    # print(stock_kc_a_spot_em_df)
+    #
+    # stock_zh_b_spot_em_df = stock_zh_b_spot_em()
+    # print(stock_zh_b_spot_em_df)
+    #
+    # stock_hk_spot_em_df = stock_hk_spot_em()
+    # print(stock_hk_spot_em_df)
+    #
+    # stock_hk_main_board_spot_em_df = stock_hk_main_board_spot_em()
+    # print(stock_hk_main_board_spot_em_df)
 
     stock_zh_a_hist_df = stock_zh_a_hist(
         symbol="600734",
         period="daily",
-        start_date="20050501",
-        end_date="20250304",
+        start_date="20250501",
+        end_date="20250618",
         adjust="hfq",
     )
     print(stock_zh_a_hist_df)

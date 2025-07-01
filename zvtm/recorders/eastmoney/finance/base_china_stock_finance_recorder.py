@@ -12,7 +12,7 @@ from zvtm.recorders.eastmoney.common import (
     call_eastmoney_api,
     get_from_path_fields,
 )
-from zvtm.recorders.joinquant.common import to_jq_entity_id
+
 from zvtm.utils.pd_utils import index_df
 from zvtm.utils.pd_utils import pd_is_not_null
 from zvtm.utils.time_utils import to_time_str, to_pd_timestamp

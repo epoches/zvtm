@@ -11,7 +11,7 @@ class StockTradeDay(TradeDayBase, Mixin):
     __tablename__ = "stock_trade_day"
 
 
-register_schema(providers=["joinquant"], db_name="trade_day", schema_base=TradeDayBase)
+register_schema(providers=["em"], db_name="trade_day", schema_base=TradeDayBase)
 
 # the __all__ is generated
 __all__ = ["StockTradeDay"]

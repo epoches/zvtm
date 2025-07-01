@@ -5,7 +5,7 @@ from typing import List
 from zvtm.api.utils import get_recent_report_date
 from zvtm.contract import PortfolioStockHistory
 from zvtm.contract.api import get_schema_by_name
-from zvtm.domain import ReportPeriod, Fund, Etf
+from zvtm.domain import ReportPeriod, Etf
 from zvtm.utils.time_utils import to_pd_timestamp, now_pd_timestamp
 
 
@@ -21,7 +21,7 @@ def portfolio_relate_stock(df, portfolio):
 
 # 季报只有前十大持仓，半年报和年报才有全量的持仓信息，故根据离timestamp最近的报表(年报 or 半年报)来确定持仓
 def get_portfolio_stocks(
-    portfolio_entity=Fund,
+    portfolio_entity=None,
     code=None,
     codes=None,
     ids=None,

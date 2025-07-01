@@ -10,18 +10,8 @@ from zvtm.domain import (
     Block,
     StockKdataCommon,
     IndexKdataCommon,
-    StockhkKdataCommon,
-    StockusKdataCommon,
     BlockKdataCommon,
-    Indexus,
-    IndexusKdataCommon,
-    Future,
-    FutureKdataCommon,
-    Currency,
-    CurrencyKdataCommon,
 )
-from zvtm.domain.meta.stockhk_meta import Stockhk
-from zvtm.domain.meta.stockus_meta import Stockus
 from zvtm.recorders.em.em_api import get_kdata
 from zvtm.utils import pd_is_not_null
 
@@ -115,17 +105,6 @@ class EMStockKdataRecorder(BaseEMStockKdataRecorder):
     data_schema = StockKdataCommon
 
 
-class EMStockusKdataRecorder(BaseEMStockKdataRecorder):
-    entity_provider = "em"
-    entity_schema = Stockus
-    data_schema = StockusKdataCommon
-
-
-class EMStockhkKdataRecorder(BaseEMStockKdataRecorder):
-    entity_provider = "em"
-    entity_schema = Stockhk
-    data_schema = StockhkKdataCommon
-
 
 class EMIndexKdataRecorder(BaseEMStockKdataRecorder):
     entity_provider = "em"
@@ -133,12 +112,6 @@ class EMIndexKdataRecorder(BaseEMStockKdataRecorder):
 
     data_schema = IndexKdataCommon
 
-
-class EMIndexusKdataRecorder(BaseEMStockKdataRecorder):
-    entity_provider = "em"
-    entity_schema = Indexus
-
-    data_schema = IndexusKdataCommon
 
 
 class EMBlockKdataRecorder(BaseEMStockKdataRecorder):
@@ -148,34 +121,20 @@ class EMBlockKdataRecorder(BaseEMStockKdataRecorder):
     data_schema = BlockKdataCommon
 
 
-class EMFutureKdataRecorder(BaseEMStockKdataRecorder):
-    entity_provider = "em"
-    entity_schema = Future
-
-    data_schema = FutureKdataCommon
 
 
-class EMCurrencyKdataRecorder(BaseEMStockKdataRecorder):
-    entity_provider = "em"
-    entity_schema = Currency
-
-    data_schema = CurrencyKdataCommon
 
 
 if __name__ == "__main__":
-    df = Currency.query_data(filters=[Currency.code.like("USD%")])
-    entity_ids = df["entity_id"].tolist()
-    recorder = EMCurrencyKdataRecorder(level=IntervalLevel.LEVEL_1DAY, entity_ids=entity_ids, sleeping_time=0)
-    recorder.run()
+    # df = Currency.query_data(filters=[Currency.code.like("USD%")])
+    # entity_ids = df["entity_id"].tolist()
+    # recorder = EMCurrencyKdataRecorder(level=IntervalLevel.LEVEL_1DAY, entity_ids=entity_ids, sleeping_time=0)
+    # recorder.run()
+    pass
 # the __all__ is generated
 __all__ = [
     "BaseEMStockKdataRecorder",
     "EMStockKdataRecorder",
-    "EMStockusKdataRecorder",
-    "EMStockhkKdataRecorder",
     "EMIndexKdataRecorder",
-    "EMIndexusKdataRecorder",
     "EMBlockKdataRecorder",
-    "EMFutureKdataRecorder",
-    "EMCurrencyKdataRecorder",
 ]

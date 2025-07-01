@@ -157,7 +157,7 @@ class DragonAndTiger(TradingBase, Mixin):
 
 
 register_schema(
-    providers=["em", "eastmoney", "joinquant"], db_name="trading", schema_base=TradingBase, entity_type="stock"
+    providers=["em", "eastmoney"], db_name="trading", schema_base=TradingBase, entity_type="stock"
 )
 
 # the __all__ is generated

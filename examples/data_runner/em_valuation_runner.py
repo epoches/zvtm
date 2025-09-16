@@ -15,7 +15,7 @@ from zvtm.utils.time_utils import now_pd_timestamp, to_time_str, to_pd_timestamp
 from zvtm.utils.pd_utils import pd_is_not_null
 from zvtm.contract.api import df_to_db
 # from zvtm.contract.api import get_data
-from schedule.utils.query_data import get_data as get_data_sch
+from spot_em.utils.mysql_pool import get_data as get_data_sch
 import datetime
 logger = logging.getLogger(__name__)
 sched = BackgroundScheduler()
@@ -103,6 +103,7 @@ def stock_zh_a_spot_val_em() -> pd.DataFrame:
     temp_df["entity"] = temp_df["entity"].apply(lambda x: 'sz' if x == 0 else 'sh' )
     temp_df["lb"] = pd.to_numeric(temp_df["lb"], errors="coerce")
     temp_df["pb"] = pd.to_numeric(temp_df["pb"], errors="coerce")
+    # temp_df["timestamp"] = pd.to_datetime('2025-09-15')
     dt = pd.to_datetime(temp_df["timestamp"], unit='s', errors="coerce")[0].replace(hour=0, minute=0, second=0)
     temp_df["timestamp"] = dt
     temp_df["pe"] = pd.to_numeric(temp_df["pe"], errors="coerce")

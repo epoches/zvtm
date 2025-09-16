@@ -61,6 +61,7 @@ def record_stock_data():
         df.rename(columns={"换手率": "turnover_rate"}, inplace=True)
 
         dt = datetime.datetime.now().strftime('%Y-%m-%d')
+        # dt = '2025-09-15'
         for i in range(len(df)):
             entity_id = "{}_{}_{}".format('stock',df.loc[i,"entity"],df.loc[i,"code"])
             df.loc[i,"entity_id"] = entity_id

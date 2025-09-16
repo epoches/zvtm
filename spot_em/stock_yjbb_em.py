@@ -10,7 +10,7 @@ https://data.eastmoney.com/bbsj/202003/yjbb.html
 import pandas as pd
 import requests
 from tqdm import tqdm
-from spot_em.utils.tqdm import get_tqdm
+from spot_em.utils.custom_tqdm import get_tqdm
 
 def stock_yjbb_em(date: str = "20200331") -> pd.DataFrame:
     """

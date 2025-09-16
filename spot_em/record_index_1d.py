@@ -68,7 +68,7 @@ def stock_zh_index_daily_em(symbol: str = "sh000913",beg:str=datetime.datetime.n
     return temp_df
 
 dt = datetime.datetime.now().strftime("%Y%m%d")
-
+# dt = '2025-09-15'
 df = stock_zh_index_daily_em(symbol="sz399006",beg=dt)
 # print(df)
 

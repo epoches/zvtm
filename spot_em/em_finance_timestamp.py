@@ -56,7 +56,7 @@ def stock_yjbb_em(date: str = "20200331") -> pd.DataFrame:
     return big_df
 
 # 获取没有finance 没有timestamp的数据
-from schedule.utils.query_data import get_data,update_data
+from zvtm.utils.query_data import get_data,update_data
 #,codes='001225' and code in %s
 def get_finance(report_date='2021-12-31'):
     db = 'eastmoney_finance'

@@ -14,7 +14,7 @@ import pandas as pd
 from zvtm.utils.time_utils import now_pd_timestamp, to_time_str, to_pd_timestamp
 from zvtm.utils.pd_utils import pd_is_not_null
 from zvtm.contract.api import get_data
-from schedule.utils.query_data import get_data as get_data_sch
+from zvtm.utils.query_data import get_data as get_data_sch
 import datetime
 from zvtm.contract.api import df_to_db
 

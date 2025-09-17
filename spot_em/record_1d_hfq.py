@@ -16,7 +16,7 @@ from zvtm.contract.api import df_to_db
 import datetime
 from zvtm.informer import EmailInformer
 from zvtm import zvt_config
-# from schedule.utils.query_data import get_data
+
 # print("✅ 修正后的关键路径：")
 # print(f"[0] {sys.path[0]}")  # 应显示 D:\source\zvtm\zvtm
 #

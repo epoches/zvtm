@@ -8,7 +8,7 @@ https://quote.eastmoney.com/center/boardlist.html#industry_board
 import re
 import requests
 import pandas as pd
-from schedule.utils.strategy_get_data import get_data_codes,get_block_lists,get_block_lists_codes
+from zvtm.utils.strategy_get_data import get_data_codes,get_block_lists,get_block_lists_codes
 
 def stock_board_industry_name_em() -> pd.DataFrame:
     """
